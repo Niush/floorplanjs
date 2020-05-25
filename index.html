@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HOME ROUGH EDITOR v0.93</title>
+    <title>Floor Plan App v0.1</title>
     <link rel="stylesheet" href="bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css">
     <!-- <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"> -->
@@ -13,7 +13,7 @@
 
 <body style="background:#f2eee5;margin:0;padding:0; ">
 
-  <header>Edité par Home Rough Editor Ver.0.91</header>
+  <header>Floor Plan App Ver.0.1</header>
 
   <svg id="lin" viewBox="0 0 1100 700"  preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" style="z-index:2;margin:0;padding:0;width:100vw;height:100vh;position:absolute;top:0;left:0;right:0;bottom:0">
 
@@ -171,12 +171,12 @@
     </section>
 
     <div id="stepsCounter" style="display:none;">
-      <p><span id="bboxSteps">Nb steps [2-15] : <span id="bboxStepsVal">0</span></span></p>
+      <p><span id="bboxSteps">Steps [2-15] : <span id="bboxStepsVal">0</span></span></p>
       <button class="btn btn-info" id="bboxStepsAdd"><i class="fa fa-plus" aria-hidden="true"></i></button>
       <button class="btn btn-info" id="bboxStepsMinus"><i class="fa fa-minus" aria-hidden="true"></i></button>
     </div>
 
-    <div id="objBoundingBoxColor">
+    <div id="objBoundingBoxColor" >
       <div class="color textEditorColor" data-type="gradientRed" style="color:#f55847;background:linear-gradient(30deg, #f55847, #f00);"></div>
       <div class="color textEditorColor" data-type="gradientYellow" style="color:#e4c06e;background:linear-gradient(30deg,#e4c06e, #ffb000);"></div>
       <div class="color textEditorColor" data-type="gradientGreen" style="color:#88cc6c;background:linear-gradient(30deg,#88cc6c, #60c437);"></div>
@@ -213,7 +213,7 @@
   </div>
 
   <div id="roomTools" class="leftBox">
-    <span style="color:#08d">Home Rough Editor</span> estimated a surface of :<br/><b><span class="size"></span></b>
+    <span style="color:#08d">Floor Plan App</span> estimated a surface of :<br/><b><span class="size"></span></b>
     <br/><br/>
     <p>If you have the actual area, you can write it</p>
     <div class="input-group">
@@ -426,7 +426,7 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title" id="myModalLabel">Welcome Home Rough Editor v0.93</h4>
+          <h4 class="modal-title" id="myModalLabel">Floor Plan App v0.1</h4>
         </div>
         <div class="modal-body">
           <div id="recover">
@@ -463,7 +463,7 @@
           <h4 class="modal-title" id="textToLayerLabel">Text editor</h4>
         </div>
         <div class="modal-body">
-          <p>Choose police color</p>
+          <p>Choose Font color</p>
           <div class="color textEditorColor" data-type="gradientRed" style="color:#f55847;background:linear-gradient(30deg, #f55847, #f00);"></div>
           <div class="color textEditorColor" data-type="gradientYellow" style="color:#e4c06e;background:linear-gradient(30deg,#e4c06e, #ffb000);"></div>
           <div class="color textEditorColor" data-type="gradientGreen" style="color:#88cc6c;background:linear-gradient(30deg,#88cc6c, #60c437);"></div>
@@ -478,7 +478,7 @@
           <div class="color textEditorColor" data-type="gradientNeutral" style="color:#e2c695;background:linear-gradient(30deg,#e2c695, #c69d56);"></div>
           <div style="clear:both"></div>
           <hr/>
-          <p>Police size</p>
+          <p>Font size</p>
           <input type="range" list="tickmarks" id="sizePolice" step="0.1" min="10" max="30" value="15" class="range" style="width:200px"/>
           <hr/>
           <p contenteditable="true" id="labelBox" onfocus="this.innerHTML='';" style="font-size:15px;padding:5px;border-radius:5px;color:#333">Your text</p>
@@ -495,7 +495,7 @@
   </div>
 
   <div id="moveBox" style="position:absolute;right:-150px;top:10px;color:#08d;background:transparent;z-index:2;text-align:center;transition-duration: 0.2s;transition-timing-function: ease-in;">
-    <p style="margin:0px 0 0 0;font-size:11px"><img src="https://cdn4.iconfinder.com/data/icons/mathematics-doodle-3/48/102-128.png" width=20px /> Home Rough Editor</p>
+    <p style="margin:0px 0 0 0;font-size:11px"><img src="https://cdn4.iconfinder.com/data/icons/mathematics-doodle-3/48/102-128.png" width=20px /> Floor Plan App</p>
     <div class="pull-right" style="margin:10px">
     <p style="margin:0"><button class="btn btn-xs btn-info zoom" data-zoom="zoomtop" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-arrow-up" aria-hidden="true"></i></button></p>
     <p style="margin:0">

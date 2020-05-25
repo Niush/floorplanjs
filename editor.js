@@ -269,7 +269,7 @@ var editor = {
   updateDamageLevel: function(level = 'good') {
     var wallToInvisble = binder.wall;
     var objWall = editor.objFromWall(wallBind);
-    if (objWall.length == 0) {
+    try {
       wallToInvisble.damage = level;
       editor.architect(WALLS);
 
@@ -286,8 +286,8 @@ var editor = {
 
       save();
       return true;
-    }
-    else {
+    } 
+    catch {
       $('#boxinfo').html('Invalid Wall Selected');
       return false;
     }

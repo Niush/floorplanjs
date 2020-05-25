@@ -1534,7 +1534,9 @@ event.preventDefault();
     if (mode == 'line_mode' || mode == 'partition_mode') {
         $('#linetemp').remove(); // DEL LINE HELP CONSTRUC 0 45 90
         intersectionOff();
-
+        if(typeof x === 'undefined' || !x || typeof y === 'undefined' || !y ){
+          return;
+        }
         var sizeWall = qSVG.measure({x:x,y:y},{x:pox,y:poy});
         sizeWall = sizeWall / meter;
         if ($('#line_construc').length && sizeWall > 0.3) {
@@ -1677,31 +1679,40 @@ event.preventDefault();
             }
             if (moveObj < 1 && objTarget.params.move) {
               if (!objTarget.params.resize) $('#objBoundingBoxScale').hide();
-              else $('#objBoundingBoxScale').show();
+              else $('#objBoundingBoxScale').fadeIn(800);
               if (!objTarget.params.rotate) $('#objBoundingBoxRotation').hide();
-              else $('#objBoundingBoxRotation').show();
+              else $('#objBoundingBoxRotation').fadeIn(800);
               $('#panel').hide(100);
-              $('#objBoundingBox').show('200', function() {
-                $('#lin').css('cursor', 'default');
-                $('#boxinfo').html('Modify the object');
-                document.getElementById('bboxWidth').setAttribute('min', objTarget.params.resizeLimit.width.min);
-                document.getElementById('bboxWidth').setAttribute('max', objTarget.params.resizeLimit.width.max);
-                document.getElementById('bboxWidthScale').textContent = objTarget.params.resizeLimit.width.min+"-"+objTarget.params.resizeLimit.height.max;
-                document.getElementById('bboxHeight').setAttribute('min', objTarget.params.resizeLimit.height.min);
-                document.getElementById('bboxHeight').setAttribute('max', objTarget.params.resizeLimit.height.max);
-                document.getElementById('bboxHeightScale').textContent = objTarget.params.resizeLimit.height.min+"-"+objTarget.params.resizeLimit.height.max;
-                $('#stepsCounter').hide();
-                if (objTarget.class == 'stair') {
-                  document.getElementById("bboxStepsVal").textContent = objTarget.value;
-                  $('#stepsCounter').show();
-                }
-                document.getElementById("bboxWidth").value = objTarget.width * 100;
-                document.getElementById("bboxWidthVal").textContent = objTarget.width * 100;
-                document.getElementById("bboxHeight").value = objTarget.height * 100;
-                document.getElementById("bboxHeightVal").textContent = objTarget.height * 100;
-                document.getElementById("bboxRotation").value = objTarget.angle;
-                document.getElementById("bboxRotationVal").textContent = objTarget.angle;
-              });
+              $('#lin').css('cursor', 'default');
+
+              $('#boxinfo').html('Modify the object');
+              document.getElementById('bboxWidth').setAttribute('min', objTarget.params.resizeLimit.width.min);
+              document.getElementById('bboxWidth').setAttribute('max', objTarget.params.resizeLimit.width.max);
+              document.getElementById('bboxWidthScale').textContent = objTarget.params.resizeLimit.width.min+"-"+objTarget.params.resizeLimit.height.max;
+              document.getElementById('bboxHeight').setAttribute('min', objTarget.params.resizeLimit.height.min);
+              document.getElementById('bboxHeight').setAttribute('max', objTarget.params.resizeLimit.height.max);
+              document.getElementById('bboxHeightScale').textContent = objTarget.params.resizeLimit.height.min+"-"+objTarget.params.resizeLimit.height.max;
+              $('#stepsCounter').hide();
+              if (objTarget.class == 'stair') {
+                document.getElementById("bboxStepsVal").textContent = objTarget.value;
+                $('#stepsCounter').show();
+              }
+              
+              if(objTarget.class && objTarget.class === 'text'){
+                document.getElementById('objBoundingBoxColor').style.display = 'block';
+                document.getElementById('objBoundingBox').style.width = '133px';
+              }else{
+                document.getElementById('objBoundingBoxColor').style.display = 'none';
+                document.getElementById('objBoundingBox').style.width = '200px';
+              }
+
+              document.getElementById("bboxWidth").value = objTarget.width * 100;
+              document.getElementById("bboxWidthVal").textContent = objTarget.width * 100;
+              document.getElementById("bboxHeight").value = objTarget.height * 100;
+              document.getElementById("bboxHeightVal").textContent = objTarget.height * 100;
+              document.getElementById("bboxRotation").value = objTarget.angle;
+              document.getElementById("bboxRotationVal").textContent = objTarget.angle;
+              $('#objBoundingBox').fadeIn(500);
                mode = 'edit_boundingBox_mode';
             }
             else {

@@ -174,18 +174,28 @@ document.addEventListener('keydown', function(event) {
   if (event.key === 'Escape') {
     editor.architect(WALLS);
     mode = "select_mode";
-    if(binder){
+    if(typeof binder !== 'undefined' && binder && typeof binder.update === "function"){
       binder.update();
     }
     $('#panel').show(200);
     $('#select_mode').click();
-
+    $('#linetemp').remove();
+    $('#line_construc').remove();
+    if(typeof lengthTemp !== 'undefined' && lengthTemp){
+      lengthTemp.remove();
+      delete lengthTemp;
+    }
   }
 
   // Delete
   if (event.key === 'Delete') {
-    if(binder && binder.obj){
-      document.getElementById('bboxTrash').click();
+    if(typeof binder !== 'undefined' && binder){
+      if(binder.obj){
+        document.getElementById('bboxTrash').click(); // box items
+      }
+      else if(binder.wall){
+        document.getElementById('wallTrash').click(); // wall
+      }
     }
   }
 });
@@ -361,7 +371,7 @@ document.getElementById('report_mode').addEventListener("click", function() {
       if (ROOM[k].name != "") nameRoom = ROOM[k].name;
       reportRoom+= '<div class="col-md-4"><p>'+nameRoom+'</p></div>\n';
       if (ROOM[k].name == "") {
-        reportRoom+= '<div class="col-md-8"><p><i class="fa fa-ban" aria-hidden="true" style="color:red"></i> Because the room has no label, Home Rough Editor cannot provide you with information.</p></div>\n';
+        reportRoom+= '<div class="col-md-8"><p><i class="fa fa-ban" aria-hidden="true" style="color:red"></i> Because the room has no label, Floor Plan Application cannot provide you with information.</p></div>\n';
       }
       else {
         if (ROOM[k].name == "Salon") {
@@ -748,6 +758,17 @@ var textEditorColorBtn = document.querySelectorAll('.textEditorColor');
   for (var k = 0; k < textEditorColorBtn.length; k++) {
     textEditorColorBtn[k].addEventListener('click', function(){
       document.getElementById('labelBox').style.color = this.style.color;
+      if(typeof binder !== 'undefined' && binder && binder.obj && binder.obj.class == "text" && binder.obj.value){
+        var objTarget = binder.obj;
+        objTarget.type = this.style.color;
+        binder.update();
+        if(binder.obj.graph.context.children){binder.obj.graph.context.children[0].setAttribute('fill',this.style.color);}
+        var info = $('#boxinfo').html();
+        $('#boxinfo').html('Color Updated');
+        setTimeout(function(){
+          $('#boxinfo').html(info);
+        }, 1000)
+      }
     });
 }
 
@@ -1340,6 +1361,7 @@ function rib(shift = 5) {
   }
 }
 
+// TODO: loca cursor images
 function cursor(tool) {
   if (tool == 'grab') tool = "url('https://wiki.openmrs.org/s/en_GB/7502/b9217199c27dd617c8d51f6186067d7767c5001b/_/images/icons/emoticons/add.png') 8 8, auto";
   if (tool == 'scissor') tool = "url('https://maxcdn.icons8.com/windows10/PNG/64/Hands/hand_scissors-64.png'), auto";
