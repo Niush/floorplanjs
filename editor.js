@@ -397,7 +397,9 @@ var editor = {
     for (var i = 0; i < WALLS.length; i++) {
       var polygon = [];
       for (var pp = 0; pp < 4; pp++) {
-        polygon.push({x: WALLS[i].coords[pp].x, y: WALLS[i].coords[pp].y}); // FOR Z
+        if(WALLS[i] && WALLS[i].coords[pp] && WALLS[i].coords[pp]){
+          polygon.push({x: WALLS[i].coords[pp].x, y: WALLS[i].coords[pp].y}); // FOR Z
+        }
       }
       if (qSVG.rayCasting(snap, polygon)) {
         wallList.push(WALLS[i]); // Return EDGES Index
@@ -475,7 +477,9 @@ var editor = {
     for (var i = 0; i < WALLS.length; i++) {
       var polygon = [];
       for (var pp = 0; pp < 4; pp++) {
-        polygon.push({x: WALLS[i].coords[pp].x, y: WALLS[i].coords[pp].y}); // FOR Z
+        if(WALLS[i] && WALLS[i].coords[pp] && WALLS[i].coords[pp]){
+          polygon.push({x: WALLS[i].coords[pp].x, y: WALLS[i].coords[pp].y}); // FOR Z
+        }
       }
       if (qSVG.rayCasting(snap, polygon)) {
         wallList.push(WALLS[i]); // Return EDGES Index

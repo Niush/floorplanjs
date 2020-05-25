@@ -98,17 +98,40 @@ document.getElementById('undo').addEventListener("click", function() {
   if (HISTORY.index == 1) $('#undo').addClass('disabled');
 });
 
+document.getElementById('exportJson').addEventListener("click", function() {
+  if (localStorage.getItem('history')) {
+    var data = JSON.parse(localStorage.getItem('history'));
+    data = JSON.parse(data[data.length-1]);
+    const filename = 'plan-data-' + new Date().getTime() + '.json';
+    const jsonStr = JSON.stringify(data);
+
+    let element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(jsonStr));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }else{
+    alert('No Plan Data available to Export')
+  }
+})
+
 document.addEventListener('keydown', function(event) {
   if (event.ctrlKey && event.key === 'z') {
     document.getElementById('undo').click();
     save()
   }
-});
-
-document.addEventListener('keydown', function(event) {
   if (event.ctrlKey && event.key === 'y') {
     document.getElementById('redo').click();
     save()
+  }
+  if (event.key === 'Escape') {
+    editor.architect(WALLS);
+    mode = "select_mode";
+    $('#panel').show(200);
+    $('#select_mode').click();
+    binder.update();
   }
 });
 
@@ -185,14 +208,14 @@ document.getElementById('report_mode').addEventListener("click", function() {
   mode = "report_mode";
   $('#panel').hide();
   $('#reportTools').show(200, function() {
-    document.getElementById('reportTotalSurface').innerHTML = "Total de la surface : <b>"+(globalArea/3600).toFixed(1)+ "</b> m²";
-    $('#reportTotalSurface').show(1000);
-    document.getElementById('reportNumberSurface').innerHTML = "Nombre pièces : <b>"+ROOM.length+ "</b>";
-    $('#reportNumberSurface').show(1000);
+    document.getElementById('reportTotalSurface').innerHTML = "Total Area : <b>"+(globalArea/3600).toFixed(1)+ "</b> m²";
+    $('#reportTotalSurface').show(500);
+    document.getElementById('reportNumberSurface').innerHTML = "Number of rooms : <b>"+ROOM.length+ "</b>";
+    $('#reportNumberSurface').show(500);
     var number = 1;
     var reportRoom = '<div class="row">\n';
     for (var k in ROOM) {
-      var nameRoom = "Pièce n°"+number+" <small>(sans nom)</small>";
+      var nameRoom = "Room n°"+number+" <small>(nameless)</small>";
       if (ROOM[k].name != "") nameRoom = ROOM[k].name;
       reportRoom+= '<div class="col-md-6"><p>'+nameRoom+'</p></div>\n';
       reportRoom+= '<div class="col-md-6"><p>Surface : <b>'+((ROOM[k].area)/3600).toFixed(2)+'</b> m²</p></div>\n';
@@ -210,25 +233,25 @@ document.getElementById('report_mode').addEventListener("click", function() {
         if (OBJDATA[k].type == 'wallLight' || OBJDATA[k].type == 'roofLight') lampNumber++;
       }
     }
-    reportRoom+='<p>Nombre d\'interrupteur(s) : '+switchNumber+'</p>';
-    reportRoom+='<p>Nombre de prise(s) secteur : '+plugNumber+'</p>';
-    reportRoom+='<p>Nombre de point(s) de lumière : '+lampNumber+'</p>';
+    reportRoom+='<p>Number of switch (s) : '+switchNumber+'</p>';
+    reportRoom+='<p>Number of outlet (s) : '+plugNumber+'</p>';
+    reportRoom+='<p>Number of lamps (s) : '+lampNumber+'</p>';
     reportRoom+='</div>';
     reportRoom+='<div>\n';
-    reportRoom+='<h2>Répartition énergie par pièce</h2>\n';
+    reportRoom+='<h2>Energy distribution per room</h2>\n';
     var number = 1;
     reportRoom+= '<div class="row">\n';
-    reportRoom+= '<div class="col-md-4"><p>Libellé</p></div>\n';
-    reportRoom+= '<div class="col-md-2"><small>Int.</small></div>\n';
-    reportRoom+= '<div class="col-md-2"><small>Pri. sec.</small></div>\n';
-    reportRoom+= '<div class="col-md-2"><small>Pt lum.</small></div>\n';
+    reportRoom+= '<div class="col-md-4"><p>Room</p></div>\n';
+    reportRoom+= '<div class="col-md-2"><small>Switch</small></div>\n';
+    reportRoom+= '<div class="col-md-2"><small>Outlet</small></div>\n';
+    reportRoom+= '<div class="col-md-2"><small>Lamps</small></div>\n';
     reportRoom+= '<div class="col-md-2"><small>Watts Max</small></div>\n';
     reportRoom+='</div>';
 
     var roomEnergy = [];
     for (var k in ROOM) {
       reportRoom+= '<div class="row">\n';
-      var nameRoom = "Pièce n°"+number+" <small>(sans nom)</small>";
+      var nameRoom = "Room n°"+number+" <small>(nameless)</small>";
       if (ROOM[k].name != "") nameRoom = ROOM[k].name;
       reportRoom+= '<div class="col-md-4"><p>'+nameRoom+'</p></div>\n';
       var switchNumber = 0;
@@ -273,17 +296,17 @@ document.getElementById('report_mode').addEventListener("click", function() {
       number++;
       reportRoom+='</div>';
     }
-    reportRoom+='<hr/><h2>Détails Norme NF C 15-100</h2>\n';
+    reportRoom+='<hr/><h2>Details Standard NF C 15-100</h2>\n';
     var number = 1;
 
     for (var k in ROOM) {
       reportRoom+= '<div class="row">\n';
       var nfc = true;
-      var nameRoom = "Pièce n°"+number+" <small>(sans nom)</small>";
+      var nameRoom = "Room n°"+number+" <small>(nameless)</small>";
       if (ROOM[k].name != "") nameRoom = ROOM[k].name;
       reportRoom+= '<div class="col-md-4"><p>'+nameRoom+'</p></div>\n';
       if (ROOM[k].name == "") {
-        reportRoom+= '<div class="col-md-8"><p><i class="fa fa-ban" aria-hidden="true" style="color:red"></i> La pièce n\'ayant pas de libellé, Home Rough Editor ne peut vous fournir d\'informations.</p></div>\n';
+        reportRoom+= '<div class="col-md-8"><p><i class="fa fa-ban" aria-hidden="true" style="color:red"></i> Because the room has no label, Home Rough Editor cannot provide you with information.</p></div>\n';
       }
       else {
         if (ROOM[k].name == "Salon") {
@@ -295,8 +318,8 @@ document.getElementById('report_mode').addEventListener("click", function() {
             }
           }
           reportRoom+= '<div class="col-md-8">';
-          if (roomEnergy[k].light == 0) {reportRoom+= '<p><i class="fa fa-exclamation-triangle" style="color:orange" aria-hidden="true"></i> Cette pièce doit disposer d\'au moins <b>1 point lumineux commandé</b> <small>(actuellement '+roomEnergy[k].light+')</small>.</p>\n';nfc=false;}
-          if (roomEnergy[k].plug < 5) {reportRoom+= '<p><i class="fa fa-exclamation-triangle" style="color:orange" aria-hidden="true"></i> Cette pièce doit disposer d\'au moins <b>5 prises de courant</b> <small>(actuellement '+roomEnergy[k].plug+')</small>.</p>\n';nfc=false;}
+          if (roomEnergy[k].light == 0) {reportRoom+= '<p><i class="fa fa-exclamation-triangle" style="color:orange" aria-hidden="true"></i> This room must have at least <b> 1 controlled light point </b> <small>(currently '+roomEnergy[k].light+')</small>.</p>\n';nfc=false;}
+          if (roomEnergy[k].plug < 5) {reportRoom+= '<p><i class="fa fa-exclamation-triangle" style="color:orange" aria-hidden="true"></i> This room must have at least <b> 5 power outlets</b> <small>(currently '+roomEnergy[k].plug+')</small>.</p>\n';nfc=false;}
           if (nfc) reportRoom+='<i class="fa fa-check" aria-hidden="true" style="color:green"></i>';
           reportRoom+= '</div>';
         }
@@ -346,7 +369,7 @@ document.getElementById('report_mode').addEventListener("click", function() {
     }
 
     document.getElementById('reportRooms').innerHTML = reportRoom;
-    $('#reportRooms').show(1000);
+    $('#reportRooms').show(500);
   });
 
 
@@ -461,7 +484,7 @@ window.addEventListener("load", function(){
     document.getElementById('zoomBox').style.transform = "translateX(-165px)";
   });
   if (!localStorage.getItem('history')) $('#recover').html("<p>Select a plan type.");
-  $('#myModal').modal();
+  $('#myModal').modal({backdrop: 'static', keyboard: false});
 });
 
 document.getElementById('sizePolice').addEventListener("input", function() {
@@ -1364,11 +1387,13 @@ $('#room_mode').click(function() {
 $('#select_mode').click(function() {
   $('#boxinfo').html('Mode "select"');
   if (typeof(binder) != 'undefined') {
-      binder.remove();
-      delete binder;
+      if(typeof binder.remove === "function"){
+        binder.remove();
+        delete binder;
+      }
   }
 
-    fonc_button('select_mode');
+  fonc_button('select_mode');
 });
 
 $('#line_mode').click(function() {

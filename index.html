@@ -112,13 +112,13 @@
 
   <div id="reportTools" class="leftBox" style="width:500px;overflow-y: scroll;overflow-x: hidden">
     <h2><i class="fa fa-calculator" aria-hidden="true"></i> Report plan.</h2>
-    <br/><br/>
+    <div><button id="exportJson" class="btn btn-sm btn-primary" style="margin:0;">Export JSON</button></div>
     <h2 class="toHide" id="reportTotalSurface" style="display:none"></h2>
     <h2 class="toHide" id="reportNumberSurface" style="display:none"></h2>
     <hr/>
     <section id="reportRooms" class="toHide" style="display:none">
     </section>
-    <button class="btn btn-info fully" style="margin-top:50px" onclick="$('#reportTools').hide('500', function(){$('#panel').show(300);});mode = 'select_mode';"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
+    <button class="btn btn-info fully" style="margin-top:10px" onclick="$('#reportTools').hide('500', function(){$('#panel').show(300);});mode = 'select_mode';"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
   </div>
 
   <div id="wallTools" class="leftBox">
@@ -327,7 +327,7 @@
         <li><button class="btn btn-default fully " id="distance_mode" data-toggle="tooltip" data-placement="right" title="Add a measurement">MEASURE</button></li>
         <li><button class="btn btn-default fully " id="text_mode" data-toggle="tooltip" data-placement="right" title="Add text">TEXT</button></li>
         <br/>
-        <div id="door_list"  class="list-unstyled sub" style="box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
+        <div id="door_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
           <button class="btn fully door" id="aperture">Aperture</button>
           <button class="btn fully door" id="simple">Simple</button>
           <button class="btn fully door" id="double">Double</button>
@@ -335,7 +335,7 @@
         </div>
         <li><button class="btn btn-default fully " id="door_mode" onclick="$('.sub').hide();$('#door_list').toggle(200);$('#window_list').hide();">DOOR</button></li>
 
-        <div id="window_list"  class="list-unstyled sub" style="box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
+        <div id="window_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
           <button class="btn fully window" id="fix">Fix</button>
           <button class="btn fully window" id="flap">Simple</button>
           <button class="btn fully window" id="twin">Double</button>
@@ -344,7 +344,7 @@
         <li><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
         <li><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
         <br/>
-        <div id="energy_list"  class="list-unstyled sub" style="box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;width:600px">
+        <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;width:600px">
           <div style="width:600px;float:left;padding:10px">
           <p>Energy</p>
           <div style="float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
@@ -386,7 +386,7 @@
 
       <li><button class="btn btn-default fully " id="layer_mode" onclick="$('.sub').hide();$('#layer_list').toggle(200);">Layers</button></li>
 
-    <div id="layer_list"  class="list-unstyled sub" style="box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
+    <div id="layer_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
       <div class="funkyradio" style="font-size:0.8em">
       <div class="funkyradio-info">
         <input type="checkbox" id="showRib" checked/>
