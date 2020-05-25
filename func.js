@@ -161,7 +161,10 @@ document.addEventListener('keydown', function(event) {
 
   // Ignore Select All
   if (event.ctrlKey && event.key === 'a') {
-    event.preventDefault();
+    if(event.target.type != 'input' && event.target.type != 'textarea' 
+      && event.target.getAttribute('contenteditable') != 'true'){
+        event.preventDefault();
+    }
   }
 
   // Save ctrl+s overrides by exporting json
@@ -199,6 +202,24 @@ document.addEventListener('keydown', function(event) {
     }
   }
 });
+
+// document.addEventListener('contextmenu', function(e) {
+//   e.preventDefault();
+// }, false);
+
+function themeSwitch(){
+  if(!document.documentElement.style.filter || document.documentElement.style.filter === ''){
+    document.documentElement.style.filter = 'invert(1)';
+    localStorage.setItem('dark','true');
+  }else{
+    document.documentElement.style.filter = '';
+    localStorage.setItem('dark','false');
+  }
+}
+
+if(localStorage.getItem('dark') && localStorage.getItem('dark') == 'true'){
+  document.documentElement.style.filter = 'invert(1)';
+}
 
 function save(boot = false) {
   if (boot) localStorage.removeItem('history');
