@@ -42,6 +42,14 @@ var factor = 1;
 // **************************************************************************
 
 function initHistory(boot = false) {
+  if(localStorage.getItem('history') && boot != "recovery"){
+    if(!confirm('New Data will replace old recovery data.\nAre you sure?')){
+      return false;
+    }
+  }
+
+  $('#myModal').modal('toggle')
+
   HISTORY.index = 0;
   if (!boot && localStorage.getItem('history')) localStorage.removeItem('history');
     if (localStorage.getItem('history') && boot == "recovery") {
@@ -88,6 +96,20 @@ document.getElementById('undo').addEventListener("click", function() {
     }
   }
   if (HISTORY.index == 1) $('#undo').addClass('disabled');
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.key === 'z') {
+    document.getElementById('undo').click();
+    save()
+  }
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.ctrlKey && event.key === 'y') {
+    document.getElementById('redo').click();
+    save()
+  }
 });
 
 function save(boot = false) {

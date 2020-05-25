@@ -220,16 +220,24 @@ var editor = {
         dWay = dWay + "L"+interDw.x+","+interDw.y+" L"+interUp.x+","+interUp.y+" Z";
       }
 
-      wall.graph = editor.makeWall(dWay);
+      wall.graph = editor.makeWall(dWay, wall.damage);
       $('#boxwall').append(wall.graph);
     }
   },
 
-  makeWall: function(way) {
+  makeWall: function(way, damage='good') {
+    var temp_color = colorWall
+    if(!damage || damage == 'good'){
+      temp_color = colorWall
+    }else if(damage == 'medium'){
+      temp_color = 'orange';
+    }else if(damage == 'high'){
+      temp_color = 'maroon';
+    }
     var wallScreen = qSVG.create('none', 'path', {
         d: way,
         stroke: "none",
-        fill: colorWall,
+        fill: temp_color,
         "stroke-width": 1,
         "stroke-linecap": "butt",
         "stroke-linejoin": "miter",
@@ -254,6 +262,33 @@ var editor = {
     }
     else {
       $('#boxinfo').html('Les murs contenant des portes ou des fenêtres ne peuvent être une séparation !');
+      return false;
+    }
+  },
+
+  updateDamageLevel: function(level = 'good') {
+    var wallToInvisble = binder.wall;
+    var objWall = editor.objFromWall(wallBind);
+    if (objWall.length == 0) {
+      wallToInvisble.damage = level;
+      editor.architect(WALLS);
+
+      document.getElementById('wallGood').className = document.getElementById('wallGood').className.replace('activebtn', '');
+      document.getElementById('wallMedium').className = document.getElementById('wallMedium').className.replace('activebtn', '');
+      document.getElementById('wallHigh').className = document.getElementById('wallHigh').className.replace('activebtn', '');
+      if(!level || level == 'good'){
+        document.getElementById('wallGood').className += ' activebtn';
+      }else if(level == 'medium'){
+        document.getElementById('wallMedium').className += ' activebtn';
+      }else if(level == 'high'){
+        document.getElementById('wallHigh').className += ' activebtn';
+      }
+
+      save();
+      return true;
+    }
+    else {
+      $('#boxinfo').html('Invalid Wall Selected');
       return false;
     }
   },

@@ -1623,6 +1623,17 @@ event.preventDefault();
                 document.getElementById('wallWidthScale').textContent = "7-50";
                 document.getElementById("wallWidth").value = binder.wall.thick;
                 document.getElementById("wallWidthVal").textContent = binder.wall.thick;
+                
+                document.getElementById('wallGood').className = document.getElementById('wallGood').className.replace('activebtn', '');
+                document.getElementById('wallMedium').className = document.getElementById('wallMedium').className.replace('activebtn', '');
+                document.getElementById('wallHigh').className = document.getElementById('wallHigh').className.replace('activebtn', '');
+                if(!binder.wall.damage || binder.wall.damage == 'good'){
+                  document.getElementById('wallGood').className += ' activebtn';
+                }else if(binder.wall.damage == 'medium'){
+                  document.getElementById('wallMedium').className += ' activebtn';
+                }else if(binder.wall.damage == 'high'){
+                  document.getElementById('wallHigh').className += ' activebtn';
+                }
                 mode = 'edit_wall_mode';
               }
                 delete equation1;

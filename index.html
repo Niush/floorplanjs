@@ -143,6 +143,13 @@
       <li><button class="btn btn-default fully" onclick="editor.visibleWall();" id="wallVisible"><i class="fa fa-2x fa-crop" aria-hidden="true"></i></button></li>
     </section>
     <br/>
+    <section id="walltype">
+      <p>Damage Level :</p>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('good');" id="wallGood"><i class="fa fa-2x fa-check-circle" aria-hidden="true" style="color: green;"></i></button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('medium');" id="wallMedium"><i class="fa fa-2x fa-exclamation-triangle" aria-hidden="true" style="color: orange;"></i></button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('high');" id="wallHigh"><i class="fa fa-2x fa-exclamation-circle" aria-hidden="true" style="color: red;"></i></button>
+    </section>
+    <br/>
     <li><button class="btn btn-danger fully" id="wallTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
     <li><button class="btn btn-info fully" style="margin-top:50px" onclick="fonc_button('select_mode');$('#boxinfo').html('Mode sélection');$('#wallTools').hide('300');$('#panel').show('300');"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
     </ul>
@@ -425,14 +432,14 @@
         <div class="modal-body">
           <div id="recover">
             <p>A plan exists into historic, would you like recover him ?</p>
-            <button class="btn btn-default" onclick="initHistory('recovery');$('#myModal').modal('toggle')">OUI</button></p>
+            <button class="btn btn-default" onclick="initHistory('recovery');">RESTORE DATA</button></p>
             <hr/>
             <p>Or are you prefer start a new plan ?</p>
           </div>
           <div class="row">
-            <div class="col-md-3 col-xs-3 boxMouseOver" style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanEmpty.jpg" class="img-responsive" onclick="initHistory();$('#myModal').modal('toggle')"/></div>
-            <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanSquare.jpg"  class="img-responsive" style="margin-top:10px" onclick="initHistory('newSquare');$('#myModal').modal('toggle')"/></div>
-            <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanL.jpg"  class="img-responsive" style="margin-top:20px" onclick="initHistory('newL');$('#myModal').modal('toggle')"/></div>
+            <div class="col-md-3 col-xs-3 boxMouseOver" style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanEmpty.jpg" class="img-responsive" onclick="initHistory();"/></div>
+            <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanSquare.jpg"  class="img-responsive" style="margin-top:10px" onclick="initHistory('newSquare');"/></div>
+            <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanL.jpg"  class="img-responsive" style="margin-top:20px" onclick="initHistory('newL');"/></div>
           </div>
         </div>
         <!-- <div class="modal-footer">
