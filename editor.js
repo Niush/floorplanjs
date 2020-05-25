@@ -261,7 +261,7 @@ var editor = {
       return true;
     }
     else {
-      $('#boxinfo').html('Les murs contenant des portes ou des fenêtres ne peuvent être une séparation !');
+      $('#boxinfo').html('Walls containing doors or windows cannot be a separation!');
       return false;
     }
   },
@@ -635,7 +635,7 @@ var editor = {
 
 
       this.update = function() {
-        console.log("update")
+        // console.log("update")
         this.width = (this.size / meter).toFixed(2);
         this.height= (this.thick / meter).toFixed(2);
         cc = carpentryCalc(this.class, this.type, this.size, this.thick, this.value);

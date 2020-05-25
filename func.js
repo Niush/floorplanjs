@@ -75,6 +75,35 @@ function initHistory(boot = false) {
     }
 }
 
+// IMPORT JSON FILE
+function importPlan(){
+  var files = document.getElementById('importfile').files;
+  if (files.length <= 0) {
+    alert('Upload Valid Plan Data in .json Format')
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(event){
+    try{
+      var obj = JSON.parse(event.target.result);
+      if(obj.constructor !== ({}).constructor){
+        alert('JSON is not a valid Plan Type')
+        return;
+      }
+      
+      HISTORY.push(obj);
+      HISTORY[0] = JSON.stringify(HISTORY[0]);
+      localStorage.setItem('history', JSON.stringify(HISTORY));
+      load(0);
+      save();
+      $('#myModal').modal('toggle')
+    }catch{
+      alert('Invalid File Provided');
+    }
+  };
+  reader.readAsText(files[0]);
+}
+
 document.getElementById('redo').addEventListener("click", function() {
   if (HISTORY.index < HISTORY.length) {
     load(HISTORY.index);
@@ -118,20 +147,46 @@ document.getElementById('exportJson').addEventListener("click", function() {
 })
 
 document.addEventListener('keydown', function(event) {
+  // Undo
   if (event.ctrlKey && event.key === 'z') {
     document.getElementById('undo').click();
     save()
   }
+
+  // Redo
   if (event.ctrlKey && event.key === 'y') {
     document.getElementById('redo').click();
     save()
   }
+
+  // Ignore Select All
+  if (event.ctrlKey && event.key === 'a') {
+    event.preventDefault();
+  }
+
+  // Save ctrl+s overrides by exporting json
+  if (event.ctrlKey && event.key === 's') {
+    event.preventDefault();
+    document.getElementById('exportJson').click();
+  }
+
+  // Escape ignore all and go to pointer (select mode)
   if (event.key === 'Escape') {
     editor.architect(WALLS);
     mode = "select_mode";
+    if(binder){
+      binder.update();
+    }
     $('#panel').show(200);
     $('#select_mode').click();
-    binder.update();
+
+  }
+
+  // Delete
+  if (event.key === 'Delete') {
+    if(binder && binder.obj){
+      document.getElementById('bboxTrash').click();
+    }
   }
 });
 
@@ -396,7 +451,7 @@ document.getElementById("bboxTrash").addEventListener("click", function () {
   $('#objBoundingBox').hide(100);
   $('#panel').show(200);
   fonc_button('select_mode');
-  $('#boxinfo').html('Objet effacé');
+  $('#boxinfo').html('Object deleted');
   delete binder;
   rib();
 });
@@ -503,11 +558,11 @@ $('#textToLayer').on('hidden.bs.modal', function (e) {
     $('#boxText').append(OBJDATA[OBJDATA.length-1].graph);
     OBJDATA[OBJDATA.length-1].update();
     delete binder;
-    $('#boxinfo').html('Texte ajouté');
+    $('#boxinfo').html('Text added');
     save();
   }
   else {
-    $('#boxinfo').html('Mode sélection');
+    $('#boxinfo').html('Select mode');
   }
   document.getElementById('labelBox').textContent = "Votre texte";
   document.getElementById('labelBox').style.color = "#333333";
@@ -659,7 +714,7 @@ document.getElementById("applySurface").addEventListener("click", function () {
       $('#boxRoom').empty();
       $('#boxSurface').empty();
       editor.roomMaker(Rooms);
-      $('#boxinfo').html('Pièce modifiée');
+      $('#boxinfo').html('Modified part');
       fonc_button('select_mode');
 });
 
@@ -668,7 +723,7 @@ document.getElementById("resetRoomTools").addEventListener("click", function () 
   $('#panel').show(200);
   binder.remove();
   delete binder;
-  $('#boxinfo').html('Pièce modifiée');
+  $('#boxinfo').html('Modified part');
   fonc_button('select_mode');
 
 });
@@ -721,7 +776,7 @@ var objTrashBtn = document.querySelectorAll(".objTrash");
       obj.graph.remove();
       OBJDATA.splice(OBJDATA.indexOf(obj), 1);
       fonc_button('select_mode');
-      $('#boxinfo').html('Mode sélection');
+      $('#boxinfo').html('Select Mode');
       $('#panel').show('200');
       binder.graph.remove();
       delete binder;
@@ -1385,7 +1440,7 @@ $('#room_mode').click(function() {
 });
 
 $('#select_mode').click(function() {
-  $('#boxinfo').html('Mode "select"');
+  $('#boxinfo').html('Select Mode');
   if (typeof(binder) != 'undefined') {
       if(typeof binder.remove === "function"){
         binder.remove();
@@ -1398,7 +1453,7 @@ $('#select_mode').click(function() {
 
 $('#line_mode').click(function() {
     $('#lin').css('cursor', 'crosshair');
-    $('#boxinfo').html('Création de mur(s)');
+    $('#boxinfo').html('Wall(s) creation');
     multi = 0;
     action = 0;
     // snap = calcul_snap(event, grid_snap);
@@ -1410,27 +1465,27 @@ $('#line_mode').click(function() {
 
 $('#partition_mode').click(function() {
     $('#lin').css('cursor', 'crosshair');
-    $('#boxinfo').html('Création de cloison(s)');
+    $('#boxinfo').html('Creation of partition(s)');
     multi = 0;
     fonc_button('partition_mode');
 });
 
 $('#rect_mode').click(function() {
     $('#lin').css('cursor', 'crosshair');
-    $('#boxinfo').html('Création de pièce(s)');
+    $('#boxinfo').html('Creation of room(s)');
     fonc_button('rect_mode');
 });
 
 $('.door').click(function() {
     $('#lin').css('cursor', 'crosshair');
-    $('#boxinfo').html('Ajouter une porte');
+    $('#boxinfo').html('Add a door');
     $('#door_list').hide(200);
     fonc_button('door_mode', this.id);
 });
 
 $('.window').click(function() {
     $('#lin').css('cursor', 'crosshair');
-    $('#boxinfo').html('Ajouter une fenêtre');
+    $('#boxinfo').html('Add a window');
     $('#door_list').hide(200);
     $('#window_list').hide(200);
     fonc_button('door_mode', this.id);
@@ -1438,37 +1493,37 @@ $('.window').click(function() {
 
 $('.object').click(function() {
     cursor('move');
-    $('#boxinfo').html('Ajouter un objet');
+    $('#boxinfo').html('Add an object');
     fonc_button('object_mode', this.id);
 });
 
 $('#stair_mode').click(function() {
     cursor('move');
-    $('#boxinfo').html('Ajouter un escalier');
+    $('#boxinfo').html('Add a staircase');
     fonc_button('object_mode', 'simpleStair');
 });
 
 $('#node_mode').click(function() {
-    $('#boxinfo').html('Couper un mur<br/><span style=\"font-size:0.7em\">Attention : Couper le mur d\'une pièce peut annuler sa configuration</span>');
+    $('#boxinfo').html('Cutting a wall <br/> <span style = \"font-size: 0.7em \"> Caution: Cutting the wall of a room can cancel its configuration</span>');
     fonc_button('node_mode');
 });
 
 $('#text_mode').click(function() {
-    $('#boxinfo').html('Ajouter du texte<br/><span style=\"font-size:0.7em\">Amenez le curseur à l\'endroit voulu, puis tapez votre texte.</span>');
+    $('#boxinfo').html('Add text <br/> <span style = \"font-size: 0.7em \"> Move the cursor to the desired location, then type your text. </span>');
     fonc_button('text_mode');
 });
 
 $('#grid_mode').click(function() {
     if (grid_snap == 'on') {
         grid_snap = 'off';
-        $('#boxinfo').html('Grille d\'aide off');
+        $('#boxinfo').html('Grid off');
         $('#grid_mode').removeClass('btn-success');
         $('#grid_mode').addClass('btn-warning');
         $('#grid_mode').html('GRID OFF');
         $('#boxgrid').css('opacity', '0.5');
     } else {
         grid_snap = 'on';
-        $('#boxinfo').html('Grille d\'aide on');
+        $('#boxinfo').html('Grid on');
         $('#grid_mode').removeClass('btn-warning');
         $('#grid_mode').addClass('btn-success');
         $('#grid_mode').html('GRID ON <i class="fa fa-th" aria-hidden="true"></i>');

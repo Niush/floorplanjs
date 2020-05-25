@@ -246,7 +246,7 @@ document.addEventListener("keydown", function(event) {
           binder.id = ROOM.indexOf(roomTarget);
         }
         else {
-          if (typeof(binder) != 'undefined') {
+          if (typeof(binder) != 'undefined' && typeof binder.remove === "function") {
             binder.remove();
             delete binder;
           }

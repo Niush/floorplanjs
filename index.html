@@ -151,7 +151,7 @@
     </section>
     <br/>
     <li><button class="btn btn-danger fully" id="wallTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
-    <li><button class="btn btn-info fully" style="margin-top:50px" onclick="fonc_button('select_mode');$('#boxinfo').html('Mode sélection');$('#wallTools').hide('300');$('#panel').show('300');"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
+    <li><button class="btn btn-info fully" style="margin-top:50px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#wallTools').hide('300');$('#panel').show('300');"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
     </ul>
   </div>
 
@@ -194,7 +194,7 @@
 
     <br/><br/>
     <button class="btn btn-danger fully" id="bboxTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button>
-    <button class="btn btn-info" style="margin-top:100px" onclick="fonc_button('select_mode');$('#boxinfo').html('Mode sélection');$('#objBoundingBox').hide(100);$('#panel').show(200);binder.graph.remove();delete binder;"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
+    <button class="btn btn-info fully" style="margin-top:20px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objBoundingBox').hide(100);$('#panel').show(200);binder.graph.remove();delete binder;"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
   </div>
 
   <div id="objTools" class="leftBox">
@@ -208,7 +208,7 @@
       <input type="range" id="doorWindowWidth" step="1" class="range" />
     <br/>
     <li><button class="btn btn-danger fully objTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
-    <li><button class="btn btn-info" style="margin-top:100px" onclick="fonc_button('select_mode');$('#boxinfo').html('Mode sélection');$('#objTools').hide('100');$('#panel').show('200');binder.graph.remove();delete binder;rib();"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
+    <li><button class="btn btn-info" style="margin-top:100px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objTools').hide('100');$('#panel').show('200');binder.graph.remove();delete binder;rib();"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
     </ul>
   </div>
 
@@ -348,34 +348,34 @@
           <div style="width:600px;float:left;padding:10px">
           <p>Energy</p>
           <div style="float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Courant fort</p>
+            <p>Strong current</p>
             <div style="width:120px;float:left;padding:2px">
               <button class="btn fully object" id="gtl">GTL</button>
-              <button class="btn fully object" id="switch">Interrupteur</button>
-              <button class="btn fully object" id="doubleSwitch">Va-et-vient</button>
-              <button class="btn fully object" id="dimmer">Variateur</button>
+              <button class="btn fully object" id="switch">Light switch</button>
+              <button class="btn fully object" id="doubleSwitch">Multiple Switch</button>
+              <button class="btn fully object" id="dimmer">Dimmer</button>
 
             </div>
             <div style="width:120px;float:left;padding:2px">
-              <button class="btn fully object" id="plug">Prise élec.</button>
-              <button class="btn fully object" id="plug20">Prise 20A</button>
-              <button class="btn fully object" id="plug32">Prise 32A</button>
-              <button class="btn fully object" id="roofLight">Lum. plafond</button>
-              <button class="btn fully object" id="wallLight">Lum. applique</button>
+              <button class="btn fully object" id="plug">Plug</button>
+              <button class="btn fully object" id="plug20">Plug 20A</button>
+              <button class="btn fully object" id="plug32">Plug 32A</button>
+              <button class="btn fully object" id="roofLight">Roof Light</button>
+              <button class="btn fully object" id="wallLight">Wall Light</button>
           </div>
           </div>
           <div style="width:130px;float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Courant faible</p>
-            <button class="btn fully object" id="www">Accès Internet</button>
-            <button class="btn fully object" id="rj45">Prise RJ45</button>
-            <button class="btn fully object" id="tv">Prise Antenne</button>
+            <p>Low current</p>
+            <button class="btn fully object" id="www">Wi-fi</button>
+            <button class="btn fully object" id="rj45">RJ45 Socket</button>
+            <button class="btn fully object" id="tv">Antenna Socket</button>
           </div>
 
           <div style="width:130px;float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Thermique</p>
-            <button class="btn fully object" id="boiler">Chaudière</button>
-            <button class="btn fully object" id="heater">Chauffe-eau</button>
-            <button class="btn fully object" id="radiator">Radiateur</button>
+            <p>Thermal</p>
+            <button class="btn fully object" id="boiler">Boiler</button>
+            <button class="btn fully object" id="heater">Water heater</button>
+            <button class="btn fully object" id="radiator">Radiator</button>
           </div>
           </div>
 
@@ -426,20 +426,25 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
           <h4 class="modal-title" id="myModalLabel">Welcome Home Rough Editor v0.93</h4>
         </div>
         <div class="modal-body">
           <div id="recover">
-            <p>A plan exists into historic, would you like recover him ?</p>
-            <button class="btn btn-default" onclick="initHistory('recovery');">RESTORE DATA</button></p>
+            <p>A plan exists in history, would you like recover it ?</p>
+            <button class="btn btn-default" onclick="initHistory('recovery');">RESTORE DATA</button>
             <hr/>
-            <p>Or are you prefer start a new plan ?</p>
+            <p>Or prefer to start a new plan ?</p>
           </div>
           <div class="row">
             <div class="col-md-3 col-xs-3 boxMouseOver" style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanEmpty.jpg" class="img-responsive" onclick="initHistory();"/></div>
             <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanSquare.jpg"  class="img-responsive" style="margin-top:10px" onclick="initHistory('newSquare');"/></div>
             <div class="col-md-3 col-xs-3 boxMouseOver"  style="min-height:140px;margin:15px;background:url('newPlanEmpty.jpg')"><img src="newPlanL.jpg"  class="img-responsive" style="margin-top:20px" onclick="initHistory('newL');"/></div>
+          </div>
+          <hr/>
+          <div id="import">
+            <p>Or Import Plan Data (.json)</p>
+            <input type="file" id="importfile" class="btn btn-default" style="display:inline-block;"/>
+            <button class="btn btn-default" onclick="importPlan()">IMPORT</button>
           </div>
         </div>
         <!-- <div class="modal-footer">
