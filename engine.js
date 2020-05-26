@@ -1,3 +1,4 @@
+// Register Mouse Events inside svg container (planner area)
 document.querySelector('#lin').addEventListener("mouseup", _MOUSEUP);
 document.querySelector('#lin').addEventListener("mousemove", throttle(function(event){ _MOUSEMOVE(event);},30));
 document.querySelector('#lin').addEventListener("mousedown", _MOUSEDOWN, true);
@@ -47,11 +48,11 @@ document.addEventListener("keydown", function(event) {
           //DOWN
           zoom_maker('zoombottom', 100, 30);
       }
-      if (event.keyCode == '107') {
+      if (event.key == '+') {
           //+
           zoom_maker('zoomin', 20, 50);
       }
-      if (event.keyCode == '109') {
+      if (event.key == '-') {
           //-
           zoom_maker('zoomout', 20, 50);
       }
@@ -73,7 +74,7 @@ document.addEventListener("keydown", function(event) {
     $('.sub').hide(100);
 
     //**************************************************************************
-    //********************   TEXTE   MODE **************************************
+    //********************   TEXT   MODE ***************************************
     //**************************************************************************
     if (mode == 'text_mode') {
       snap = calcul_snap(event, grid_snap);
@@ -1398,7 +1399,7 @@ event.preventDefault();
     }
 
     //**************************************************************************
-    //********************   TEXTE   MODE **************************************
+    //********************   TEXT   MODE ***************************************
     //**************************************************************************
     if (mode == 'text_mode') {
       if (action == 0) {

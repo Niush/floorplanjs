@@ -162,7 +162,8 @@ document.addEventListener('keydown', function(event) {
   // Ignore Select All
   if (event.ctrlKey && event.key === 'a') {
     if(event.target.type != 'input' && event.target.type != 'textarea' 
-      && event.target.getAttribute('contenteditable') != 'true'){
+      && event.target.getAttribute('contenteditable') != 'true'
+      && mode != "text_mode"){
         event.preventDefault();
     }
   }
@@ -221,6 +222,9 @@ if(localStorage.getItem('dark') && localStorage.getItem('dark') == 'true'){
   document.documentElement.style.filter = 'invert(1)';
 }
 
+// ******************************** //
+// Save changes to History Function //
+// ******************************** //
 function save(boot = false) {
   if (boot) localStorage.removeItem('history');
   // FOR CYCLIC OBJ INTO LOCALSTORAGE !!!
@@ -251,6 +255,9 @@ function save(boot = false) {
   return true;
 }
 
+// ********************************** //
+// Load changes from History Function //
+// ********************************** //
 function load(index = HISTORY.index, boot = false) {
   if (HISTORY.length == 0 && !boot) return false;
   for (var k in OBJDATA){
@@ -282,13 +289,16 @@ function load(index = HISTORY.index, boot = false) {
 }
 
 $('svg').each(function() {
+  if(originX_viewbox >= 0 && originY_viewbox >= 0 && width_viewbox >= 0 && height_viewbox >= 0){
     $(this)[0].setAttribute('viewBox', originX_viewbox + ' ' + originY_viewbox + ' ' + width_viewbox + ' ' + height_viewbox)
+  }
 });
 
 // **************************************************************************
 // *****************   FUNCTIONS ON BUTTON click     ************************
 // **************************************************************************
 
+// REPORT (contains export button also)
 document.getElementById('report_mode').addEventListener("click", function() {
   if (typeof(globalArea) == "undefined") return false;
   mode = "report_mode";
@@ -461,6 +471,7 @@ document.getElementById('report_mode').addEventListener("click", function() {
 
 });
 
+// Wall Width
 document.getElementById('wallWidth').addEventListener("input", function() {
   var sliderValue = this.value;
   binder.wall.thick = sliderValue;
@@ -475,6 +486,7 @@ document.getElementById('wallWidth').addEventListener("input", function() {
   document.getElementById("wallWidthVal").textContent = sliderValue;
 });
 
+// Trash box, items (not wall) button
 document.getElementById("bboxTrash").addEventListener("click", function () {
   binder.obj.graph.remove();
   binder.graph.remove();
@@ -487,6 +499,7 @@ document.getElementById("bboxTrash").addEventListener("click", function () {
   rib();
 });
 
+// Steps Add in Staircase
 document.getElementById("bboxStepsAdd").addEventListener("click", function () {
   var newValue = document.getElementById("bboxStepsVal").textContent;
   if (newValue < 15) {
@@ -497,6 +510,7 @@ document.getElementById("bboxStepsAdd").addEventListener("click", function () {
   }
 });
 
+// Steps Minus in Staircase
 document.getElementById("bboxStepsMinus").addEventListener("click", function () {
   var newValue = document.getElementById("bboxStepsVal").textContent;
   if (newValue > 2) {
@@ -507,6 +521,7 @@ document.getElementById("bboxStepsMinus").addEventListener("click", function () 
   }
 });
 
+// Update width of items
 document.getElementById('bboxWidth').addEventListener("input", function() {
   var sliderValue = this.value;
   var objTarget = binder.obj;
@@ -517,6 +532,7 @@ document.getElementById('bboxWidth').addEventListener("input", function() {
   document.getElementById("bboxWidthVal").textContent = sliderValue;
 });
 
+// Update height of items
 document.getElementById('bboxHeight').addEventListener("input", function() {
   var sliderValue = this.value;
   var objTarget = binder.obj;
@@ -527,16 +543,18 @@ document.getElementById('bboxHeight').addEventListener("input", function() {
   document.getElementById("bboxHeightVal").textContent = sliderValue;
 });
 
+// Update Rotation degree of items
 document.getElementById('bboxRotation').addEventListener("input", function() {
-    var sliderValue = this.value;
-    var objTarget = binder.obj;
-    objTarget.angle  = sliderValue;
-    objTarget.update();
-    binder.angle = sliderValue;
-    binder.update();
-    document.getElementById("bboxRotationVal").textContent = sliderValue;
-  });
+  var sliderValue = this.value;
+  var objTarget = binder.obj;
+  objTarget.angle  = sliderValue;
+  objTarget.update();
+  binder.angle = sliderValue;
+  binder.update();
+  document.getElementById("bboxRotationVal").textContent = sliderValue;
+});
 
+// Door & Window Width changes
 document.getElementById('doorWindowWidth').addEventListener("input", function() {
   var sliderValue = this.value;
   var objTarget = binder.obj;
@@ -555,14 +573,16 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
   inWallRib(wallBind);
 });
 
+// Hinge changes
 document.getElementById("objToolsHinge").addEventListener("click", function () {
   var objTarget = binder.obj;
-  var hingeStatus = objTarget.hinge; // normal - reverse
+  var hingeStatus = objTarget.hinge; // normal or reverse
   if (hingeStatus == 'normal') objTarget.hinge = 'reverse';
   else objTarget.hinge = 'normal';
   objTarget.update();
 });
 
+// On Window Load (animate boxes and show history or new modal)
 window.addEventListener("load", function(){
   document.getElementById('panel').style.transform = "translateX(200px)";
   document.getElementById('panel').addEventListener("transitionend", function() {
@@ -573,15 +593,17 @@ window.addEventListener("load", function(){
   $('#myModal').modal({backdrop: 'static', keyboard: false});
 });
 
+// Size of Input text (new text mode)
 document.getElementById('sizePolice').addEventListener("input", function() {
   document.getElementById('labelBox').style.fontSize = this.value+'px';
 });
 
+// New Text Add Modal
 $('#textToLayer').on('hidden.bs.modal', function (e) {
   fonc_button('select_mode');
   action = 0;
   var textToMake = document.getElementById('labelBox').textContent;
-  if (textToMake != "" && textToMake != "Votre texte") {
+  if (textToMake != "" && textToMake.trim() != "") {
     binder = new editor.obj2D("free", "text", document.getElementById('labelBox').style.color, snap, 0, 0, 0, "normal", 0, {text: textToMake, size: document.getElementById('sizePolice').value});
     binder.update();
     OBJDATA.push(binder);
@@ -595,12 +617,13 @@ $('#textToLayer').on('hidden.bs.modal', function (e) {
   else {
     $('#boxinfo').html('Select mode');
   }
-  document.getElementById('labelBox').textContent = "Votre texte";
+  document.getElementById('labelBox').textContent = "Your Text";
   document.getElementById('labelBox').style.color = "#333333";
   document.getElementById('labelBox').style.fontSize = "15px";
   document.getElementById('sizePolice').value = 15;
 })
 
+// Something...
 if (!Array.prototype.includes) {
   Object.defineProperty(Array.prototype, 'includes', {
     value: function(searchElement, fromIndex) {
@@ -627,6 +650,7 @@ if (!Array.prototype.includes) {
   });
 }
 
+// Is Object equal or ok //
 function isObjectsEquals(a, b, message = false) {
   if (message) console.log(message)
   var isOK = true;
@@ -639,6 +663,7 @@ function isObjectsEquals(a, b, message = false) {
   return isOK;
 };
 
+// Simple Throttle to callback
 function throttle(callback, delay) {
     var last;
     var timer;
@@ -647,7 +672,7 @@ function throttle(callback, delay) {
         var now = +new Date();
         var args = arguments;
         if (last && now < last + delay) {
-            // le délai n'est pas écoulé on reset le timer
+            // the time has not elapsed we reset the timer
             clearTimeout(timer);
             timer = setTimeout(function () {
                 last = now;
@@ -660,6 +685,7 @@ function throttle(callback, delay) {
     };
 }
 
+// Zoom Throttle
 $("#lin").mousewheel(throttle(function(event) {
     event.preventDefault();
     if (event.deltaY > 0) {
@@ -669,6 +695,10 @@ $("#lin").mousewheel(throttle(function(event) {
     }
 },100));
 
+// ********************* //
+// Layers (Show or Hide) //
+
+// Show Rib //
 document.getElementById("showRib").addEventListener("click", function () {
   if (document.getElementById("showRib").checked) {
     $('#boxScale').show(200);
@@ -682,6 +712,7 @@ document.getElementById("showRib").addEventListener("click", function () {
   }
 });
 
+// Show Area Box //
 document.getElementById("showArea").addEventListener("click", function () {
   if (document.getElementById("showArea").checked) {
     $('#boxArea').show(200);
@@ -691,6 +722,7 @@ document.getElementById("showArea").addEventListener("click", function () {
   }
 });
 
+// Show Room Layer //
 document.getElementById("showLayerRoom").addEventListener("click", function () {
   if (document.getElementById("showLayerRoom").checked) {
     $('#boxRoom').show(200);
@@ -700,6 +732,7 @@ document.getElementById("showLayerRoom").addEventListener("click", function () {
   }
 });
 
+// Show Energy or Items //
 document.getElementById("showLayerEnergy").addEventListener("click", function () {
   if (document.getElementById("showLayerEnergy").checked) {
     $('#boxEnergy').show(200);
@@ -718,37 +751,39 @@ document.getElementById("showLayerEnergy").addEventListener("click", function ()
 //   }
 // });
 
+// Apply to Superface //
 document.getElementById("applySurface").addEventListener("click", function () {
-      $('#roomTools').hide(100);
-      $('#panel').show(200);
-      binder.remove();
-      delete binder;
-      var id = $('#roomIndex').val();
-      //COLOR
-      var data = $('#roomBackground').val();
-      ROOM[id].color = data;
-      //ROOM NAME
-      var roomName = $('#roomName').val();
-      if (roomName == 'None') roomName = '';
-      ROOM[id].name = roomName;
-      //ROOM SURFACE
-      var area = $('#roomSurface').val();
-      ROOM[id].surface = area;
-      //SHOW SURFACE
-      var show = document.querySelector("#seeArea").checked;
-      ROOM[id].showSurface = show;
-      //ACTION PARAM
-      var action = document.querySelector('input[type=radio]:checked').value;
-      ROOM[id].action = action;
-      if (action == 'sub') ROOM[id].color = 'hatch';
-      if (action != 'sub' && data == 'hatch') ROOM[id].color = 'gradientNeutral';
-      $('#boxRoom').empty();
-      $('#boxSurface').empty();
-      editor.roomMaker(Rooms);
-      $('#boxinfo').html('Modified part');
-      fonc_button('select_mode');
+  $('#roomTools').hide(100);
+  $('#panel').show(200);
+  binder.remove();
+  delete binder;
+  var id = $('#roomIndex').val();
+  //COLOR
+  var data = $('#roomBackground').val();
+  ROOM[id].color = data;
+  //ROOM NAME
+  var roomName = $('#roomName').val();
+  if (roomName == 'None') roomName = '';
+  ROOM[id].name = roomName;
+  //ROOM SURFACE
+  var area = $('#roomSurface').val();
+  ROOM[id].surface = area;
+  //SHOW SURFACE
+  var show = document.querySelector("#seeArea").checked;
+  ROOM[id].showSurface = show;
+  //ACTION PARAM
+  var action = document.querySelector('input[type=radio]:checked').value;
+  ROOM[id].action = action;
+  if (action == 'sub') ROOM[id].color = 'hatch';
+  if (action != 'sub' && data == 'hatch') ROOM[id].color = 'gradientNeutral';
+  $('#boxRoom').empty();
+  $('#boxSurface').empty();
+  editor.roomMaker(Rooms);
+  $('#boxinfo').html('Modified part');
+  fonc_button('select_mode');
 });
 
+// Reset Room Tools //
 document.getElementById("resetRoomTools").addEventListener("click", function () {
   $('#roomTools').hide(100);
   $('#panel').show(200);
@@ -756,9 +791,9 @@ document.getElementById("resetRoomTools").addEventListener("click", function () 
   delete binder;
   $('#boxinfo').html('Modified part');
   fonc_button('select_mode');
-
 });
 
+// Wall Delete
 document.getElementById("wallTrash").addEventListener("click", function () {
   var wall = binder.wall;
   for (var k in WALLS) {
@@ -775,67 +810,72 @@ document.getElementById("wallTrash").addEventListener("click", function () {
   $('#panel').show(200);
 });
 
+// Text Color Events (change text fill color for new or old text component)
 var textEditorColorBtn = document.querySelectorAll('.textEditorColor');
-  for (var k = 0; k < textEditorColorBtn.length; k++) {
-    textEditorColorBtn[k].addEventListener('click', function(){
-      document.getElementById('labelBox').style.color = this.style.color;
-      if(typeof binder !== 'undefined' && binder && binder.obj && binder.obj.class == "text" && binder.obj.value){
-        var objTarget = binder.obj;
-        objTarget.type = this.style.color;
-        binder.update();
-        if(binder.obj.graph.context.children){binder.obj.graph.context.children[0].setAttribute('fill',this.style.color);}
-        var info = $('#boxinfo').html();
-        $('#boxinfo').html('Color Updated');
-        setTimeout(function(){
-          $('#boxinfo').html(info);
-        }, 1000)
-      }
-    });
+for (var k = 0; k < textEditorColorBtn.length; k++) {
+  textEditorColorBtn[k].addEventListener('click', function(){
+    document.getElementById('labelBox').style.color = this.style.color;
+    if(typeof binder !== 'undefined' && binder && binder.obj && binder.obj.class == "text" && binder.obj.value){
+      var objTarget = binder.obj;
+      objTarget.type = this.style.color;
+      binder.update();
+      if(binder.obj.graph.context.children){binder.obj.graph.context.children[0].setAttribute('fill',this.style.color);}
+      var info = $('#boxinfo').html();
+      $('#boxinfo').html('Color Updated');
+      setTimeout(function(){
+        $('#boxinfo').html(info);
+      }, 1000)
+    }
+  });
 }
 
+// Zoom Button Event
 var zoomBtn = document.querySelectorAll('.zoom');
-  for (var k = 0; k < zoomBtn.length; k++) {
-    zoomBtn[k].addEventListener("click", function () {
-        lens = this.getAttribute('data-zoom');
-        zoom_maker(lens, 200, 50);
-    })
+for (var k = 0; k < zoomBtn.length; k++) {
+  zoomBtn[k].addEventListener("click", function () {
+      lens = this.getAttribute('data-zoom');
+      zoom_maker(lens, 200, 50);
+  })
 }
 
+// Room Color
 var roomColorBtn = document.querySelectorAll(".roomColor");
-  for (var k = 0; k < roomColorBtn.length; k++) {
-    roomColorBtn[k].addEventListener("click", function () {
-      var data = this.getAttribute('data-type');
-      $('#roomBackground').val(data);
-      binder.attr({'fill':'url(#'+data+')'});
-    });
-  }
-
-var objTrashBtn = document.querySelectorAll(".objTrash");
-  for (var k = 0; k < objTrashBtn.length; k++) {
-    objTrashBtn[k].addEventListener("click", function () {
-      $('#objTools').hide('100');
-      var obj = binder.obj;
-      obj.graph.remove();
-      OBJDATA.splice(OBJDATA.indexOf(obj), 1);
-      fonc_button('select_mode');
-      $('#boxinfo').html('Select Mode');
-      $('#panel').show('200');
-      binder.graph.remove();
-      delete binder;
-      rib();
-      $('#panel').show('300');
-    });
+for (var k = 0; k < roomColorBtn.length; k++) {
+  roomColorBtn[k].addEventListener("click", function () {
+    var data = this.getAttribute('data-type');
+    $('#roomBackground').val(data);
+    binder.attr({'fill':'url(#'+data+')'});
+  });
 }
 
+// Object Item (Trash/Remove)
+var objTrashBtn = document.querySelectorAll(".objTrash");
+for (var k = 0; k < objTrashBtn.length; k++) {
+  objTrashBtn[k].addEventListener("click", function () {
+    $('#objTools').hide('100');
+    var obj = binder.obj;
+    obj.graph.remove();
+    OBJDATA.splice(OBJDATA.indexOf(obj), 1);
+    fonc_button('select_mode');
+    $('#boxinfo').html('Select Mode');
+    $('#panel').show('200');
+    binder.graph.remove();
+    delete binder;
+    rib();
+    $('#panel').show('300');
+  });
+}
+
+// Dropdown Menu on click
 var dropdownMenu = document.querySelectorAll(".dropdown-menu li a");
-  for (var k = 0; k < dropdownMenu.length; k++) {
-    dropdownMenu[k].addEventListener("click", function () {
-      var selText = this.textContent;
-      $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-      if (selText != 'None') $('#roomName').val(selText);
-      else $('#roomName').val('');
-    });
-  }
+for (var k = 0; k < dropdownMenu.length; k++) {
+  dropdownMenu[k].addEventListener("click", function () {
+    var selText = this.textContent;
+    $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+    if (selText != 'None') $('#roomName').val(selText);
+    else $('#roomName').val('');
+  });
+}
 
 // TRY MATRIX CALC FOR BBOX REAL COORDS WITH TRAS + ROT.
 function matrixCalc(el, message = false) {
@@ -886,9 +926,18 @@ function limitObj(equation, size, coords,message = false) {
   return [pos1, pos2];
 }
 
+// Zoom-in, out, panning view
 function zoom_maker(lens, xmove, xview) {
+    if(zoom <= 5 && !xview){
+      // Quick Reminder //
+      $('#boxinfo').html('Resizing <br/> <small style="font-size:0.7em;color:maroon;">Note: Too much Zoom Out might not have good precison.</small>');
+    }else if(!xview){
+      $('#boxinfo').html('Resizing');
+    }else{
+      $('#boxinfo').html('Panning');
+    }
 
-    if (lens == 'zoomout' && zoom > 1 && zoom < 17) {
+    if (lens == 'zoomout' && zoom > 1 && zoom < 15) {
         zoom--;
         width_viewbox += xmove;
         var ratioWidthZoom =  taille_w / width_viewbox;
@@ -905,7 +954,7 @@ function zoom_maker(lens, xmove, xview) {
         var ratioWidthZoom = taille_w / width_viewbox;
         height_viewbox = width_viewbox * ratio_viewbox;
         myDiv = document.getElementById("scaleVal");
-      myDiv.style.width = 60*ratioWidthZoom+'px';
+        myDiv.style.width = 60*ratioWidthZoom+'px';
 
         originX_viewbox =  originX_viewbox + (xmove/2);
         originY_viewbox =  originY_viewbox + (xmove/2 * ratio_viewbox);
@@ -939,11 +988,11 @@ function zoom_maker(lens, xmove, xview) {
     });
 }
 
+// Snap items calculate
 tactile = false;
 function calcul_snap(event, state) {
   if (event.touches) {
     var touches = event.changedTouches;
-    console.log("toto")
     eX = touches[0].pageX;
     eY = touches[0].pageY;
     tactile = true;
@@ -971,8 +1020,9 @@ function calcul_snap(event, state) {
     };
 }
 
+// Min Movement check with absolute value
 minMoveGrid = function(mouse) {
-    return Math.abs(Math.abs(pox - mouse.x) + Math.abs(poy - mouse.y));
+  return Math.abs(Math.abs(pox - mouse.x) + Math.abs(poy - mouse.y));
 }
 
 function intersectionOff() {
@@ -982,6 +1032,8 @@ function intersectionOff() {
   }
 }
 
+// ********************* //
+// Intersection validate //
 function intersection(snap, range = Infinity, except = ['']) {
   // ORANGE LINES 90° NEAR SEGMENT
   var bestEqPoint = {};
@@ -1138,14 +1190,12 @@ function debugPoint(point, name, color = "#00ff00") {
 function showVertex() {
   for (var i=0; i < vertex.length; i++) {
     debugPoint(vertex[i], i);
-
   }
 }
 
 function showJunction() {
   for (var i=0; i < junction.length; i++) {
     debugPoint({x: junction[i].values[0], y: junction[i].values[1]}, i);
-
   }
 }
 
@@ -1166,6 +1216,7 @@ function allRib() {
   }
 }
 
+// In Wall Rib Generate (window, door etc.)
 function inWallRib(wall, option = false) {
   if (!option) $('#boxRib').empty();
   ribMaster = [];
@@ -1222,8 +1273,6 @@ function inWallRib(wall, option = false) {
             else shift = -shift+10;
           }
 
-
-
           sizeText[n] = document.createElementNS('http://www.w3.org/2000/svg', 'text');
           var startText = qSVG.middle(ribMaster[t][n-1].coords.x, ribMaster[t][n-1].coords.y, ribMaster[t][n].coords.x, ribMaster[t][n].coords.y);
           sizeText[n].setAttributeNS(null, 'x', startText.x);
@@ -1247,6 +1296,7 @@ function inWallRib(wall, option = false) {
   }
 }
 
+// Simple other elements Rib (not in wall)
 function rib(shift = 5) {
   // return false;
   var ribMaster = [];
@@ -1382,12 +1432,13 @@ function rib(shift = 5) {
   }
 }
 
-// TODO: loca cursor images
+// TODO: local cursor images
+// Cursor Image
 function cursor(tool) {
-  if (tool == 'grab') tool = "url('https://wiki.openmrs.org/s/en_GB/7502/b9217199c27dd617c8d51f6186067d7767c5001b/_/images/icons/emoticons/add.png') 8 8, auto";
-  if (tool == 'scissor') tool = "url('https://maxcdn.icons8.com/windows10/PNG/64/Hands/hand_scissors-64.png'), auto";
-  if (tool == 'trash') tool = "url('https://cdn4.iconfinder.com/data/icons/common-toolbar/36/Cancel-32.png'), auto";
-  if (tool == 'validation') tool = "url('https://images.fatguymedia.com/wp-content/uploads/2015/09/check.png'), auto";
+  if (tool == 'grab') tool = "url('./icons/grab.png') 8 8, auto";
+  if (tool == 'scissor') tool = "url('./icons/scissor.png'), auto";
+  if (tool == 'trash') tool = "url('./icons/trash.png'), auto";
+  if (tool == 'validation') tool = "url('./icons/check.png'), auto";
   $('#lin').css('cursor',tool);
 }
 

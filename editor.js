@@ -30,6 +30,7 @@ var editor = {
       else return nodes;
   },
 
+  // Compute the wall component
   wallsComputing: function(WALLS, action = false) {
     // IF ACTION == MOVE -> equation2 exist !!!!!
     $('#boxwall').empty();
@@ -225,6 +226,7 @@ var editor = {
     }
   },
 
+  // Make wall SVG elem
   makeWall: function(way, damage='good') {
     var temp_color = colorWall
     if(!damage || damage == 'good'){
@@ -247,6 +249,7 @@ var editor = {
     return wallScreen;
   },
 
+  // Make Invisible Wall (Seperation in wall)
   invisibleWall: function(wallToInvisble = false) {
     if (!wallToInvisble) wallToInvisble = binder.wall;
     var objWall = editor.objFromWall(wallBind);
@@ -261,11 +264,12 @@ var editor = {
       return true;
     }
     else {
-      $('#boxinfo').html('Walls containing doors or windows cannot be a separation!');
+      $('#boxinfo').html('Walls containing doors or windows cannot have a separation!');
       return false;
     }
   },
 
+  // Update Damage Level of wall
   updateDamageLevel: function(level = 'good') {
     var wallToInvisble = binder.wall;
     var objWall = editor.objFromWall(wallBind);
@@ -293,6 +297,7 @@ var editor = {
     }
   },
 
+  // Make Visible Wall (Normal)
   visibleWall:  function(wallToInvisble = false) {
     if (!wallToInvisble) wallToInvisble = binder.wall;
     wallToInvisble.type = "normal";
@@ -305,6 +310,7 @@ var editor = {
     return true;
   },
 
+  // Architect or draw wall
   architect: function(WALLS) {
     editor.wallsComputing(WALLS);
     Rooms = qSVG.polygonize(WALLS);
@@ -314,6 +320,7 @@ var editor = {
     return true;
   },
 
+  // Spliting wall into pieces (useful to make holes) //
   splitWall: function(wallToSplit = false) {
     if (!wallToSplit) wallToSplit = binder.wall;
     var eqWall = editor.createEquationFromWall(wallToSplit);
@@ -355,6 +362,7 @@ var editor = {
     return true;
   },
 
+  // New Wall Node
   nearWallNode: function(snap, range = Infinity, except = ['']) {
     var best;
     var bestWall;
@@ -404,14 +412,15 @@ var editor = {
       if (qSVG.rayCasting(snap, polygon)) {
         wallList.push(WALLS[i]); // Return EDGES Index
       }
-      }
-      if (wallList.length == 0) return false;
-      else {
-        if (wallList.length == 1) return wallList[0];
-        else return wallList;
-      }
-    },
+    }
+    if (wallList.length == 0) return false;
+    else {
+      if (wallList.length == 1) return wallList[0];
+      else return wallList;
+    }
+  },
 
+  // Sticking wall on Wall (Snap effect for accuracy)
   stickOnWall: function(snap) {
     if (WALLS.length == 0) return false;
     var wallDistance = Infinity;
@@ -460,7 +469,7 @@ var editor = {
         var eq = qSVG.createEquation(wall.start.x, wall.start.y,wall.end.x,wall.end.y);
         search = qSVG.nearPointOnEquation(eq, OBJDATA[scan]);
         if (search.distance < 0.01 && qSVG.btwn(OBJDATA[scan].x, wall.start.x, wall.end.x) && qSVG.btwn(OBJDATA[scan].y, wall.start.y, wall.end.y)) objList.push(OBJDATA[scan]);
-        // WARNING 0.01 TO NO COUNT OBJECT ON LIMITS OF THE EDGE !!!!!!!!!!!! UGLY CODE( MOUSE PRECISION)
+        // NOTE: WARNING 0.01 TO NO COUNT OBJECT ON LIMITS OF THE EDGE !!!!!!!!!!!! UGLY CODE( MOUSE PRECISION)
         // TRY WITH ANGLE MAYBE ???
       }
     }
@@ -484,13 +493,13 @@ var editor = {
       if (qSVG.rayCasting(snap, polygon)) {
         wallList.push(WALLS[i]); // Return EDGES Index
       }
-      }
-      if (wallList.length == 0) return false;
-      else {
-        if (wallList.length == 1) return wallList[0];
-        else return wallList;
-      }
-    },
+    }
+    if (wallList.length == 0) return false;
+    else {
+      if (wallList.length == 1) return wallList[0];
+      else return wallList;
+    }
+  },
 
   inWallRib2: function(wall, option = false) {
     if (!option) $('#boxRib').empty();
@@ -575,6 +584,7 @@ var editor = {
   },
 
   // value can be "text label", "step number in stair", etc...
+  // obj2D main object of all 2d elements
   obj2D:  function(family, classe, type, pos, angle, angleSign, size, hinge = 'normal', thick, value) {
     this.family = family   // inWall, stick, collision, free
     this.class = classe;  // door, window, energy, stair, measure, text ?
@@ -680,6 +690,7 @@ var editor = {
       }
   },
 
+  // Make Room From the bounding walls
   roomMaker:  function(Rooms) {
     globalArea = 0;
     var oldVertexNumber = [];
