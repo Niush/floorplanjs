@@ -68,16 +68,16 @@
       </linearGradient>
 
       <pattern id="grass" patternUnits="userSpaceOnUse" width="256" height="256">
-        <image xlink:href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWh5nEP_Trwo96CJjev6lnKe0_dRdA63RJFaoc3-msedgxveJd" x="0" y="0" width="256" height="256" />
+        <image xlink:href="./patterns/grass.jpg" x="0" y="0" width="256" height="256" />
       </pattern>
       <pattern id="wood" patternUnits="userSpaceOnUse" width="32" height="256">
-        <image xlink:href="https://orig00.deviantart.net/e1f2/f/2015/164/8/b/old_oak_planks___seamless_texture_by_rls0812-d8x6htl.jpg" x="0" y="0" width="256" height="256" />
+        <image xlink:href="./patterns/wood.jpg" x="0" y="0" width="256" height="256" />
       </pattern>
       <pattern id="tiles" patternUnits="userSpaceOnUse" width="25" height="25">
-        <image xlink:href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrkoI2Eiw8ya3J_swhfpZdi_ug2sONsI6TxEd1xN5af3DX9J3R" x="0" y="0" width="256" height="256" />
+        <image xlink:href="./patterns/tiles.jpg" x="0" y="0" width="256" height="256" />
       </pattern>
       <pattern id="granite" patternUnits="userSpaceOnUse" width="256" height="256">
-        <image xlink:href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9_nEMhnWVV47lxEn5T_HWxvFwkujFTuw6Ff26dRTl4rDaE8AdEQ" x="0" y="0" width="256" height="256" />
+        <image xlink:href="./patterns/granite.jpg" x="0" y="0" width="256" height="256" />
       </pattern>
       <pattern id="smallGrid" width="60" height="60" patternUnits="userSpaceOnUse">
         <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#777" stroke-width="0.25"/>
@@ -161,7 +161,7 @@
     <section id="objBoundingBoxScale">
       <p>Width [<span id="bboxWidthScale"></span>] : <span id="bboxWidthVal"></span> cm</span></p>
       <input type="range" id="bboxWidth" step="1" class="range" />
-      <p>Length [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
+      <p>Height [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
       <input type="range" id="bboxHeight" step="1" class="range" />
     </section>
 
@@ -287,10 +287,10 @@
     <div class="roomColor" data-type="gradientNeutral" style="background:linear-gradient(30deg,#e2c695, #c69d56);"></div>
     <br/><br/>
     <p>Matérials</p>
-    <div class="roomColor" data-type="wood" style="background: url('https://orig00.deviantart.net/e1f2/f/2015/164/8/b/old_oak_planks___seamless_texture_by_rls0812-d8x6htl.jpg');"></div>
-    <div class="roomColor" data-type="tiles" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrkoI2Eiw8ya3J_swhfpZdi_ug2sONsI6TxEd1xN5af3DX9J3R');"></div>
-    <div class="roomColor" data-type="granite" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9_nEMhnWVV47lxEn5T_HWxvFwkujFTuw6Ff26dRTl4rDaE8AdEQ');"></div>
-    <div class="roomColor" data-type="grass" style="background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWh5nEP_Trwo96CJjev6lnKe0_dRdA63RJFaoc3-msedgxveJd');"></div>
+    <div class="roomColor" data-type="wood" style="background: url('./patterns/wood.jpg');"></div>
+    <div class="roomColor" data-type="tiles" style="background: url('./patterns/tiles.jpg');"></div>
+    <div class="roomColor" data-type="granite" style="background: url('./patterns/granite.jpg');"></div>
+    <div class="roomColor" data-type="grass" style="background: url('./patterns/grass.jpg');"></div>
     <div data-type="#ff008a" style="clear:both"></div>
     <br/><br/>
       <input type="hidden" id="roomBackground" value="gradientNeutral" />
@@ -306,9 +306,7 @@
         <li><button class="btn disabled halfy " id="undo" title="undo"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>
         <button class="btn disabled halfy pull-right" id="redo" title="redo"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i></button>
         </li>
-        <br/>
         <li><button class="btn btn-success fully " id="select_mode" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-2x fa-mouse-pointer" aria-hidden="true"></i></button></li>
-        <br/>
         <li>
         <button class="btn btn-default fully " style="margin-bottom:0px" id="line_mode" data-toggle="tooltip" data-placement="right" title="Make walls">WALL</button>
         <button class="btn btn-default fully " style="margin-bottom:0px" id="partition_mode" data-toggle="tooltip" data-placement="right" title="Make partitions wall">PARTITION</button>
@@ -321,10 +319,8 @@
         </li>
         <br/>
         <li><button class="btn btn-default fully " id="room_mode">CONFIG. ROOMS</button></li>
-        <br/>
         <li><button class="btn btn-default fully " id="node_mode"><i class="fa fa-2x fa-scissors" aria-hidden="true"></i></button></li>
-        <br/>
-        <li><button class="btn btn-default fully " id="distance_mode" data-toggle="tooltip" data-placement="right" title="Add a measurement">MEASURE</button></li>
+        <li><button class="btn btn-default fully " id="distance_mode" data-toggle="tooltip" data-placement="right" title="Add a measurement (Temporary)">MEASURE</button></li>
         <li><button class="btn btn-default fully " id="text_mode" data-toggle="tooltip" data-placement="right" title="Add text">TEXT</button></li>
         <br/>
         <div id="door_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
@@ -333,7 +329,7 @@
           <button class="btn fully door" id="double">Double</button>
           <button class="btn fully door" id="pocket">Pocket</button>
         </div>
-        <li><button class="btn btn-default fully " id="door_mode" onclick="$('.sub').hide();$('#door_list').toggle(200);$('#window_list').hide();">DOOR</button></li>
+        <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully " id="door_mode" onclick="$('.sub').hide();$('#door_list').toggle(200);$('#window_list').hide();">DOOR</button></li>
 
         <div id="window_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
           <button class="btn fully window" id="fix">Fix</button>
@@ -341,48 +337,60 @@
           <button class="btn fully window" id="twin">Double</button>
           <button class="btn fully window" id="bay">Slide</button>
         </div>
-        <li><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
+        <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
         <li><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
-        <br/>
-        <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;width:600px">
-          <div style="width:600px;float:left;padding:10px">
-          <p>Energy</p>
-          <div style="float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Strong current</p>
-            <div style="width:120px;float:left;padding:2px">
-              <button class="btn fully object" id="gtl">GTL</button>
-              <button class="btn fully object" id="switch">Light switch</button>
-              <button class="btn fully object" id="doubleSwitch">Multiple Switch</button>
-              <button class="btn fully object" id="dimmer">Dimmer</button>
+        <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
+          <div style="width:700px;padding:10px">
+            <p>Energy</p>
+            <div class="row" style="display: flex;flex-wrap: wrap;">
+              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;box-sizing: border-box;">
+                <p>Electricity</p>
+                <div class="col-sm-6" style="padding:2px">
+                  <button class="btn fully object" id="gtl">GTL</button>
+                  <button class="btn fully object" id="switch">Light switch</button>
+                  <button class="btn fully object" id="doubleSwitch">Multiple Switch</button>
+                  <button class="btn fully object" id="dimmer">Dimmer</button>
+                  <button class="btn fully object" id="tv">TV</button>
+                </div>
+                <div class="col-sm-6" style="padding:2px">
+                  <button class="btn fully object" id="plug">Plug</button>
+                  <button class="btn fully object" id="plug20">Plug 20A</button>
+                  <button class="btn fully object" id="plug32">Plug 32A</button>
+                  <button class="btn fully object" id="roofLight">Roof Light</button>
+                  <button class="btn fully object" id="wallLight">Wall Light</button>
+                </div>
+              </div>
+              
+              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;box-sizing: border-box;">
+                <p>Internet</p>
+                <button class="btn fully object" id="www">Wi-fi</button>
+                <button class="btn fully object" id="rj45">RJ45 Socket</button>
+                <button class="btn fully object" id="tv">Antenna Socket</button>
+              </div>
 
+              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;">
+                <p>Thermal</p>
+                <button class="btn fully object" id="boiler">Boiler</button>
+                <button class="btn fully object" id="heater">Water heater</button>
+                <button class="btn fully object" id="radiator">Radiator</button>
+              </div>
             </div>
-            <div style="width:120px;float:left;padding:2px">
-              <button class="btn fully object" id="plug">Plug</button>
-              <button class="btn fully object" id="plug20">Plug 20A</button>
-              <button class="btn fully object" id="plug32">Plug 32A</button>
-              <button class="btn fully object" id="roofLight">Roof Light</button>
-              <button class="btn fully object" id="wallLight">Wall Light</button>
           </div>
-          </div>
-          <div style="width:130px;float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Low current</p>
-            <button class="btn fully object" id="www">Wi-fi</button>
-            <button class="btn fully object" id="rj45">RJ45 Socket</button>
-            <button class="btn fully object" id="tv">Antenna Socket</button>
-          </div>
+      </div>
 
-          <div style="width:130px;float:left;padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px">
-            <p>Thermal</p>
-            <button class="btn fully object" id="boiler">Boiler</button>
-            <button class="btn fully object" id="heater">Water heater</button>
-            <button class="btn fully object" id="radiator">Radiator</button>
+      <div id="object_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
+          <div style="width:350px;padding:10px">
+            <p>Other Items</p>
+            <div class="row" style="display: flex;flex-wrap: wrap;">
+              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;">
+                <p>Furniture</p>
+                <button class="btn fully object" id="bed">Bed</button>
+              </div>
+            </div>
           </div>
-          </div>
-
       </div>
       <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#energy_list').toggle(200);">ENERGY</button></li>
-      <!-- <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#object_list').toggle(200);">FURNITURE</button></li> -->
-      <br/>
+      <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#object_list').toggle(200);">FURNITURE</button></li>
 
       <li><button class="btn btn-default fully " id="layer_mode" onclick="$('.sub').hide();$('#layer_list').toggle(200);">Layers</button></li>
 

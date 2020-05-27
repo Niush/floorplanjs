@@ -94,7 +94,7 @@ document.addEventListener("keydown", function(event) {
         if (modeOption == 'simpleStair') binder = new editor.obj2D("free", "stair", "simpleStair", snap, 0, 0, 0, "normal", 0, 15);
         else {
           var typeObj = modeOption;
-          binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0);
+          binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0, '#eee');
         }
 
         $('#boxbind').append(binder.graph);
@@ -407,7 +407,12 @@ document.addEventListener("keydown", function(event) {
                 }
                 if (objTarget.params.bindBox) { // OBJ -> BOUNDINGBOX TOOL
                   if (typeof(binder) == 'undefined') {
-                    binder = new editor.obj2D("free", "boundingBox", "", objTarget.bbox.origin, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
+                    var bindbox_y_fix_top = Object.assign({},objTarget.bbox.origin);
+                    // fix for text -10 px to top
+                    if(objTarget.class == 'text'){
+                      bindbox_y_fix_top.y -= objTarget.thick/4;
+                    }
+                    binder = new editor.obj2D("free", "boundingBox", "", bindbox_y_fix_top, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
                     binder.update();
                     binder.obj = objTarget;
                     binder.type = 'boundingBox';
@@ -1484,7 +1489,7 @@ event.preventDefault();
       var actionToDo = ROOM[binder.id].action;
       document.querySelector('#'+actionToDo+'Action').checked = true;
       $('#panel').hide(100);
-      $('#roomTools').show('300', function() {
+      $('#roomTools').fadeIn('300', function() {
         $('#lin').css('cursor', 'default');
         $('#boxinfo').html('Config. the room');
       });
@@ -1689,7 +1694,7 @@ event.preventDefault();
               $('#boxinfo').html('Modify the object');
               document.getElementById('bboxWidth').setAttribute('min', objTarget.params.resizeLimit.width.min);
               document.getElementById('bboxWidth').setAttribute('max', objTarget.params.resizeLimit.width.max);
-              document.getElementById('bboxWidthScale').textContent = objTarget.params.resizeLimit.width.min+"-"+objTarget.params.resizeLimit.height.max;
+              document.getElementById('bboxWidthScale').textContent = objTarget.params.resizeLimit.width.min+"-"+objTarget.params.resizeLimit.width.max;
               document.getElementById('bboxHeight').setAttribute('min', objTarget.params.resizeLimit.height.min);
               document.getElementById('bboxHeight').setAttribute('max', objTarget.params.resizeLimit.height.max);
               document.getElementById('bboxHeightScale').textContent = objTarget.params.resizeLimit.height.min+"-"+objTarget.params.resizeLimit.height.max;
@@ -1699,9 +1704,11 @@ event.preventDefault();
                 $('#stepsCounter').show();
               }
               
-              if(objTarget.class && objTarget.class === 'text'){
+              if(objTarget.class && (objTarget.class === 'text' || objTarget.fill) && objTarget.class != 'stair'){
                 document.getElementById('objBoundingBoxColor').style.display = 'block';
-                document.getElementById('objBoundingBox').style.width = '133px';
+                if(objTarget.class === 'text'){
+                  document.getElementById('objBoundingBox').style.width = '133px';
+                }
               }else{
                 document.getElementById('objBoundingBoxColor').style.display = 'none';
                 document.getElementById('objBoundingBox').style.width = '200px';

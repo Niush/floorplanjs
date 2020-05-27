@@ -585,7 +585,7 @@ var editor = {
 
   // value can be "text label", "step number in stair", etc...
   // obj2D main object of all 2d elements
-  obj2D:  function(family, classe, type, pos, angle, angleSign, size, hinge = 'normal', thick, value) {
+  obj2D:  function(family, classe, type, pos, angle, angleSign, size, hinge = 'normal', thick, value, fill='#eee') {
     this.family = family   // inWall, stick, collision, free
     this.class = classe;  // door, window, energy, stair, measure, text ?
     this.type = type; // simple, double, simpleSlide, aperture, doubleSlide, fixed, switch, lamp....
@@ -602,8 +602,9 @@ var editor = {
     this.thick = thick;
     this.width = (this.size / meter).toFixed(2);
     this.height= (this.thick / meter).toFixed(2);
+    this.fill = fill;
 
-    var cc = carpentryCalc(classe, type, size, thick, value);
+    var cc = carpentryCalc(classe, type, size, thick, value, fill);
     var blank;
 
     for (var tt = 0; tt < cc.length; tt++) {
@@ -648,7 +649,7 @@ var editor = {
         // console.log("update")
         this.width = (this.size / meter).toFixed(2);
         this.height= (this.thick / meter).toFixed(2);
-        cc = carpentryCalc(this.class, this.type, this.size, this.thick, this.value);
+        cc = carpentryCalc(this.class, this.type, this.size, this.thick, this.value, this.fill);
         for (var tt = 0; tt < cc.length; tt++) {
             if (cc[tt].path)  {
               this.graph.find('path')[tt].setAttribute("d", cc[tt].path);

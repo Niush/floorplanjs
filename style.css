@@ -54,7 +54,8 @@ h2 {
 }
 
 #panel ul{
-  overflow: scroll;
+  overflow: auto;
+  overflow-x: hidden;
   height: 100vh;
   padding: 10px;
 }

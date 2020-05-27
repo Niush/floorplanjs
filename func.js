@@ -271,7 +271,8 @@ function load(index = HISTORY.index, boot = false) {
   for (var k in historyTemp.objData) {
     var OO = historyTemp.objData[k];
     // if (OO.family == 'energy') OO.family = 'byObject';
-    var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value);
+    var fill = OO.fill ? OO.fill : '#eee';
+    var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value, fill);
     obj.limit = OO.limit;
     OBJDATA.push(obj);
     $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
@@ -524,9 +525,8 @@ document.getElementById("bboxStepsMinus").addEventListener("click", function () 
 // Update width of items
 document.getElementById('bboxWidth').addEventListener("input", function() {
   var sliderValue = this.value;
-  var objTarget = binder.obj;
-  objTarget.size  = (sliderValue / 100) * meter;
-  objTarget.update();
+  binder.obj.size  = (sliderValue / 100) * meter;
+  binder.obj.update();
   binder.size = (sliderValue / 100) * meter;
   binder.update();
   document.getElementById("bboxWidthVal").textContent = sliderValue;
@@ -535,9 +535,8 @@ document.getElementById('bboxWidth').addEventListener("input", function() {
 // Update height of items
 document.getElementById('bboxHeight').addEventListener("input", function() {
   var sliderValue = this.value;
-  var objTarget = binder.obj;
-  objTarget.thick  = (sliderValue / 100) * meter;
-  objTarget.update();
+  binder.obj.thick  = (sliderValue / 100) * meter;
+  binder.obj.update();
   binder.thick = (sliderValue / 100) * meter;
   binder.update();
   document.getElementById("bboxHeightVal").textContent = sliderValue;
@@ -815,9 +814,15 @@ var textEditorColorBtn = document.querySelectorAll('.textEditorColor');
 for (var k = 0; k < textEditorColorBtn.length; k++) {
   textEditorColorBtn[k].addEventListener('click', function(){
     document.getElementById('labelBox').style.color = this.style.color;
-    if(typeof binder !== 'undefined' && binder && binder.obj && binder.obj.class == "text" && binder.obj.value){
+    if(typeof binder !== 'undefined' && binder && binder.obj && (binder.obj.class == "text" || binder.obj.fill) && binder.obj.value){
       var objTarget = binder.obj;
-      objTarget.type = this.style.color;
+      if(binder.obj.class == "text"){
+        objTarget.type = this.style.color;
+      }
+      else if(binder.obj.fill){
+        objTarget.fill = this.style.color;
+      }
+
       binder.update();
       if(binder.obj.graph.context.children){binder.obj.graph.context.children[0].setAttribute('fill',this.style.color);}
       var info = $('#boxinfo').html();
@@ -1432,7 +1437,6 @@ function rib(shift = 5) {
   }
 }
 
-// TODO: local cursor images
 // Cursor Image
 function cursor(tool) {
   if (tool == 'grab') tool = "url('./icons/grab.png') 8 8, auto";
@@ -1626,7 +1630,7 @@ $('#grid_mode').click(function() {
 });
 
 //  RETURN PATH(s) ARRAY FOR OBJECT + PROPERTY params => bindBox (false = open sideTool), move, resize, rotate
-function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10) {
+function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fill) {
   var construc = [];
   construc.params = {};
   construc.params.bindBox = false;
@@ -1700,6 +1704,7 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10) {
 
   if (classObj == 'measure') {
     construc.params.bindBox = true;
+    console.log(sizeObj)
     construc.push({'path':"M-"+(sizeObj/2)+",0 l10,-10 l0,8 l"+(sizeObj-20)+",0 l0,-8 l10,10 l-10,10 l0,-8 l-"+(sizeObj-20)+",0 l0,8 Z", 'fill': "#729eeb", 'stroke': "none", 'strokeDashArray': ''});
     }
 
@@ -1722,8 +1727,8 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10) {
     construc.params.move = true;
     construc.params.resize = true;
     construc.params.rotate = true;
-    construc.params.width = 60;
-    construc.params.height = 180;
+    construc.params.width = sizeObj?sizeObj:100; // Resize width/height to obj size/thick
+    construc.params.height = thickObj?thickObj:300;
     if (typeObj == 'simpleStair') {
       construc.push({'path':"M "+(-sizeObj/2)+","+(-thickObj/2)+" L "+(-sizeObj/2)+","+thickObj/2+" L "+sizeObj/2+","+thickObj/2+" L "+sizeObj/2+","+(-thickObj/2)+" Z", 'fill': "#fff", 'stroke': "#000", 'strokeDashArray': ''});
 
@@ -1874,7 +1879,20 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10) {
       construc.params.width = 40;
       construc.params.height = 20;
       construc.family = 'stick';
+    }
+    
+    if(['bed','cabinet','doublebed','table'].indexOf(typeObj) >= 0){
+      classObj = 'furniture';
+      construc.params.width = sizeObj?sizeObj:100; // Resize width/height to obj size/thick
+      construc.params.height = thickObj?thickObj:60;
+    }
 
+    if (typeObj == 'bed') {
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "#333", 'strokeDashArray': ''});
+      construc.push({'text': "Bed", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "none", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      construc.family = 'stick';
+      construc.params.resizeLimit.width = {min:80, max:200};
+      construc.params.resizeLimit.height = {min:30, max:150};
     }
   }
 
