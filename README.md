@@ -31,6 +31,9 @@ Personally I only test all this with the mozilla debug console
 * [Atom.io](https://atom.io/) - My code editor. Simple and free.
 * [Bootstrap](getbootstrap.com/docs/3.3/) - Bootstrap, a sleek, intuitive, and powerful mobile first front-end framework for faster and easier web development.
 
+## Note
+Use ``npm install --global http-server`` then ``http-server`` to test serviceworker and running the application as quick http application
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](https://en.wikipedia.org/wiki/MIT_License) on Web file for details

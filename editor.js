@@ -799,6 +799,10 @@ var editor = {
               fill: '#fff', 'fill-opacity': 1, stroke: 'none', 'fill-rule': 'evenodd', class: 'room'});
 
         var centroid = qSVG.polygonVisualCenter(ROOM[rr]);
+        if(typeof centroid === 'undefined' || !centroid){
+          console.warn('Invalid Centroid Detected - defaults to x:100, y:100')
+          centroid = {x: 100, y: 100};
+        }
 
         if (ROOM[rr].name != '') {
           var styled = {color:'#343938'};

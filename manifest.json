@@ -1,0 +1,21 @@
+{
+    "short_name": "Floor Plan",
+    "name": "Floor Plan App. v0.1",
+    "description": "Simple Web Based Floor Plan Maker built with JavaScript. For quick floor planning, json import, export and more.",
+    "icons": [
+      {
+        "src": "./icons/favicon.jpg",
+        "type": "image/jpg",
+        "sizes": "192x192",
+        "purpose": "any"
+      }
+    ],
+    "start_url": "/",
+    "background_color": "#323232",
+    "display": "standalone",
+    "scope": "/",
+    "theme_color": "#323232",
+    "serviceworker": {
+        "src": "./serviceworker.js"
+    }
+  }

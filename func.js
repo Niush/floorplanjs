@@ -37,6 +37,18 @@ var originY_viewbox = 0;
 var zoom = 9;
 var factor = 1;
 
+// SERVICE WORKER //
+window.addEventListener('load', () => {
+  if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('./serviceworker.js', {
+          scope: '/',
+      })
+      .catch(e => {console.log(e)})
+  }else{
+      console.log('Service Worker will not work.')
+  }
+});
+
 // **************************************************************************
 // *****************   LOAD / SAVE LOCALSTORAGE      ************************
 // **************************************************************************
@@ -188,6 +200,10 @@ document.addEventListener('keydown', function(event) {
     if(typeof lengthTemp !== 'undefined' && lengthTemp){
       lengthTemp.remove();
       delete lengthTemp;
+    }
+    if(typeof binder !== 'undefined' && binder.class == "measure"){
+      // Remove the cross of measure + yellow helper //
+      cross[0].remove();
     }
   }
 
@@ -651,7 +667,7 @@ if (!Array.prototype.includes) {
 
 // Is Object equal or ok //
 function isObjectsEquals(a, b, message = false) {
-  if (message) console.log(message)
+  // if (message) console.log(message)
   var isOK = true;
   for (var prop in a) {
     if (a[prop] !== b[prop]) {
@@ -884,7 +900,7 @@ for (var k = 0; k < dropdownMenu.length; k++) {
 
 // TRY MATRIX CALC FOR BBOX REAL COORDS WITH TRAS + ROT.
 function matrixCalc(el, message = false) {
-  if (message) console.log("matrixCalc called by -> "+message);
+  // if (message) console.log("matrixCalc called by -> "+message);
   var m = el.getCTM();
   var bb = el.getBBox();
   var tpts = [
@@ -905,7 +921,7 @@ function realBboxShow(coords) {
 
 
 function limitObj(equation, size, coords,message = false) {
-  if (message) console.log(message)
+  // if (message) console.log(message)
   var Px = coords.x;
   var Py = coords.y;
   var Aq =  equation.A;
@@ -1704,7 +1720,7 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
 
   if (classObj == 'measure') {
     construc.params.bindBox = true;
-    console.log(sizeObj)
+    // console.log(sizeObj)
     construc.push({'path':"M-"+(sizeObj/2)+",0 l10,-10 l0,8 l"+(sizeObj-20)+",0 l0,-8 l10,10 l-10,10 l0,-8 l-"+(sizeObj-20)+",0 l0,8 Z", 'fill': "#729eeb", 'stroke': "none", 'strokeDashArray': ''});
     }
 
