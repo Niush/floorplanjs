@@ -3,6 +3,7 @@ WALLS = [];
 OBJDATA = [];
 ROOM = [];
 HISTORY = [];
+FLOORS = 1;
 wallSize = 20;
 partitionSize = 8;
 var drag = 'off';
@@ -260,7 +261,7 @@ function save(boot = false) {
     HISTORY.splice(HISTORY.index, (HISTORY.length - HISTORY.index));
     $('#redo').addClass('disabled');
   }
-  HISTORY.push(JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}));
+  HISTORY.push(JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM, floors: FLOORS}));
   localStorage.setItem('history', JSON.stringify(HISTORY));
   HISTORY.index++;
   if (HISTORY.index>1) $('#undo').removeClass('disabled');
@@ -300,8 +301,10 @@ function load(index = HISTORY.index, boot = false) {
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
   }
   ROOM = historyTemp.roomData;
+  FLOORS = historyTemp.floors;
   editor.architect(WALLS);
   editor.showScaleBox();
+  updateFloorSelect();
   rib();
 }
 
@@ -314,6 +317,38 @@ $('svg').each(function() {
 // **************************************************************************
 // *****************   FUNCTIONS ON BUTTON click     ************************
 // **************************************************************************
+
+function updateFloorSelect(goto){
+  var floorListSelect = document.getElementById('floorList');
+  var selected = floorListSelect.value;
+  floorListSelect.innerHTML = '';
+  for(var i = 1 ; i <= FLOORS ; i++){
+    var option = document.createElement('option');
+    option.value = i;
+    option.innerText = 'Floor '+i;
+    floorListSelect.appendChild(option);
+  }
+  if(goto){
+    floorListSelect.value = goto;
+  }else{
+    floorListSelect.value = selected;
+  }
+  save();
+}
+
+document.getElementById('floorAdd').addEventListener("click", function(){
+  if(FLOORS < 10){
+    FLOORS += 1;
+    updateFloorSelect();
+  }
+})
+
+document.getElementById('deleteCurrentFloor').addEventListener("click", function(){
+  if(FLOORS > 1){
+    FLOORS -= 1;
+    updateFloorSelect(1);
+  }
+})
 
 // REPORT (contains export button also)
 document.getElementById('report_mode').addEventListener("click", function() {
