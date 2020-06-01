@@ -3,7 +3,9 @@ WALLS = [];
 OBJDATA = [];
 ROOM = [];
 HISTORY = [];
+BACKUP_HISTORY = [];
 FLOORS = 1;
+current_active_floor = 0; // start from 0
 wallSize = 20;
 partitionSize = 8;
 var drag = 'off';
@@ -61,18 +63,19 @@ function initHistory(boot = false) {
     }
   }
 
+  updateFloorSelect();
   $('#myModal').modal('toggle')
 
   HISTORY.index = 0;
   if (!boot && localStorage.getItem('history')) localStorage.removeItem('history');
     if (localStorage.getItem('history') && boot == "recovery") {
       var historyTemp = JSON.parse(localStorage.getItem('history'));
-      load(historyTemp.length-1, "boot");
-      save("boot");
+      HISTORY.push(historyTemp[historyTemp.length - 1]);
+      load(HISTORY.length-1, "boot");
     }
     if (boot == "newSquare") {
       if (localStorage.getItem('history')) localStorage.removeItem('history');
-      HISTORY.push({"objData":[],"wallData":[{"thick":20,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}}],"roomData":[{"coords":[{"x":540,"y":734},{"x":1080,"y":734},{"x":1080,"y":194},{"x":540,"y":194},{"x":540,"y":734}],"coordsOutside":[{"x":1090,"y":744},{"x":1090,"y":184},{"x":530,"y":184},{"x":530,"y":744},{"x":1090,"y":744}],"coordsInside":[{"x":1070,"y":724},{"x":1070,"y":204},{"x":550,"y":204},{"x":550,"y":724},{"x":1070,"y":724}],"inside":[],"way":["0","2","3","1","0"],"area":270400,"surface":"","name":"","color":"gradientWhite","showSurface":true,"action":"add"}]});
+      HISTORY.push({"data":[{"objData":[],"wallData":[{"thick":20,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}}],"roomData":[{"coords":[{"x":540,"y":734},{"x":1080,"y":734},{"x":1080,"y":194},{"x":540,"y":194},{"x":540,"y":734}],"coordsOutside":[{"x":1090,"y":744},{"x":1090,"y":184},{"x":530,"y":184},{"x":530,"y":744},{"x":1090,"y":744}],"coordsInside":[{"x":1070,"y":724},{"x":1070,"y":204},{"x":550,"y":204},{"x":550,"y":724},{"x":1070,"y":724}],"inside":[],"way":["0","2","3","1","0"],"area":270400,"surface":"","name":"","color":"gradientWhite","showSurface":true,"action":"add"}]}], "floors":1});
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
@@ -80,7 +83,7 @@ function initHistory(boot = false) {
     }
     if (boot == "newL") {
       if (localStorage.getItem('history')) localStorage.removeItem('history');
-      HISTORY.push({"objData":[],"wallData":[{"thick":20,"start":{"x":447,"y":458},"end":{"x":447,"y":744},"type":"normal","parent":5,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":457},"down":{"A":"v","B":437},"base":{"A":"v","B":447}},"coords":[{"x":457,"y":468},{"x":437,"y":448},{"x":437,"y":754},{"x":457,"y":734}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":447,"y":744},"end":{"x":1347,"y":744},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":734},"down":{"A":"h","B":754},"base":{"A":"h","B":744}},"coords":[{"x":457,"y":734},{"x":437,"y":754},{"x":1357,"y":754},{"x":1337,"y":734}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1347,"y":744},"end":{"x":1347,"y":144},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1337},"down":{"A":"v","B":1357},"base":{"A":"v","B":1347}},"coords":[{"x":1337,"y":734},{"x":1357,"y":754},{"x":1357,"y":134},{"x":1337,"y":154}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1347,"y":144},"end":{"x":1020,"y":144},"type":"normal","parent":2,"child":4,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":154},"down":{"A":"h","B":134},"base":{"A":"h","B":144}},"coords":[{"x":1337,"y":154},{"x":1357,"y":134},{"x":1010,"y":134},{"x":1030,"y":154}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1020,"y":144},"end":{"x":1020,"y":458},"type":"normal","parent":3,"child":5,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":1030},"down":{"A":"v","B":1010},"base":{"A":"v","B":1020}},"coords":[{"x":1030,"y":154},{"x":1010,"y":134},{"x":1010,"y":448},{"x":1030,"y":468}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1020,"y":458},"end":{"x":447,"y":458},"type":"normal","parent":4,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":468},"down":{"A":"h","B":448},"base":{"A":"h","B":458}},"coords":[{"x":1030,"y":468},{"x":1010,"y":448},{"x":437,"y":448},{"x":457,"y":468}],"graph":{"0":{},"context":{},"length":1}}],"roomData":[{"coords":[{"x":447,"y":744},{"x":1347,"y":744},{"x":1347,"y":144},{"x":1020,"y":144},{"x":1020,"y":458},{"x":447,"y":458},{"x":447,"y":744}],"coordsOutside":[{"x":1357,"y":754},{"x":1357,"y":134},{"x":1010,"y":134},{"x":1010,"y":448},{"x":437,"y":448},{"x":437,"y":754},{"x":1357,"y":754}],"coordsInside":[{"x":1337,"y":734},{"x":1337,"y":154},{"x":1030,"y":154},{"x":1030,"y":468},{"x":457,"y":468},{"x":457,"y":734},{"x":1337,"y":734}],"inside":[],"way":["0","2","3","4","5","1","0"],"area":330478,"surface":"","name":"","color":"gradientWhite","showSurface":true,"action":"add"}]});
+      HISTORY.push({"data":[{"objData":[],"wallData":[{"thick":20,"start":{"x":447,"y":458},"end":{"x":447,"y":744},"type":"normal","parent":5,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":457},"down":{"A":"v","B":437},"base":{"A":"v","B":447}},"coords":[{"x":457,"y":468},{"x":437,"y":448},{"x":437,"y":754},{"x":457,"y":734}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":447,"y":744},"end":{"x":1347,"y":744},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":734},"down":{"A":"h","B":754},"base":{"A":"h","B":744}},"coords":[{"x":457,"y":734},{"x":437,"y":754},{"x":1357,"y":754},{"x":1337,"y":734}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1347,"y":744},"end":{"x":1347,"y":144},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1337},"down":{"A":"v","B":1357},"base":{"A":"v","B":1347}},"coords":[{"x":1337,"y":734},{"x":1357,"y":754},{"x":1357,"y":134},{"x":1337,"y":154}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1347,"y":144},"end":{"x":1020,"y":144},"type":"normal","parent":2,"child":4,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":154},"down":{"A":"h","B":134},"base":{"A":"h","B":144}},"coords":[{"x":1337,"y":154},{"x":1357,"y":134},{"x":1010,"y":134},{"x":1030,"y":154}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1020,"y":144},"end":{"x":1020,"y":458},"type":"normal","parent":3,"child":5,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":1030},"down":{"A":"v","B":1010},"base":{"A":"v","B":1020}},"coords":[{"x":1030,"y":154},{"x":1010,"y":134},{"x":1010,"y":448},{"x":1030,"y":468}],"graph":{"0":{},"context":{},"length":1}},{"thick":20,"start":{"x":1020,"y":458},"end":{"x":447,"y":458},"type":"normal","parent":4,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":468},"down":{"A":"h","B":448},"base":{"A":"h","B":458}},"coords":[{"x":1030,"y":468},{"x":1010,"y":448},{"x":437,"y":448},{"x":457,"y":468}],"graph":{"0":{},"context":{},"length":1}}],"roomData":[{"coords":[{"x":447,"y":744},{"x":1347,"y":744},{"x":1347,"y":144},{"x":1020,"y":144},{"x":1020,"y":458},{"x":447,"y":458},{"x":447,"y":744}],"coordsOutside":[{"x":1357,"y":754},{"x":1357,"y":134},{"x":1010,"y":134},{"x":1010,"y":448},{"x":437,"y":448},{"x":437,"y":754},{"x":1357,"y":754}],"coordsInside":[{"x":1337,"y":734},{"x":1337,"y":154},{"x":1030,"y":154},{"x":1030,"y":468},{"x":457,"y":468},{"x":457,"y":734},{"x":1337,"y":734}],"inside":[],"way":["0","2","3","4","5","1","0"],"area":330478,"surface":"","name":"","color":"gradientWhite","showSurface":true,"action":"add"}]}], floors: 1});
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
@@ -106,11 +109,13 @@ function importPlan(){
       
       HISTORY.push(obj);
       HISTORY[0] = JSON.stringify(HISTORY[0]);
+      HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
       $('#myModal').modal('toggle')
-    }catch{
+    }catch(e){
+      console.log(e)
       alert('Invalid File Provided');
     }
   };
@@ -243,13 +248,25 @@ if(localStorage.getItem('dark') && localStorage.getItem('dark') == 'true'){
 // Save changes to History Function //
 // ******************************** //
 function save(boot = false) {
-  if (boot) localStorage.removeItem('history');
+  // if (boot) localStorage.removeItem('history');
   // FOR CYCLIC OBJ INTO LOCALSTORAGE !!!
+
+  let d = JSON.parse(localStorage.getItem('history'));
+  // console.log(d)
+  if(d && d.length > 0) d=JSON.parse(d[d.length - 1]);
+  if(d && d.data && d.data.length > 0){
+    BACKUP_HISTORY = JSON.parse(localStorage.getItem('history'));
+  }else{
+    // console.log(BACKUP_HISTORY)
+    localStorage.setItem('history', JSON.stringify(BACKUP_HISTORY));
+  }
+
+  // console.log(JSON.parse(localStorage.getItem('history')))
   for (var k in WALLS) {
     if (WALLS[k].child != null) WALLS[k].child = WALLS.indexOf(WALLS[k].child);
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
   }
-  if (JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == HISTORY[HISTORY.length-1]) {
+  if (HISTORY[HISTORY.length-1] && JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == JSON.stringify(JSON.parse(HISTORY[HISTORY.length-1]).data[current_active_floor])) {
     for (var k in WALLS) {
       if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
       if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
@@ -261,7 +278,49 @@ function save(boot = false) {
     HISTORY.splice(HISTORY.index, (HISTORY.length - HISTORY.index));
     $('#redo').addClass('disabled');
   }
-  HISTORY.push(JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM, floors: FLOORS}));
+
+  // append and create data...
+  var data = [];
+  var currentPushed = false;
+  var toLoad = HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1;
+  if(toLoad < 0){toLoad = 0}
+  if(HISTORY.length && JSON.parse(HISTORY[toLoad]).data.length <= 0){
+    if(localStorage.getItem('history')){
+      var historyTemp = JSON.parse(localStorage.getItem('history'));
+      if(historyTemp && historyTemp.length > 0){
+        HISTORY.push(historyTemp[historyTemp.length - 1]);
+        HISTORY.index = HISTORY.length - 1;
+        toLoad = HISTORY.index;
+      }else{
+        toLoad = 0;
+      }
+    }else{
+      toLoad = 0;
+    }
+  }
+
+  if(HISTORY.length){
+    // console.log(HISTORY)
+    // console.log(toLoad)
+    var historyTemp = JSON.parse(HISTORY[toLoad]);
+    // console.log(historyTemp)
+    var floor_data = historyTemp.data;
+    for(var i = 0 ; i < FLOORS ; i++){
+      if(i == parseInt(current_active_floor)){
+        data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
+        currentPushed = true;
+      }else{
+        // console.log(floor_data);
+        // console.log(floor_data[i]);
+        data.push(floor_data[i]);
+      }
+    }
+    if(!currentPushed){
+      data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
+    }
+  }
+  //
+  HISTORY.push(JSON.stringify({data: data, floors: FLOORS}));
   localStorage.setItem('history', JSON.stringify(HISTORY));
   HISTORY.index++;
   if (HISTORY.index>1) $('#undo').removeClass('disabled');
@@ -275,33 +334,58 @@ function save(boot = false) {
 // ********************************** //
 // Load changes from History Function //
 // ********************************** //
-function load(index = HISTORY.index, boot = false) {
+function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   if (HISTORY.length == 0 && !boot) return false;
   for (var k in OBJDATA){
     OBJDATA[k].graph.remove();
   }
   OBJDATA = [];
   var historyTemp = [];
-  historyTemp = JSON.parse(localStorage.getItem('history'));
-  historyTemp = JSON.parse(historyTemp[index]);
+  // historyTemp = JSON.parse(localStorage.getItem('history'));
+  // console.log(historyTemp)
+  // historyTemp = JSON.parse(historyTemp[index]);
+  if(index || index == 0 || !HISTORY.index){
+    // console.log(HISTORY)
+    if(isNaN(index)){
+      index = 0;
+    }
+    // console.log(index)
+    historyTemp = JSON.parse(HISTORY[index]);
+  }else{
+    // console.log(HISTORY)
+    // console.log(index)
+    historyTemp = JSON.parse(HISTORY[(HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1)]);
+  }
+  // console.log(historyTemp)
+  var floors = historyTemp.floors;
+  historyTemp = historyTemp.data[current_active_floor];
+  // console.log(historyTemp)
 
-  for (var k in historyTemp.objData) {
-    var OO = historyTemp.objData[k];
-    // if (OO.family == 'energy') OO.family = 'byObject';
-    var fill = OO.fill ? OO.fill : '#eee';
-    var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value, fill);
-    obj.limit = OO.limit;
-    OBJDATA.push(obj);
-    $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
-    obj.update();
+  // IF NO HISTORY TEMP FOR IS EMPTY (e.g. NO CASE OF NEW ADDED FLOOR)
+  if(!historyTemp){
+    WALLS = []
+    ROOM = []
+  }else{
+    // IF data exists //
+    for (var k in historyTemp.objData) {
+      var OO = historyTemp.objData[k];
+      // if (OO.family == 'energy') OO.family = 'byObject';
+      var fill = OO.fill ? OO.fill : '#eee';
+      var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value, fill);
+      obj.limit = OO.limit;
+      OBJDATA.push(obj);
+      $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
+      obj.update();
+    }
+    WALLS = historyTemp.wallData;
+    for (var k in WALLS) {
+      if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
+      if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
+    }
+    ROOM = historyTemp.roomData;
   }
-  WALLS = historyTemp.wallData;
-  for (var k in WALLS) {
-    if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
-    if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
-  }
-  ROOM = historyTemp.roomData;
-  FLOORS = historyTemp.floors;
+
+  FLOORS = runtimeFloors ? FLOORS : floors;
   editor.architect(WALLS);
   editor.showScaleBox();
   updateFloorSelect();
@@ -322,7 +406,7 @@ function updateFloorSelect(goto){
   var floorListSelect = document.getElementById('floorList');
   var selected = floorListSelect.value;
   floorListSelect.innerHTML = '';
-  for(var i = 1 ; i <= FLOORS ; i++){
+  for(var i = 0 ; i < FLOORS ; i++){
     var option = document.createElement('option');
     option.value = i;
     option.innerText = 'Floor '+i;
@@ -330,10 +414,19 @@ function updateFloorSelect(goto){
   }
   if(goto){
     floorListSelect.value = goto;
+    current_active_floor = parseInt(goto);
   }else{
     floorListSelect.value = selected;
+    current_active_floor = parseInt(selected);
   }
-  save();
+
+  if(isNaN(current_active_floor)){
+    current_active_floor = 0;
+  }
+  
+  if(!floorListSelect.value){
+    floorListSelect.value = 0;
+  }
 }
 
 document.getElementById('floorAdd').addEventListener("click", function(){
@@ -344,10 +437,43 @@ document.getElementById('floorAdd').addEventListener("click", function(){
 })
 
 document.getElementById('deleteCurrentFloor').addEventListener("click", function(){
+  // TODO (may be ok): still very buggy (not removing from history (ie. not saving changes))
   if(FLOORS > 1){
     FLOORS -= 1;
-    updateFloorSelect(1);
+
+    let this_history = HISTORY.length - 1;
+    if(HISTORY.index && HISTORY.index < HISTORY.length){
+      this_history = HISTORY.index;
+    }
+    let history = JSON.parse(HISTORY[this_history]);
+    history.data.pop(current_active_floor);
+    if(history.floors > 1){
+      history.floors -= 1;
+    }
+    // console.log(history)
+    HISTORY.push(JSON.stringify(history));
+    HISTORY.index = HISTORY.length - 1;
+    // console.log(JSON.stringify([JSON.stringify(history)]));
+    localStorage.setItem('history', JSON.stringify([JSON.stringify(history)]));
+    // console.log(HISTORY)
+
+    updateFloorSelect(0);
+    document.getElementById('floorList').dispatchEvent(new Event('change'))
   }
+})
+
+document.getElementById('floorList').addEventListener("change", function(){
+  // SHADOW HELPER FOR FLOOR //
+  $('#shadowlin').remove();
+  var cloned_shadow = document.getElementById('lin').cloneNode('deep');
+  cloned_shadow.style.opacity = '0.1';
+  cloned_shadow.style.pointerEvents = 'none';
+  cloned_shadow.setAttribute('id','shadowlin');
+  document.body.append(cloned_shadow);
+
+  current_active_floor = parseInt(document.getElementById('floorList').value);
+  var toLoad = HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1;
+  load(toLoad, false, true);
 })
 
 // REPORT (contains export button also)
@@ -946,7 +1072,7 @@ function matrixCalc(el, message = false) {
   return tpts;
 }
 function matrixXY(m,x,y) {
-            return { x: x * m.a + y * m.c + m.e, y: x * m.b + y * m.d + m.f };
+  return { x: x * m.a + y * m.c + m.e, y: x * m.b + y * m.d + m.f };
 }
 function realBboxShow(coords) {
   for (var k in coords) {
