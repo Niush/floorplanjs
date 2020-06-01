@@ -3,6 +3,7 @@ WALLS = [];
 OBJDATA = [];
 ROOM = [];
 HISTORY = [];
+BACKUP_HISTORY = [];
 FLOORS = 1;
 current_active_floor = 0; // start from 0
 wallSize = 20;
@@ -70,7 +71,7 @@ function initHistory(boot = false) {
     if (localStorage.getItem('history') && boot == "recovery") {
       var historyTemp = JSON.parse(localStorage.getItem('history'));
       HISTORY.push(historyTemp[historyTemp.length - 1]);
-      load(historyTemp.length-1, "boot");
+      load(HISTORY.length-1, "boot");
     }
     if (boot == "newSquare") {
       if (localStorage.getItem('history')) localStorage.removeItem('history');
@@ -108,11 +109,13 @@ function importPlan(){
       
       HISTORY.push(obj);
       HISTORY[0] = JSON.stringify(HISTORY[0]);
+      HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
       $('#myModal').modal('toggle')
-    }catch{
+    }catch(e){
+      console.log(e)
       alert('Invalid File Provided');
     }
   };
@@ -245,8 +248,20 @@ if(localStorage.getItem('dark') && localStorage.getItem('dark') == 'true'){
 // Save changes to History Function //
 // ******************************** //
 function save(boot = false) {
-  if (boot) localStorage.removeItem('history');
+  // if (boot) localStorage.removeItem('history');
   // FOR CYCLIC OBJ INTO LOCALSTORAGE !!!
+
+  let d = JSON.parse(localStorage.getItem('history'));
+  // console.log(d)
+  if(d && d.length > 0) d=JSON.parse(d[d.length - 1]);
+  if(d && d.data && d.data.length > 0){
+    BACKUP_HISTORY = JSON.parse(localStorage.getItem('history'));
+  }else{
+    // console.log(BACKUP_HISTORY)
+    localStorage.setItem('history', JSON.stringify(BACKUP_HISTORY));
+  }
+
+  // console.log(JSON.parse(localStorage.getItem('history')))
   for (var k in WALLS) {
     if (WALLS[k].child != null) WALLS[k].child = WALLS.indexOf(WALLS[k].child);
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
@@ -263,30 +278,40 @@ function save(boot = false) {
     HISTORY.splice(HISTORY.index, (HISTORY.length - HISTORY.index));
     $('#redo').addClass('disabled');
   }
+
   // append and create data...
   var data = [];
   var currentPushed = false;
   var toLoad = HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1;
   if(toLoad < 0){toLoad = 0}
   if(HISTORY.length && JSON.parse(HISTORY[toLoad]).data.length <= 0){
-    var historyTemp = JSON.parse(localStorage.getItem('history'));
-    HISTORY.push(historyTemp[historyTemp.length - 1]);
+    if(localStorage.getItem('history')){
+      var historyTemp = JSON.parse(localStorage.getItem('history'));
+      if(historyTemp && historyTemp.length > 0){
+        HISTORY.push(historyTemp[historyTemp.length - 1]);
+        HISTORY.index = HISTORY.length - 1;
+        toLoad = HISTORY.index;
+      }else{
+        toLoad = 0;
+      }
+    }else{
+      toLoad = 0;
+    }
   }
 
   if(HISTORY.length){
-    console.log(HISTORY)
-    console.log(HISTORY.index - 1)
+    // console.log(HISTORY)
+    // console.log(toLoad)
     var historyTemp = JSON.parse(HISTORY[toLoad]);
-    console.log(historyTemp);
+    // console.log(historyTemp)
     var floor_data = historyTemp.data;
     for(var i = 0 ; i < FLOORS ; i++){
       if(i == parseInt(current_active_floor)){
         data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
         currentPushed = true;
       }else{
-        alert('here');
-        console.log(floor_data)
-        console.log(floor_data[i])
+        // console.log(floor_data);
+        // console.log(floor_data[i]);
         data.push(floor_data[i]);
       }
     }
@@ -319,12 +344,22 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   // historyTemp = JSON.parse(localStorage.getItem('history'));
   // console.log(historyTemp)
   // historyTemp = JSON.parse(historyTemp[index]);
-
-  historyTemp = JSON.parse(HISTORY[(HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1)]);
-  console.log(historyTemp)
+  if(index || index == 0 || !HISTORY.index){
+    console.log(HISTORY)
+    if(isNaN(index)){
+      index = 0;
+    }
+    // console.log(index)
+    historyTemp = JSON.parse(HISTORY[index]);
+  }else{
+    // console.log(HISTORY)
+    // console.log(index)
+    historyTemp = JSON.parse(HISTORY[(HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1)]);
+  }
+  // console.log(historyTemp)
   var floors = historyTemp.floors;
   historyTemp = historyTemp.data[current_active_floor];
-  console.log(historyTemp)
+  // console.log(historyTemp)
 
   // IF NO HISTORY TEMP FOR IS EMPTY (e.g. NO CASE OF NEW ADDED FLOOR)
   if(!historyTemp){
