@@ -345,7 +345,7 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   // console.log(historyTemp)
   // historyTemp = JSON.parse(historyTemp[index]);
   if(index || index == 0 || !HISTORY.index){
-    console.log(HISTORY)
+    // console.log(HISTORY)
     if(isNaN(index)){
       index = 0;
     }
@@ -437,17 +437,41 @@ document.getElementById('floorAdd').addEventListener("click", function(){
 })
 
 document.getElementById('deleteCurrentFloor').addEventListener("click", function(){
+  // TODO (may be ok): still very buggy (not removing from history (ie. not saving changes))
   if(FLOORS > 1){
     FLOORS -= 1;
+
+    let this_history = HISTORY.length - 1;
+    if(HISTORY.index && HISTORY.index < HISTORY.length){
+      this_history = HISTORY.index;
+    }
+    let history = JSON.parse(HISTORY[this_history]);
+    history.data.pop(current_active_floor);
+    if(history.floors > 1){
+      history.floors -= 1;
+    }
+    // console.log(history)
+    HISTORY.push(JSON.stringify(history));
+    HISTORY.index = HISTORY.length - 1;
+    // console.log(JSON.stringify([JSON.stringify(history)]));
+    localStorage.setItem('history', JSON.stringify([JSON.stringify(history)]));
+    // console.log(HISTORY)
+
     updateFloorSelect(0);
-    var toLoad = HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1;
-    load(toLoad, false, true);
+    document.getElementById('floorList').dispatchEvent(new Event('change'))
   }
 })
 
 document.getElementById('floorList').addEventListener("change", function(){
+  // SHADOW HELPER FOR FLOOR //
+  $('#shadowlin').remove();
+  var cloned_shadow = document.getElementById('lin').cloneNode('deep');
+  cloned_shadow.style.opacity = '0.1';
+  cloned_shadow.style.pointerEvents = 'none';
+  cloned_shadow.setAttribute('id','shadowlin');
+  document.body.append(cloned_shadow);
+
   current_active_floor = parseInt(document.getElementById('floorList').value);
-  // save();
   var toLoad = HISTORY.index < HISTORY.length ? HISTORY.index : HISTORY.index - 1;
   load(toLoad, false, true);
 })
