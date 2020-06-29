@@ -122,7 +122,7 @@
     <button class="btn btn-info fully" style="margin-top:10px" onclick="$('#reportTools').hide('500', function(){$('#panel').show(300);});mode = 'select_mode';"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
   </div>
 
-  <div id="wallTools" class="leftBox">
+  <div id="wallTools" class="leftBox"  style="overflow: auto;">
     <h2 id="titleWallTools">Modify the wall</h2>
     <hr/>
     <section id="rangeThick">
@@ -149,6 +149,12 @@
       <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('good');" id="wallGood"><i class="fa fa-2x fa-check-circle" aria-hidden="true" style="color: green;"></i></button>
       <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('medium');" id="wallMedium"><i class="fa fa-2x fa-exclamation-triangle" aria-hidden="true" style="color: orange;"></i></button>
       <button class="btn btn-default btn-sm" onclick="editor.updateDamageLevel('high');" id="wallHigh"><i class="fa fa-2x fa-exclamation-circle" aria-hidden="true" style="color: red;"></i></button>
+    </section>
+    <br/>
+    <section id="demolishStatus">
+      <p>Demolish :</p>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes')" id="demolishYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no')" id="demolishNo">No</button>
     </section>
     <br/>
     <li><button class="btn btn-danger fully" id="wallTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>

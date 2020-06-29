@@ -297,6 +297,34 @@ var editor = {
     }
   },
 
+    // Update Demolish Status of wall
+    updateDemolishStatus: function(status = 'no'){
+      var demolishStatus = binder.wall
+      console.log(binder.wall)
+      try{
+        demolishStatus.demolish = status
+        editor.architect(WALLS);
+  
+        document.getElementById('demolishYes').className = document.getElementById('demolishYes').className.replace('activebtn', '');
+        document.getElementById('demolishNo').className = document.getElementById('demolishNo').className.replace('activebtn', '');
+  
+        if(status == 'yes'){
+          document.getElementById('demolishYes').className += ' activebtn';
+        }else{
+          document.getElementById('demolishNo').className += ' activebtn';
+  
+        }
+  
+        save();
+        return true;
+        
+      }catch{
+        $('#boxinfo').html('Invalid Wall Selected');
+        return false;
+      }
+  
+    },
+
   // Make Visible Wall (Normal)
   visibleWall:  function(wallToInvisble = false) {
     if (!wallToInvisble) wallToInvisble = binder.wall;

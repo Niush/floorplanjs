@@ -1642,6 +1642,16 @@ event.preventDefault();
                 }else if(binder.wall.damage == 'high'){
                   document.getElementById('wallHigh').className += ' activebtn';
                 }
+
+                document.getElementById('demolishYes').className = document.getElementById('demolishYes').className.replace('activebtn', '');
+                document.getElementById('demolishNo').className = document.getElementById('demolishNo').className.replace('activebtn', '');
+
+                if(binder.wall.demolish == 'yes'){
+                  document.getElementById('demolishYes').className += ' activebtn';
+                }else{
+                  document.getElementById('demolishNo').className += ' activebtn';
+                }
+                
                 mode = 'edit_wall_mode';
               }
                 delete equation1;
