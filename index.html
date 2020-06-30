@@ -153,8 +153,8 @@
     <br/>
     <section id="demolishStatus">
       <p>Demolish :</p>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes')" id="demolishYes">Yes</button>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no')" id="demolishNo">No</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'wall')" id="demolishWallYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'wall')" id="demolishWallNo">No</button>
     </section>
     <br/>
     <li><button class="btn btn-danger fully" id="wallTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
@@ -213,6 +213,15 @@
 
       <p>Width [<span id="doorWindowWidthScale"></span>] : <span id="doorWindowWidthVal"></span> cm</span></p>
       <input type="range" id="doorWindowWidth" step="1" class="range" />
+
+      <p>Height (in cm): <span id="doorWindowHeightVal"></span> cm</p>
+      <input type="number" id="doorWindowHeight" step="0.10" /> <br/>
+    <br/>
+    <section id="demolishWallWindowStatus">
+      <p>Demolish :</p>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'obj')" id="demolishDoorWindowYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'obj')" id="demolishDoorWindowNo">No</button>
+    </section>
     <br/>
     <li><button class="btn btn-danger fully objTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
     <li><button class="btn btn-info" style="margin-top:100px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objTools').hide('100');$('#panel').show('200');binder.graph.remove();delete binder;rib();"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>

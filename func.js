@@ -102,6 +102,7 @@ function importPlan(){
   reader.onload = function(event){
     try{
       var obj = JSON.parse(event.target.result);
+      // console.log(obj)
       if(obj.constructor !== ({}).constructor){
         alert('JSON is not a valid Plan Type')
         return;
@@ -373,9 +374,11 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       var fill = OO.fill ? OO.fill : '#eee';
       var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value, fill);
       obj.limit = OO.limit;
+      obj.demolish = OO.demolish;
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
+      // console.log(OBJDATA)
     }
     WALLS = historyTemp.wallData;
     for (var k in WALLS) {
@@ -748,6 +751,27 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
   }
   inWallRib(wallBind);
 });
+
+// Door & Window changes
+document.getElementById('doorWindowHeight').addEventListener("input", function(){
+  var heightValue = this.value
+  var objTarget = binder.obj
+  var wallBind = editor.rayCastingWalls(objTarget, WALLS)
+  if (wallBind.length > 1) wallBind = wallBind[wallBind.length-1];
+  var limits = limitObj(wallBind.equations.base, heightValue, objTarget);
+  if (qSVG.btwn(limits[1].x, wallBind.start.x, wallBind.end.x) && qSVG.btwn(limits[1].y, wallBind.start.y, wallBind.end.y) && qSVG.btwn(limits[0].x, wallBind.start.x, wallBind.end.x) && qSVG.btwn(limits[0].y, wallBind.start.y, wallBind.end.y)) {
+    objTarget.thick  = heightValue;
+    objTarget.limit = limits;
+    objTarget.update();
+    binder.thick  = heightValue;
+    binder.limit = limits;
+    binder.update();
+    document.getElementById("doorWindowHeightVal").textContent = heightValue;
+  }
+  inWallRib(wallBind);
+
+})
+
 
 // Hinge changes
 document.getElementById("objToolsHinge").addEventListener("click", function () {

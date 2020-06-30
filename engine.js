@@ -1643,15 +1643,15 @@ event.preventDefault();
                   document.getElementById('wallHigh').className += ' activebtn';
                 }
 
-                document.getElementById('demolishYes').className = document.getElementById('demolishYes').className.replace('activebtn', '');
-                document.getElementById('demolishNo').className = document.getElementById('demolishNo').className.replace('activebtn', '');
+                document.getElementById('demolishWallYes').className = document.getElementById('demolishWallYes').className.replace('activebtn', '');
+                document.getElementById('demolishWallNo').className = document.getElementById('demolishWallNo').className.replace('activebtn', '');
 
                 if(binder.wall.demolish == 'yes'){
-                  document.getElementById('demolishYes').className += ' activebtn';
+                  document.getElementById('demolishWallYes').className += ' activebtn';
                 }else{
-                  document.getElementById('demolishNo').className += ' activebtn';
+                  document.getElementById('demolishWallNo').className += ' activebtn';
                 }
-                
+              
                 mode = 'edit_wall_mode';
               }
                 delete equation1;
@@ -1672,7 +1672,18 @@ event.preventDefault();
                 document.getElementById('doorWindowWidthScale').textContent = binder.obj.params.resizeLimit.width.min+"-"+binder.obj.params.resizeLimit.width.max;
                 document.getElementById("doorWindowWidth").value = binder.obj.size;
                 document.getElementById("doorWindowWidthVal").textContent = binder.obj.size;
+
+                document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
+                document.getElementById('demolishDoorWindowNo').className = document.getElementById('demolishDoorWindowNo').className.replace('activebtn', '');
+                // console.log(binder.obj.demolish === 'yes')
+                if(binder.obj.demolish == 'yes'){
+                  document.getElementById('demolishDoorWindowYes').className += ' activebtn';
+                }else{
+                  document.getElementById('demolishDoorWindowNo').className += ' activebtn';
+                }
+                
               });
+              
               mode = 'edit_door_mode';
 
             }
