@@ -128,6 +128,9 @@
     <section id="rangeThick">
       <p>Width [<span id="wallWidthScale"></span>] : <span id="wallWidthVal"></span> cm</span></p>
       <input type="range" id="wallWidth" step="0.1" class="range" />
+      <p>Height (in cm): <span id="wallHeightVal"></span> cm</p>
+      <input type="number" id="wallHeight" step="0.1" /> <br/>
+      <br/>
     </section>
     <ul class="list-unstyled">
     <section id="cutWall">
@@ -142,6 +145,18 @@
     <section id="recombine">
       <p>Transform to wall :<br/><small>The thickness will be identical to the last known.</small></p>
       <li><button class="btn btn-default fully" onclick="editor.visibleWall();" id="wallVisible"><i class="fa fa-2x fa-crop" aria-hidden="true"></i></button></li>
+    </section>
+    <br/>
+    <section id="">
+      <p>Type of Wall :</p>
+      <select name="" id="typeWall" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
     </section>
     <br/>
     <section id="walltype">
@@ -204,7 +219,7 @@
     <button class="btn btn-info fully" style="margin-top:20px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objBoundingBox').hide(100);$('#panel').show(200);binder.graph.remove();delete binder;"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button>
   </div>
 
-  <div id="objTools" class="leftBox">
+  <div id="objTools" class="leftBox" style="overflow: auto;">
     <h2>Modify door/window</h2>
     <hr/>
     <ul class="list-unstyled">
@@ -215,7 +230,23 @@
       <input type="range" id="doorWindowWidth" step="1" class="range" />
 
       <p>Height (in cm): <span id="doorWindowHeightVal"></span> cm</p>
-      <input type="number" id="doorWindowHeight" step="0.10" /> <br/>
+      <input type="number" id="doorWindowHeight" step="0.10" /> <br/><br/>
+
+      <p>Sill Height (in cm): <span id="doorWindowSillHeightVal"></span> cm</p>
+      <input type="number" id="doorWindowSillHeight" step="0.10" /> <br/>
+
+    <br/>
+    <section id="">
+      <p>Type of Wall :</p>
+      <select name="" id="typeDoorWindow" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
     <br/>
     <section id="demolishWallWindowStatus">
       <p>Demolish :</p>

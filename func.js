@@ -375,6 +375,8 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       var obj = new editor.obj2D(OO.family, OO.class, OO.type, {x: OO.x, y: OO.y}, OO.angle, OO.angleSign, OO.size, OO.hinge = 'normal', OO.thick, OO.value, fill);
       obj.limit = OO.limit;
       obj.demolish = OO.demolish;
+      obj.typeDoorWindow = OO.typeDoorWindow
+      obj.sillHeight = OO.sillHeight
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
@@ -667,6 +669,14 @@ document.getElementById('wallWidth').addEventListener("input", function() {
   document.getElementById("wallWidthVal").textContent = sliderValue;
 });
 
+// Wall Height
+document.getElementById('wallHeight').addEventListener("input", function(){
+  var heightValue = this.value
+  binder.wall.height = heightValue
+  document.getElementById("wallHeightVal").textContent = heightValue;
+})
+
+
 // Trash box, items (not wall) button
 document.getElementById("bboxTrash").addEventListener("click", function () {
   binder.obj.graph.remove();
@@ -752,24 +762,23 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
   inWallRib(wallBind);
 });
 
-// Door & Window changes
+// Door & Window Height changes
 document.getElementById('doorWindowHeight').addEventListener("input", function(){
   var heightValue = this.value
   var objTarget = binder.obj
-  var wallBind = editor.rayCastingWalls(objTarget, WALLS)
-  if (wallBind.length > 1) wallBind = wallBind[wallBind.length-1];
-  var limits = limitObj(wallBind.equations.base, heightValue, objTarget);
-  if (qSVG.btwn(limits[1].x, wallBind.start.x, wallBind.end.x) && qSVG.btwn(limits[1].y, wallBind.start.y, wallBind.end.y) && qSVG.btwn(limits[0].x, wallBind.start.x, wallBind.end.x) && qSVG.btwn(limits[0].y, wallBind.start.y, wallBind.end.y)) {
-    objTarget.thick  = heightValue;
-    objTarget.limit = limits;
-    objTarget.update();
-    binder.thick  = heightValue;
-    binder.limit = limits;
-    binder.update();
-    document.getElementById("doorWindowHeightVal").textContent = heightValue;
-  }
-  inWallRib(wallBind);
+  objTarget.thick = heightValue
+  objTarget.update()
+  document.getElementById("doorWindowHeightVal").textContent = heightValue
+})
 
+// Door & Window height changes
+document.getElementById('doorWindowSillHeight').addEventListener("input", function(){
+  var sillHeightValue = this.value
+  var objTarget = binder.obj
+  objTarget.sillHeight = sillHeightValue
+  objTarget.update()
+  document.getElementById("doorWindowSillHeightVal").textContent = sillHeightValue
+  
 })
 
 
@@ -1009,6 +1018,24 @@ document.getElementById("wallTrash").addEventListener("click", function () {
   mode = "select_mode";
   $('#panel').show(200);
 });
+
+// Assign Wall Type
+document.getElementById("typeWall").addEventListener("change", function(){
+  var type = this.value
+  var wall = binder.wall
+  if(wall){
+    binder.wall.typeWall = type
+  }
+})
+
+// Assign Door Window Type
+document.getElementById("typeDoorWindow").addEventListener("change", function(){
+  var type = this.value
+  var doorWindow = binder.obj
+  if(doorWindow){
+    binder.obj.typeDoorWindow = type
+  }
+})
 
 // Text Color Events (change text fill color for new or old text component)
 var textEditorColorBtn = document.querySelectorAll('.textEditorColor');

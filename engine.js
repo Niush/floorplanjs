@@ -1632,6 +1632,11 @@ event.preventDefault();
                 document.getElementById("wallWidth").value = binder.wall.thick;
                 document.getElementById("wallWidthVal").textContent = binder.wall.thick;
                 
+                document.getElementById('wallHeight').value = binder.wall.height
+                document.getElementById("wallHeightVal").textContent = binder.wall.height;
+
+
+                
                 document.getElementById('wallGood').className = document.getElementById('wallGood').className.replace('activebtn', '');
                 document.getElementById('wallMedium').className = document.getElementById('wallMedium').className.replace('activebtn', '');
                 document.getElementById('wallHigh').className = document.getElementById('wallHigh').className.replace('activebtn', '');
@@ -1652,6 +1657,8 @@ event.preventDefault();
                   document.getElementById('demolishWallNo').className += ' activebtn';
                 }
               
+                document.getElementById('typeWall').value = binder.wall.typeWall ? binder.wall.typeWall : "";
+
                 mode = 'edit_wall_mode';
               }
                 delete equation1;
@@ -1673,6 +1680,14 @@ event.preventDefault();
                 document.getElementById("doorWindowWidth").value = binder.obj.size;
                 document.getElementById("doorWindowWidthVal").textContent = binder.obj.size;
 
+                document.getElementById("doorWindowHeight").value = binder.obj.thick;
+                document.getElementById("doorWindowHeightVal").textContent = binder.obj.thick;
+
+                document.getElementById("doorWindowSillHeight").value = binder.obj.sillHeight;
+                document.getElementById("doorWindowSillHeightVal").textContent = binder.obj.sillHeight;
+
+
+
                 document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
                 document.getElementById('demolishDoorWindowNo').className = document.getElementById('demolishDoorWindowNo').className.replace('activebtn', '');
                 // console.log(binder.obj.demolish === 'yes')
@@ -1683,6 +1698,9 @@ event.preventDefault();
                 }
                 
               });
+
+              document.getElementById('typeDoorWindow').value = binder.obj.typeDoorWindow ? binder.obj.typeDoorWindow : ""
+
               
               mode = 'edit_door_mode';
 
