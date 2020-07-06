@@ -298,23 +298,32 @@ var editor = {
   },
 
     // Update Demolish Status of wall
-    updateDemolishStatus: function(status = 'no'){
-      var demolishStatus = binder.wall
-      console.log(binder.wall)
+    updateDemolishStatus: function(status = 'no', prop = 'wall'){
+      var demolishStatus = binder[prop]
+      // console.log(demolishStatus)
       try{
         demolishStatus.demolish = status
-        editor.architect(WALLS);
-  
-        document.getElementById('demolishYes').className = document.getElementById('demolishYes').className.replace('activebtn', '');
-        document.getElementById('demolishNo').className = document.getElementById('demolishNo').className.replace('activebtn', '');
-  
-        if(status == 'yes'){
-          document.getElementById('demolishYes').className += ' activebtn';
+
+        if(prop == 'wall'){
+          document.getElementById('demolishWallYes').className = document.getElementById('demolishWallYes').className.replace('activebtn', '');
+          document.getElementById('demolishWallNo').className = document.getElementById('demolishWallNo').className.replace('activebtn', '');
+    
+          if(status == 'yes'){
+            document.getElementById('demolishWallYes').className += ' activebtn';
+          }else{
+            document.getElementById('demolishWallNo').className += ' activebtn';
+    
+          }
         }else{
-          document.getElementById('demolishNo').className += ' activebtn';
-  
+          document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
+          document.getElementById('demolishDoorWindowNo').className = document.getElementById('demolishDoorWindowNo').className.replace('activebtn', '');
+          
+          if(status == 'yes'){
+            document.getElementById('demolishDoorWindowYes').className += ' activebtn';
+          }else{
+            document.getElementById('demolishDoorWindowNo').className += ' activebtn';
+          }
         }
-  
         save();
         return true;
         
