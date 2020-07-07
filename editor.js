@@ -236,6 +236,7 @@ var editor = {
     }else if(damage == 'high'){
       temp_color = 'maroon';
     }
+    
     var wallScreen = qSVG.create('none', 'path', {
         d: way,
         stroke: "none",
@@ -298,31 +299,19 @@ var editor = {
   },
 
     // Update Demolish Status of wall
-    updateDemolishStatus: function(status = 'no', prop = 'wall'){
+    updateDemolishStatus: function(status = 'no', prop = 'wall', view='Wall'){
       var demolishStatus = binder[prop]
       // console.log(demolishStatus)
       try{
         demolishStatus.demolish = status
 
-        if(prop == 'wall'){
-          document.getElementById('demolishWallYes').className = document.getElementById('demolishWallYes').className.replace('activebtn', '');
-          document.getElementById('demolishWallNo').className = document.getElementById('demolishWallNo').className.replace('activebtn', '');
-    
-          if(status == 'yes'){
-            document.getElementById('demolishWallYes').className += ' activebtn';
-          }else{
-            document.getElementById('demolishWallNo').className += ' activebtn';
-    
-          }
+        document.getElementById(`demolish${view}Yes`).className = document.getElementById(`demolish${view}Yes`).className.replace('activebtn', '');
+        document.getElementById(`demolish${view}No`).className = document.getElementById(`demolish${view}No`).className.replace('activebtn', '');
+        if(status == 'yes'){
+          document.getElementById(`demolish${view}Yes`).className += ' activebtn';
         }else{
-          document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
-          document.getElementById('demolishDoorWindowNo').className = document.getElementById('demolishDoorWindowNo').className.replace('activebtn', '');
-          
-          if(status == 'yes'){
-            document.getElementById('demolishDoorWindowYes').className += ' activebtn';
-          }else{
-            document.getElementById('demolishDoorWindowNo').className += ' activebtn';
-          }
+          document.getElementById(`demolish${view}No`).className += ' activebtn';
+  
         }
         save();
         return true;
@@ -401,6 +390,7 @@ var editor = {
 
   // New Wall Node
   nearWallNode: function(snap, range = Infinity, except = ['']) {
+    
     var best;
     var bestWall;
     var scan;
@@ -638,7 +628,7 @@ var editor = {
     this.size = size;
     this.thick = thick;
     this.width = (this.size / meter).toFixed(2);
-    this.height= (this.thick / meter).toFixed(2);
+    // this.height= thick;
     this.fill = fill;
 
     var cc = carpentryCalc(classe, type, size, thick, value, fill);
@@ -685,7 +675,7 @@ var editor = {
       this.update = function() {
         // console.log("update")
         this.width = (this.size / meter).toFixed(2);
-        this.height= (this.thick / meter).toFixed(2);
+        this.height= this.height;
         cc = carpentryCalc(this.class, this.type, this.size, this.thick, this.value, this.fill);
         for (var tt = 0; tt < cc.length; tt++) {
             if (cc[tt].path)  {
@@ -934,6 +924,7 @@ var editor = {
   },
 
   showScaleBox: function() {
+
     if (ROOM.length > 0) {
       var minX, minY, maxX, maxY;
       for (var i = 0; i < WALLS.length; i++) {

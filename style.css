@@ -46,6 +46,7 @@ h2 {
   bottom: 0;
 }
 
+
 #panel {
   display: block;
   left:-200px;
@@ -53,7 +54,10 @@ h2 {
   transition-timing-function: ease-in;
   transition-delay: 250ms;
   padding: 0;
+  
 }
+
+
 
 #panel ul{
   overflow: auto;

@@ -27,6 +27,7 @@ colorbackground = "#ffffff";
 colorline = "#fff";
 colorroom = "#f0daaf";
 colorWall = "#666";
+// colorBeam = "yellow"
 pox = 0;
 poy = 0;
 segment = 0;
@@ -377,6 +378,9 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.demolish = OO.demolish;
       obj.typeDoorWindow = OO.typeDoorWindow
       obj.sillHeight = OO.sillHeight
+      obj.columnHeight = OO.columnHeight
+      obj.height = OO.height
+      obj.typeColumn = OO.typeColumn
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
@@ -766,9 +770,18 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
 document.getElementById('doorWindowHeight').addEventListener("input", function(){
   var heightValue = this.value
   var objTarget = binder.obj
-  objTarget.thick = heightValue
-  objTarget.update()
+  objTarget.height = heightValue
+
   document.getElementById("doorWindowHeightVal").textContent = heightValue
+})
+
+// column Height
+document.getElementById('bboxColumnHeight').addEventListener("input", function(){
+  var colHeight = this.value
+  var objTarget = binder.obj
+  objTarget.columnHeight = colHeight
+  document.getElementById("bboxColumnHeightVal").textContent = colHeight
+
 })
 
 // Door & Window height changes
@@ -776,7 +789,7 @@ document.getElementById('doorWindowSillHeight').addEventListener("input", functi
   var sillHeightValue = this.value
   var objTarget = binder.obj
   objTarget.sillHeight = sillHeightValue
-  objTarget.update()
+
   document.getElementById("doorWindowSillHeightVal").textContent = sillHeightValue
   
 })
@@ -1037,6 +1050,15 @@ document.getElementById("typeDoorWindow").addEventListener("change", function(){
   }
 })
 
+// Assign Column Type
+document.getElementById("typeColumn").addEventListener("change", function(){
+  var type = this.value
+  var column = binder.obj
+  if(column){
+    binder.obj.typeColumn = type
+  }
+})
+
 // Text Color Events (change text fill color for new or old text component)
 var textEditorColorBtn = document.querySelectorAll('.textEditorColor');
 for (var k = 0; k < textEditorColorBtn.length; k++) {
@@ -1287,6 +1309,8 @@ function intersection(snap, range = Infinity, except = ['']) {
       fill : "none"
     });
 
+    // console.log(lineIntersectionP)
+
   for (index = 0; index < WALLS.length; index++) {
     if (except.indexOf(WALLS[index]) == -1) {
     var x1 = WALLS[index].start.x;
@@ -1423,6 +1447,7 @@ function debugPoint(point, name, color = "#00ff00") {
 function showVertex() {
   for (var i=0; i < vertex.length; i++) {
     debugPoint(vertex[i], i);
+    
   }
 }
 
@@ -1531,6 +1556,7 @@ function inWallRib(wall, option = false) {
 
 // Simple other elements Rib (not in wall)
 function rib(shift = 5) {
+
   // return false;
   var ribMaster = [];
   ribMaster.push([]);
@@ -1729,6 +1755,10 @@ function raz_button() {
     $('#distance_mode').addClass('btn-default');
     $('#object_mode').removeClass('btn-success');
     $('#object_mode').addClass('btn-default');
+    $('#beam_mode').removeClass('btn-success');
+    $('#beam_mode').addClass('btn-default');
+    $('#column').removeClass('btn-success');
+    $('#column').addClass('btn-default');
     $('#stair_mode').removeClass('btn-success');
     $('#stair_mode').addClass('btn-default');
 }
@@ -1789,6 +1819,8 @@ $('#line_mode').click(function() {
     fonc_button('line_mode');
 });
 
+
+
 $('#partition_mode').click(function() {
     $('#lin').css('cursor', 'crosshair');
     $('#boxinfo').html('Creation of partition(s)');
@@ -1822,6 +1854,20 @@ $('.object').click(function() {
     $('#boxinfo').html('Add an object');
     fonc_button('object_mode', this.id);
 });
+
+$('.beam').click(function(){
+    cursor('move');
+    // multi = 0
+    $('#boxinfo').html('Add a beam');
+    fonc_button('object_mode', this.id);
+})
+
+$('.column').click(function(){
+  $('#lin').css('cursor', 'crosshair');
+  // multi = 0
+  $('#boxinfo').html('Add a column');
+  fonc_button('object_mode', this.id);
+})
 
 $('#stair_mode').click(function() {
     cursor('move');
@@ -1867,7 +1913,11 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   construc.params.resizeLimit = {};
   construc.params.resizeLimit.width = {min: false, max: false};
   construc.params.resizeLimit.height = {min: false, max: false};
+  construc.params.resizeLimit.columnHeight = {min: false, max: false};
   construc.params.rotate = false;
+  construc.params.columnHeight = false;
+  construc.params.typeColumn = false;
+  construc.params.demolish = false;
 
   if (classObj == 'socle') {
     construc.push({'path':"M "+(-sizeObj/2)+","+(-thickObj/2)+" L "+(-sizeObj/2)+","+thickObj/2+" L "+sizeObj/2+","+thickObj/2+" L "+sizeObj/2+","+(-thickObj/2)+" Z", 'fill': "#5cba79", 'stroke': "#5cba79", 'strokeDashArray': ''});
@@ -2122,6 +2172,7 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
       construc.params.resizeLimit.width = {min:80, max:200};
       construc.params.resizeLimit.height = {min:30, max:150};
     }
+
   }
 
   if (classObj == 'furniture') {
@@ -2130,6 +2181,54 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.resize = true;
     construc.params.rotate = true;
   }
+
+  if (classObj == 'beam'){
+
+    construc.params.bindBox = true;
+    construc.params.move = true;
+    construc.params.resize = true;
+    construc.params.rotate = true;
+    construc.params.resize = true;
+
+    construc.params.width = sizeObj?sizeObj:400; // Resize width/height to obj size/thick
+    construc.params.height = thickObj?thickObj:20;
+
+    
+    if (typeObj == 'simpleBeam'){
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "red", 'strokeDashArray': '-'});
+      construc.push({'text': "Beam", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      construc.push({'text': construc.params.width, 'x': '0', 'y': '20', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"})
+      construc.family = 'stick';
+      
+      construc.params.resizeLimit.width = {min:10, max:1000};
+      construc.params.resizeLimit.height = {min:5, max:1000};
+    }
+  }
+
+  if (classObj == 'column' ){
+    construc.params.bindBox = true;
+    construc.params.move = true;
+    construc.params.resize = true;
+    construc.params.columnHeight = true;
+    construc.params.typeColumn = true;
+    construc.params.demolish = true;
+
+    construc.params.width = sizeObj?sizeObj:50; 
+    construc.params.height = thickObj?thickObj:50;
+
+    
+    if (typeObj == 'simpleColumn'){
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "red", 'strokeDashArray': '-'});
+      construc.push({'text': "Column", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "black", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      
+      construc.family = 'stick';
+      
+      construc.params.resizeLimit.width = {min:10, max:500};
+      construc.params.resizeLimit.height = {min:10, max:500};
+      construc.params.resizeLimit.columnHeight = {min: 10, max: 500}
+    }
+  }
+
 
   return construc;
 }

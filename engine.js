@@ -92,6 +92,13 @@ document.addEventListener("keydown", function(event) {
       if (typeof(binder) == 'undefined') {
         $('#object_list').hide(200);
         if (modeOption == 'simpleStair') binder = new editor.obj2D("free", "stair", "simpleStair", snap, 0, 0, 0, "normal", 0, 15);
+        else if (modeOption == 'beam'){
+          // var typeObj = modeOption;
+          binder = new editor.obj2D("inWall", "beam", "simpleBeam", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }else if( modeOption == 'column'){
+          // var typeObj = modeOption
+          binder = new editor.obj2D("free", "column", "simpleColumn", snap, 0, 0, 0, "normal", 0, "#eee" );
+        } 
         else {
           var typeObj = modeOption;
           binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0, '#eee');
@@ -645,7 +652,8 @@ document.addEventListener("keydown", function(event) {
                 if (!$('#line_construc').length) {
                   var ws = 20;
                   if (mode == 'partition_mode') ws = 10;
-                    lineconstruc = qSVG.create("boxbind", "line", {
+  
+                      lineconstruc = qSVG.create("boxbind", "line", {
                         id: "line_construc",
                         x1: pox,
                         y1: poy,
@@ -656,6 +664,7 @@ document.addEventListener("keydown", function(event) {
                         "stroke-opacity": 0.7,
                         stroke: "#9fb2e2"
                     });
+                    
 
                     svgadd = qSVG.create("boxbind", "line", { // ORANGE TEMP LINE FOR ANGLE 0 90 45 -+
                         id: "linetemp",
@@ -1426,6 +1435,7 @@ event.preventDefault();
       $('#'+targetBox).append(OBJDATA[OBJDATA.length-1].graph);
       delete binder;
       $('#boxinfo').html('Object added');
+      
       fonc_button('select_mode');
       save();
     }
@@ -1632,8 +1642,8 @@ event.preventDefault();
                 document.getElementById("wallWidth").value = binder.wall.thick;
                 document.getElementById("wallWidthVal").textContent = binder.wall.thick;
                 
-                document.getElementById('wallHeight').value = binder.wall.height
-                document.getElementById("wallHeightVal").textContent = binder.wall.height;
+                document.getElementById('wallHeight').value = binder.wall.height ? binder.wall.height : null 
+                document.getElementById("wallHeightVal").textContent = binder.wall.height ? binder.wall.height : null;
 
 
                 
@@ -1680,12 +1690,11 @@ event.preventDefault();
                 document.getElementById("doorWindowWidth").value = binder.obj.size;
                 document.getElementById("doorWindowWidthVal").textContent = binder.obj.size;
 
-                document.getElementById("doorWindowHeight").value = binder.obj.thick;
-                document.getElementById("doorWindowHeightVal").textContent = binder.obj.thick;
+                document.getElementById("doorWindowHeight").value = binder.obj.height ? binder.obj.height : null;
+                document.getElementById("doorWindowHeightVal").textContent = binder.obj.height ? binder.obj.height : null;
 
-                document.getElementById("doorWindowSillHeight").value = binder.obj.sillHeight;
-                document.getElementById("doorWindowSillHeightVal").textContent = binder.obj.sillHeight;
-
+                document.getElementById("doorWindowSillHeight").value = binder.obj.sillHeight ? binder.obj.sillHeight: null;
+                document.getElementById("doorWindowSillHeightVal").textContent = binder.obj.sillHeight ? binder.obj.sillHeight: null;
 
 
                 document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
@@ -1727,8 +1736,16 @@ event.preventDefault();
               else $('#objBoundingBoxScale').fadeIn(800);
               if (!objTarget.params.rotate) $('#objBoundingBoxRotation').hide();
               else $('#objBoundingBoxRotation').fadeIn(800);
+              if (!objTarget.params.columnHeight) $('#objColumnHeight').hide();
+              else $('#objColumnHeight').fadeIn(800)
+              if (!objTarget.params.typeColumn) $('#objColumnType').hide();
+              else $('#objColumnType').fadeIn(800)
+              if (!objTarget.params.demolish) $('#demolishColumnStatus').hide();
+              else $('#demolishColumnStatus').fadeIn(800)
               $('#panel').hide(100);
               $('#lin').css('cursor', 'default');
+
+              
 
               $('#boxinfo').html('Modify the object');
               document.getElementById('bboxWidth').setAttribute('min', objTarget.params.resizeLimit.width.min);
@@ -1737,6 +1754,9 @@ event.preventDefault();
               document.getElementById('bboxHeight').setAttribute('min', objTarget.params.resizeLimit.height.min);
               document.getElementById('bboxHeight').setAttribute('max', objTarget.params.resizeLimit.height.max);
               document.getElementById('bboxHeightScale').textContent = objTarget.params.resizeLimit.height.min+"-"+objTarget.params.resizeLimit.height.max;
+              document.getElementById('bboxColumnHeight').setAttribute('min', objTarget.params.resizeLimit.columnHeight.min);
+              document.getElementById('bboxColumnHeight').setAttribute('max', objTarget.params.resizeLimit.columnHeight.max);
+              document.getElementById('bboxColumnHeightScale').textContent = objTarget.params.resizeLimit.columnHeight.min+"-"+objTarget.params.resizeLimit.columnHeight.max;
               $('#stepsCounter').hide();
               if (objTarget.class == 'stair') {
                 document.getElementById("bboxStepsVal").textContent = objTarget.value;
@@ -1759,6 +1779,18 @@ event.preventDefault();
               document.getElementById("bboxHeightVal").textContent = objTarget.height * 100;
               document.getElementById("bboxRotation").value = objTarget.angle;
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
+              document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
+              document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
+              document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
+              document.getElementById('demolishColumnYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
+              document.getElementById('demolishColumnNo').className = document.getElementById('demolishColumnNo').className.replace('activebtn', '');
+          
+              if(binder.obj.demolish == 'yes'){
+                document.getElementById('demolishColumnYes').className += ' activebtn';
+              }else{
+                document.getElementById('demolishColumnNo').className += ' activebtn';
+              }
+              
               $('#objBoundingBox').fadeIn(500);
                mode = 'edit_boundingBox_mode';
             }
