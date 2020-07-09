@@ -1,11 +1,18 @@
 // Register Mouse Events inside svg container (planner area)
+// $('body').on('touchstart', function() {});
+
 document.querySelector('#lin').addEventListener("mouseup", _MOUSEUP);
 document.querySelector('#lin').addEventListener("mousemove", throttle(function(event){ _MOUSEMOVE(event);},30));
 document.querySelector('#lin').addEventListener("mousedown", _MOUSEDOWN, true);
 
+document.querySelector('#lin').addEventListener("touchend", _MOUSEUP);
+document.querySelector('#lin').addEventListener("touchmove", throttle(function(event){ _MOUSEMOVE(event);},30));
+document.querySelector('#lin').addEventListener("touchmove", _MOUSEDOWN, true);
+
 $(document).on('click', '#lin', function(event) {
     event.preventDefault();
 });
+
 
 document.querySelector('#panel').addEventListener('mousemove', function(event) {
   if ((mode == 'line_mode' || mode == 'partition_mode') && action == 1) {
@@ -20,6 +27,22 @@ document.querySelector('#panel').addEventListener('mousemove', function(event) {
     delete lengthTemp;
   }
 });
+
+document.querySelector('#panel').addEventListener('touchmove', function(event) {
+  if ((mode == 'line_mode' || mode == 'partition_mode') && action == 1) {
+    action = 0;
+    if (typeof(binder) != 'undefined') {
+        binder.remove();
+        delete binder;
+    }
+    $('#linetemp').remove();
+    $('#line_construc').remove();
+    lengthTemp.remove();
+    delete lengthTemp;
+  }
+});
+
+
 
 window.addEventListener('resize', function(event){
   width_viewbox = $('#lin').width();

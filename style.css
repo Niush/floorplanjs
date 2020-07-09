@@ -1,5 +1,8 @@
 html{
   background: #fff;
+  -webkit-user-select: none;
+  -webkit-touch-callout:none;
+
 }
 
 ::-webkit-scrollbar{width:.6em;height:.5em}
@@ -9,6 +12,7 @@ html{
 h2 {
   font-size:1.4em;
 }
+
 
 .color {
   width:30px;
