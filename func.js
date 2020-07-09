@@ -45,7 +45,7 @@ var factor = 1;
 window.addEventListener('load', () => {
   if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./serviceworker.js', {
-          scope: '/',
+          scope: '/plan/',
       })
       .catch(e => {console.log(e)})
   }else{
@@ -56,6 +56,139 @@ window.addEventListener('load', () => {
 // **************************************************************************
 // *****************   LOAD / SAVE LOCALSTORAGE      ************************
 // **************************************************************************
+var readonly = false;
+// ****** IF READ ONLY MODE / Inside Iframe with p-data attribute *******//
+// Show data and hide or disable unwanted buttons //
+function checkIfReadOnly(){
+  if(!window.frameElement){return false;}
+  let data = window.frameElement.getAttribute("p-data");
+  if(data){
+    let parse_attempt = JSON.parse(data);
+    if(parse_attempt && parse_attempt.data && parse_attempt.floors){
+      readonly = true;
+      updateFloorSelect();
+      HISTORY.index = 0;
+      $('#myModal').modal('hide');
+      $(".leftBox *").prop('disabled',true);
+      $(".back").prop('disabled',false); // not the back btn and others
+      $("#floor_mode").prop('disabled',false);
+      $("#floorList").prop('disabled',false);
+      $("#full_mode").prop('disabled',false);
+      $("#nofull_mode").prop('disabled',false);
+      $("#report_mode").prop('disabled',false);
+      $("#exportJson").prop('disabled',false);
+      $("#boxinfo").css('left','10px');
+
+      let to_hide = $('#panel ul li').splice(0,14);
+      for(let i = 0 ; i < to_hide.length ; i++ ){
+        to_hide[i].style.display = 'none';
+      }
+      $('#panel').css('height','30vh');
+      $('#panel').css('min-height','160px');
+
+      if (localStorage.getItem('history')) localStorage.removeItem('history');
+      HISTORY.push(JSON.parse(data));
+      HISTORY[0] = JSON.stringify(HISTORY[0]);
+      localStorage.setItem('history', JSON.stringify(HISTORY));
+      load(0);
+      save();
+    }
+  }
+}
+
+// **** USED TO LOAD planner data if Backend is enabled **** //
+// If params has id, local storage has api_url and user instance //
+function checkIfBackendToLoad() {
+  let params = decodeURI(window.location.search)
+    .replace("?", "")
+    .split("&")
+    .map((param) => param.split("="))
+    .reduce((values, [key, value]) => {
+      values[key] = value;
+      return values;
+    }, {});
+  if (
+    params.id &&
+    localStorage.getItem("api_url") &&
+    localStorage.getItem("user")
+  ) {
+    try {
+      let token = JSON.parse(localStorage.getItem("user")).access_token;
+      let api_url = localStorage.getItem("api_url");
+      let id = params.id;
+      let data = { data: [], floors: 1 };
+
+      fetch(api_url + "/planner/info/" + id, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (res) {
+          $("#save_btn").attr("title", "Save: " + res.title);
+          let parse_attempt = JSON.parse(res.data);
+          if (parse_attempt && parse_attempt.data && parse_attempt.floors) {
+            data = parse_attempt;
+          }
+          updateFloorSelect();
+          HISTORY.index = 0;
+          $("#myModal").modal("hide");
+
+          if (localStorage.getItem("history")) {
+            localStorage.removeItem("history");
+          }
+          HISTORY.push(data);
+          HISTORY[0] = JSON.stringify(HISTORY[0]);
+          localStorage.setItem("history", JSON.stringify(HISTORY));
+          load(0);
+          save();
+          $("#save_btn").on("click", function () {
+            let formdata = new FormData();
+            formdata.append("data", HISTORY[HISTORY.length - 1]);
+            
+            fetch(api_url + "/planner/update/data/" + id, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: formdata
+            }).then(function (r) {
+              if(window.opener){
+                window.opener.document.getElementById('planner_'+res.id).style.background = "#f5b363";
+                window.opener.document.getElementById('planner_title_'+res.id).innerText = res.title + ' : Edited';
+                window.opener.document.getElementById('planner_drawn_'+res.id).innerText = 'Yes';
+              }
+              $('#boxinfo').text("PLANNER SAVED SUCCESSFULLY");
+              $('body').css('transition','opacity 0.3s ease');
+              $('body').css('opacity','0.5');
+              setTimeout(function(){
+                $('body').css('opacity','1');
+              }, 300);
+            });
+          });
+          $(".loading_screen").fadeOut();
+        });
+    } catch {
+      $(".loading_screen").fadeOut();
+      $("#save_btn").remove();
+    }
+  }
+  // If not backend required
+  else {
+    $(".loading_screen").fadeOut();
+    $("#save_btn").remove();
+  }
+}
+
+setTimeout(function(){
+  checkIfReadOnly() // Delayed
+}, 1000);
+checkIfBackendToLoad()
 
 function initHistory(boot = false) {
   if(localStorage.getItem('history') && boot != "recovery"){

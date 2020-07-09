@@ -826,7 +826,8 @@ document.addEventListener("keydown", function(event) {
     // **************************************************************************************************
 
     if (mode == 'bind_mode') {
-
+        if(readonly){return;}
+        
         snap = calcul_snap(event, grid_snap);
 
         if (binder.type == 'node') {

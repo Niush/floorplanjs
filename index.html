@@ -13,7 +13,7 @@
 </head>
 
 <body style="background:#f2eee5;margin:0;padding:0; ">
-
+  <span class="loading_screen">Loading..</span>
   <header>Floor Plan App Ver.0.1</header>
 
   <svg id="lin" viewBox="0 0 1100 700"  preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" style="z-index:2;margin:0;padding:0;width:100vw;height:100vh;position:absolute;top:0;left:0;right:0;bottom:0">
@@ -608,6 +608,7 @@
 
   <div id="zoomBox" style="position:absolute;z-index:100;right:-150px;bottom:20px;text-align:center;background:transparent;padding:0px;color:#fff;transition-duration: 0.2s;transition-timing-function: ease-in;">
     <div class="pull-right" style="margin-right:10px">
+      <span class="btn btn btn-primary" id="save_btn">Save</span>
       <button class="btn btn btn-default zoom" data-zoom="zoomin" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-plus" aria-hidden="true"></i></button>
       <button class="btn btn btn-default zoom" data-zoom="zoomout" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-minus" aria-hidden="true"></i></button>
     </div>
