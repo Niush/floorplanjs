@@ -1888,22 +1888,24 @@ function raz_button() {
     $('#distance_mode').addClass('btn-default');
     $('#object_mode').removeClass('btn-success');
     $('#object_mode').addClass('btn-default');
-    $('#beam_mode').removeClass('btn-success');
-    $('#beam_mode').addClass('btn-default');
+    $('#beam').removeClass('btn-success');
+    $('#beam').addClass('btn-default');
     $('#column').removeClass('btn-success');
     $('#column').addClass('btn-default');
+    $('#slab').removeClass('btn-success');
+    $('#slab').addClass('btn-default');
     $('#stair_mode').removeClass('btn-success');
     $('#stair_mode').addClass('btn-default');
 }
 
-function fonc_button(modesetting ,option) {
+function fonc_button(modesetting ,option, id) {
   save();
 
   $('.sub').hide();
     raz_button();
     if (option != 'simpleStair') {
-      $('#' + modesetting).removeClass('btn-default');
-      $('#' + modesetting).addClass('btn-success');
+      $('#' + (id?id:modesetting)).removeClass('btn-default');
+      $('#' + (id?id:modesetting)).addClass('btn-success');
 
     }
     mode = modesetting;
@@ -1992,14 +1994,19 @@ $('.beam').click(function(){
     cursor('move');
     // multi = 0
     $('#boxinfo').html('Add a beam');
-    fonc_button('object_mode', this.id);
+    fonc_button('object_mode', this.id, this.id);
 })
 
 $('.column').click(function(){
   $('#lin').css('cursor', 'crosshair');
   // multi = 0
   $('#boxinfo').html('Add a column');
-  fonc_button('object_mode', this.id);
+  fonc_button('object_mode', this.id, this.id)
+})
+
+$('#slab').click(function(){
+  $('#boxinfo').html('Slab Position');
+  fonc_button('object_mode', this.id, this.id)
 })
 
 $('#stair_mode').click(function() {
@@ -2361,7 +2368,15 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
       construc.params.resizeLimit.columnHeight = {min: 10, max: 500}
     }
   }
-
+  
+  if (classObj == 'slab' ){
+    WALLS.push({"damage":"medium","thick":4,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}});
+    
+    mode = "select_mode";
+    rib();
+    save();
+    load(HISTORY.length - 1);
+  }
 
   return construc;
 }

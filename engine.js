@@ -121,6 +121,8 @@ document.addEventListener("keydown", function(event) {
         }else if( modeOption == 'column'){
           // var typeObj = modeOption
           binder = new editor.obj2D("free", "column", "simpleColumn", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }else if( modeOption == 'slab'){
+          binder = new editor.obj2D("free", "slab", "simpleSlab", snap, 0, 0, 0, "normal", 0, "#eee" );
         } 
         else {
           var typeObj = modeOption;
@@ -1660,7 +1662,7 @@ event.preventDefault();
                   $('#boxinfo').html('Modify the wall');
                 }
                 $('#wallTools').show(200);
-                document.getElementById('wallWidth').setAttribute('min', 7);
+                document.getElementById('wallWidth').setAttribute('min', 2);
                 document.getElementById('wallWidth').setAttribute('max', 50);
                 document.getElementById('wallWidthScale').textContent = "7-50";
                 document.getElementById("wallWidth").value = binder.wall.thick;
