@@ -641,7 +641,8 @@ var editor = {
             "stroke-width": 1,
             fill: cc[tt].fill,
             stroke: cc[tt].stroke,
-            'stroke-dasharray': cc[tt].strokeDashArray
+            'stroke-dasharray': cc[tt].strokeDashArray,
+            'fill-opacity': cc[tt].fillOpacity
         });
       }
       if (cc[tt].text) {

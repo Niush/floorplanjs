@@ -13,7 +13,7 @@
 </head>
 
 <body style="background:#f2eee5;margin:0;padding:0;" ontouchstart='swipe(event)'>
-
+  <span class="loading_screen">Loading..</span>
   <header>Floor Plan App Ver.0.1</header>
 
   <svg id="lin" viewBox="0 0 1100 700"  preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" style="z-index:2;margin:0;padding:0;width:100vw;height:100vh;position:absolute;top:0;left:0;right:0;bottom:0">
@@ -301,28 +301,23 @@
         <button class="btn dropdown-toggle btn-default" data-toggle="dropdown" id="roomLabel">Wording of the room   <span class="caret"></span></button>
     <ul class="dropdown-menu">
       <li><a href="#">None</a></li>
-      <li><a href="#">Lounge</a></li>
-      <li><a href="#">Lunchroom</a></li>
-      <li><a href="#">Kitchen</a></li>
       <li><a href="#">Toilet</a></li>
       <li><a href="#">Bathroom</a></li>
-      <li><a href="#">Bedroom 1</a></li>
-      <li><a href="#">Bedroom 2</a></li>
-      <li><a href="#">Bedroom 3</a></li>
-      <li><a href="#">Locker</a></li>
-      <li><a href="#">Office</a></li>
-      <li><a href="#">Hall</a></li>
-      <li><a href="#">Loggia</a></li>
-      <li><a href="#">Bath 2</a></li>
-      <li><a href="#">Toilet 2</a></li>
-      <li><a href="#">Bedroom 4</a></li>
-      <li><a href="#">Bedroom 5</a></li>
+      <li><a href="#">Bedroom</a></li>
+      <li><a href="#">Kitchen</a></li>
       <li class="divider"></li>
       <li><a href="#">Balcony</a></li>
       <li><a href="#">Terrace</a></li>
       <li><a href="#">Corridor</a></li>
       <li><a href="#">Garage</a></li>
-      <li><a href="#">clearance</a></li>
+      <li class="divider"></li>
+      <li><a href="#">Clearance</a></li>
+      <li><a href="#">Slab</a></li>
+      <li class="divider"></li>
+      <li><a href="#">Lounge</a></li>
+      <li><a href="#">Locker</a></li>
+      <li><a href="#">Office</a></li>
+      <li><a href="#">Hall</a></li>
     </ul>
     </div>
     <br/>
@@ -412,10 +407,14 @@
         <button class="btn fully window" id="bay">Slide</button>
       </div>
       <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
-      <button class="btn btn-default fully beam" style="margin-bottom:6px" id="beam" data-toggle="tooltip" data-placement="right" title="Make beams">BEAM</button>
-      <button class="btn btn-default fully column" style="margin-bottom:6px" id="column" data-toggle="tooltip" data-placement="right" title="Make columns">COLUMN</button>
+      
+      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully beam" style="margin-bottom:6px" id="beam" data-toggle="tooltip" data-placement="right" title="Make beams">BEAM</button></li>
+      <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully column" id="column" data-toggle="tooltip" data-placement="right" title="Make columns">COLUMN</button></li>
 
-      <li><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
+      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
+      <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully" id="slab">SLAB</button></li>
+
+
       <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
         <div style="width:700px;padding:10px">
           <p>Energy</p>
@@ -608,6 +607,7 @@
 
   <div id="zoomBox" style="position:absolute;z-index:100;right:-150px;bottom:20px;text-align:center;background:transparent;padding:0px;color:#fff;transition-duration: 0.2s;transition-timing-function: ease-in;">
     <div class="pull-right" style="margin-right:10px">
+      <span class="btn btn btn-primary" id="save_btn">Save</span>
       <button class="btn btn btn-default zoom" data-zoom="zoomin" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-plus" aria-hidden="true"></i></button>
       <button class="btn btn btn-default zoom" data-zoom="zoomout" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-minus" aria-hidden="true"></i></button>
     </div>

@@ -45,7 +45,7 @@ var factor = 1;
 window.addEventListener('load', () => {
   if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./serviceworker.js', {
-          scope: '/',
+          scope: '/plan/',
       })
       .catch(e => {console.log(e)})
   }else{
@@ -56,6 +56,139 @@ window.addEventListener('load', () => {
 // **************************************************************************
 // *****************   LOAD / SAVE LOCALSTORAGE      ************************
 // **************************************************************************
+var readonly = false;
+// ****** IF READ ONLY MODE / Inside Iframe with p-data attribute *******//
+// Show data and hide or disable unwanted buttons //
+function checkIfReadOnly(){
+  if(!window.frameElement){return false;}
+  let data = window.frameElement.getAttribute("p-data");
+  if(data){
+    let parse_attempt = JSON.parse(data);
+    if(parse_attempt && parse_attempt.data && parse_attempt.floors){
+      readonly = true;
+      updateFloorSelect();
+      HISTORY.index = 0;
+      $('#myModal').modal('hide');
+      $(".leftBox *").prop('disabled',true);
+      $(".back").prop('disabled',false); // not the back btn and others
+      $("#floor_mode").prop('disabled',false);
+      $("#floorList").prop('disabled',false);
+      $("#full_mode").prop('disabled',false);
+      $("#nofull_mode").prop('disabled',false);
+      $("#report_mode").prop('disabled',false);
+      $("#exportJson").prop('disabled',false);
+      $("#boxinfo").css('left','10px');
+
+      let to_hide = $('#panel ul li').splice(0,14);
+      for(let i = 0 ; i < to_hide.length ; i++ ){
+        to_hide[i].style.display = 'none';
+      }
+      $('#panel').css('height','30vh');
+      $('#panel').css('min-height','160px');
+
+      if (localStorage.getItem('history')) localStorage.removeItem('history');
+      HISTORY.push(JSON.parse(data));
+      HISTORY[0] = JSON.stringify(HISTORY[0]);
+      localStorage.setItem('history', JSON.stringify(HISTORY));
+      load(0);
+      save();
+    }
+  }
+}
+
+// **** USED TO LOAD planner data if Backend is enabled **** //
+// If params has id, local storage has api_url and user instance //
+function checkIfBackendToLoad() {
+  let params = decodeURI(window.location.search)
+    .replace("?", "")
+    .split("&")
+    .map((param) => param.split("="))
+    .reduce((values, [key, value]) => {
+      values[key] = value;
+      return values;
+    }, {});
+  if (
+    params.id &&
+    localStorage.getItem("api_url") &&
+    localStorage.getItem("user")
+  ) {
+    try {
+      let token = JSON.parse(localStorage.getItem("user")).access_token;
+      let api_url = localStorage.getItem("api_url");
+      let id = params.id;
+      let data = { data: [], floors: 1 };
+
+      fetch(api_url + "/planner/info/" + id, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (res) {
+          $("#save_btn").attr("title", "Save: " + res.title);
+          let parse_attempt = JSON.parse(res.data);
+          if (parse_attempt && parse_attempt.data && parse_attempt.floors) {
+            data = parse_attempt;
+          }
+          updateFloorSelect();
+          HISTORY.index = 0;
+          $("#myModal").modal("hide");
+
+          if (localStorage.getItem("history")) {
+            localStorage.removeItem("history");
+          }
+          HISTORY.push(data);
+          HISTORY[0] = JSON.stringify(HISTORY[0]);
+          localStorage.setItem("history", JSON.stringify(HISTORY));
+          load(0);
+          save();
+          $("#save_btn").on("click", function () {
+            let formdata = new FormData();
+            formdata.append("data", HISTORY[HISTORY.length - 1]);
+            
+            fetch(api_url + "/planner/update/data/" + id, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: formdata
+            }).then(function (r) {
+              if(window.opener){
+                window.opener.document.getElementById('planner_'+res.id).style.background = "#f5b363";
+                window.opener.document.getElementById('planner_title_'+res.id).innerText = res.title + ' : Edited';
+                window.opener.document.getElementById('planner_drawn_'+res.id).innerText = 'Yes';
+              }
+              $('#boxinfo').text("PLANNER SAVED SUCCESSFULLY");
+              $('body').css('transition','opacity 0.3s ease');
+              $('body').css('opacity','0.5');
+              setTimeout(function(){
+                $('body').css('opacity','1');
+              }, 300);
+            });
+          });
+          $(".loading_screen").fadeOut();
+        });
+    } catch {
+      $(".loading_screen").fadeOut();
+      $("#save_btn").remove();
+    }
+  }
+  // If not backend required
+  else {
+    $(".loading_screen").fadeOut();
+    $("#save_btn").remove();
+  }
+}
+
+setTimeout(function(){
+  checkIfReadOnly() // Delayed
+}, 1000);
+checkIfBackendToLoad()
 
 function initHistory(boot = false) {
   if(localStorage.getItem('history') && boot != "recovery"){
@@ -1755,22 +1888,24 @@ function raz_button() {
     $('#distance_mode').addClass('btn-default');
     $('#object_mode').removeClass('btn-success');
     $('#object_mode').addClass('btn-default');
-    $('#beam_mode').removeClass('btn-success');
-    $('#beam_mode').addClass('btn-default');
+    $('#beam').removeClass('btn-success');
+    $('#beam').addClass('btn-default');
     $('#column').removeClass('btn-success');
     $('#column').addClass('btn-default');
+    $('#slab').removeClass('btn-success');
+    $('#slab').addClass('btn-default');
     $('#stair_mode').removeClass('btn-success');
     $('#stair_mode').addClass('btn-default');
 }
 
-function fonc_button(modesetting ,option) {
+function fonc_button(modesetting ,option, id) {
   save();
 
   $('.sub').hide();
     raz_button();
     if (option != 'simpleStair') {
-      $('#' + modesetting).removeClass('btn-default');
-      $('#' + modesetting).addClass('btn-success');
+      $('#' + (id?id:modesetting)).removeClass('btn-default');
+      $('#' + (id?id:modesetting)).addClass('btn-success');
 
     }
     mode = modesetting;
@@ -1859,14 +1994,19 @@ $('.beam').click(function(){
     cursor('move');
     // multi = 0
     $('#boxinfo').html('Add a beam');
-    fonc_button('object_mode', this.id);
+    fonc_button('object_mode', this.id, this.id);
 })
 
 $('.column').click(function(){
   $('#lin').css('cursor', 'crosshair');
   // multi = 0
   $('#boxinfo').html('Add a column');
-  fonc_button('object_mode', this.id);
+  fonc_button('object_mode', this.id, this.id)
+})
+
+$('#slab').click(function(){
+  $('#boxinfo').html('Slab Position');
+  fonc_button('object_mode', this.id, this.id)
 })
 
 $('#stair_mode').click(function() {
@@ -2228,7 +2368,15 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
       construc.params.resizeLimit.columnHeight = {min: 10, max: 500}
     }
   }
-
+  
+  if (classObj == 'slab' ){
+    WALLS.push({"damage":"medium","thick":4,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}});
+    
+    mode = "select_mode";
+    rib();
+    save();
+    load(HISTORY.length - 1);
+  }
 
   return construc;
 }
