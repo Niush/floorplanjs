@@ -79,7 +79,7 @@ function checkIfReadOnly(){
       $("#exportJson").prop('disabled',false);
       $("#boxinfo").css('left','10px');
 
-      let to_hide = $('#panel ul li').splice(0,14);
+      let to_hide = $('#panel ul li').splice(0,16);
       for(let i = 0 ; i < to_hide.length ; i++ ){
         to_hide[i].style.display = 'none';
       }
@@ -1698,6 +1698,9 @@ function rib(shift = 5) {
   var distance;
   var cross;
   for (var i in WALLS) {
+    if(WALLS[i].roof == true || WALLS[i].slab == true){
+      continue;
+    }
     if (WALLS[i].equations.base) {
       ribMaster[0].push([]);
       ribMaster[0][i].push({wallIndex: i, crossEdge: i, side : 'up', coords: WALLS[i].coords[0], distance: 0});
@@ -1894,6 +1897,8 @@ function raz_button() {
     $('#column').addClass('btn-default');
     $('#slab').removeClass('btn-success');
     $('#slab').addClass('btn-default');
+    $('#roof').removeClass('btn-success');
+    $('#roof').addClass('btn-default');
     $('#stair_mode').removeClass('btn-success');
     $('#stair_mode').addClass('btn-default');
 }
@@ -2005,7 +2010,12 @@ $('.column').click(function(){
 })
 
 $('#slab').click(function(){
-  $('#boxinfo').html('Slab Position');
+  $('#boxinfo').html('Slab Added');
+  fonc_button('object_mode', this.id, this.id)
+})
+
+$('#roof').click(function(){
+  $('#boxinfo').html('Roof Added');
   fonc_button('object_mode', this.id, this.id)
 })
 
@@ -2370,7 +2380,16 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   }
   
   if (classObj == 'slab' ){
-    WALLS.push({"damage":"medium","thick":4,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"damage":"medium","thick":4,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}});
+    WALLS.push({"slab":true,"thick":4,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}});
+    
+    mode = "select_mode";
+    rib();
+    save();
+    load(HISTORY.length - 1);
+  }
+
+  if(classObj == 'roof'){
+    WALLS.push({"roof":true,"thick":6,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":Math.round(Math.random()*500),"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":Math.round(Math.random()*500),"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":15,"start":{"x":809.5822496304128,"y":194},"end":{"x":809.5822496304128,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":null,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":819.5822496304128},"down":{"A":"v","B":799.5822496304128},"base":{"A":"v","B":809.5822496304128}},"coords":[{"x":819.5822496304128,"y":194},{"x":799.5822496304128,"y":194},{"x":799.5822496304128,"y":734},{"x":819.5822496304128,"y":734}],"backUp":false,"graph":{"0":{},"context":{},"length":1}});
     
     mode = "select_mode";
     rib();

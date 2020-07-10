@@ -123,7 +123,9 @@ document.addEventListener("keydown", function(event) {
           binder = new editor.obj2D("free", "column", "simpleColumn", snap, 0, 0, 0, "normal", 0, "#eee" );
         }else if( modeOption == 'slab'){
           binder = new editor.obj2D("free", "slab", "simpleSlab", snap, 0, 0, 0, "normal", 0, "#eee" );
-        } 
+        }else if( modeOption == 'roof'){
+          binder = new editor.obj2D("free", "roof", "simpleRoof", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }
         else {
           var typeObj = modeOption;
           binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0, '#eee');

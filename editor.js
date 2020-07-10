@@ -221,14 +221,16 @@ var editor = {
         dWay = dWay + "L"+interDw.x+","+interDw.y+" L"+interUp.x+","+interUp.y+" Z";
       }
 
-      wall.graph = editor.makeWall(dWay, wall.damage);
+      wall.graph = editor.makeWall(dWay, wall.damage, wall.slab, wall.roof);
       $('#boxwall').append(wall.graph);
     }
   },
 
   // Make wall SVG elem
-  makeWall: function(way, damage='good') {
+  makeWall: function(way, damage='good', slab=false, roof=false) {
     var temp_color = colorWall
+    var stroke = "none";
+    var fillOpacity = "1";
     if(!damage || damage == 'good'){
       temp_color = colorWall
     }else if(damage == 'medium'){
@@ -236,16 +238,29 @@ var editor = {
     }else if(damage == 'high'){
       temp_color = 'maroon';
     }
+
+    if(slab==true){
+      temp_color = 'teal';
+      stroke = 'white';
+    }
+
+    if(roof==true){
+      temp_color = 'salmon';
+      stroke = 'maroon';
+      fillOpacity = '0.2';
+    }
     
     var wallScreen = qSVG.create('none', 'path', {
         d: way,
-        stroke: "none",
+        stroke: stroke,
         fill: temp_color,
         "stroke-width": 1,
         "stroke-linecap": "butt",
         "stroke-linejoin": "miter",
         "stroke-miterlimit": 4,
-        "fill-rule": "nonzero"
+        "fill-rule": "nonzero",
+        "fill-opacity": fillOpacity,
+        "stroke-opacity": roof==true?"0.4":"1"
     });
     return wallScreen;
   },
