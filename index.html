@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="background:#f2eee5;margin:0;padding:0; ">
+<body style="background:#f2eee5;margin:0;padding:0;" ontouchstart='swipe(event)'>
 
   <header>Floor Plan App Ver.0.1</header>
 
@@ -375,7 +375,7 @@
       <br/>
   </div>
 
-  <div id="panel" class="leftBox">
+  <div id="panel" class="leftBox" ontouchstart='recordXY(event)' ontouchmove='detectSwipeLeft(event)'>
     <ul class="list-unstyled">
       <li><button class="btn disabled halfy " id="undo" title="undo"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>
       <button class="btn disabled halfy pull-right" id="redo" title="redo"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i></button>
@@ -619,14 +619,51 @@
       <div style="clear:both"></div>
   </div>
 
+  <!-- <div id="panelMenu" style="position:absolute;left:-250px;top:10px;color:#08d;background:transparent;z-index:101;text-align:center;transition-duration: 0.2s;transition-timing-function: ease-in;">
+    <div class="pull-left" style="margin:10px">
+      <button class="btn btn-xs btn-info zoom" data-zoom="" style="box-shadow:2px 2px 3px #ccc;">&#9776;</button>
+    </div>
+  </div> -->
+
+
+
 </body>
   <script src="jquery.min.js"></script>
   <script src="bootstrap.min.js"></script>
   <script src="mousewheel.js"></script>
-  <script src="hammer.js"></script>
   <script src="func.js"></script>
   <script src="qSVG.js"></script>
   <script src="editor.js"></script>
   <script src="engine.js"></script>
   
+  <script>
+    if(screen.width <= 768){
+      $('#panel').hide(200)
+    }
+    function swipe(event){
+      var touch = event.targetTouches[0]
+      if(touch.pageX < 20){
+        $('#panel').show(200)
+      }
+    }
+
+    let sX = 0
+    let eX = 0
+    
+    function recordXY(event){
+      sX = event.targetTouches[0].pageX
+     
+    }
+
+    function detectSwipeLeft(event){
+    setTimeout(() => {
+      eX = event.targetTouches[0].pageX
+      console.log(sX-eX)
+      if (sX - eX > 100){
+        $('#panel').hide(200)
+      }
+    }, 500)
+    }
+  </script>
+
 </html>

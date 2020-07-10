@@ -1,5 +1,5 @@
 // Register Mouse Events inside svg container (planner area)
-// $('body').on('touchstart', function() {});
+
 
 document.querySelector('#lin').addEventListener("mouseup", _MOUSEUP);
 document.querySelector('#lin').addEventListener("mousemove", throttle(function(event){ _MOUSEMOVE(event);},30));
@@ -40,7 +40,7 @@ document.querySelector('#panel').addEventListener('touchmove', function(event) {
     lengthTemp.remove();
     delete lengthTemp;
   }
-});
+}, false);
 
 
 
