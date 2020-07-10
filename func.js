@@ -813,6 +813,25 @@ document.getElementById('wallHeight').addEventListener("input", function(){
   document.getElementById("wallHeightVal").textContent = heightValue;
 })
 
+// Roof / Ridge Height
+document.getElementById('roofHeightStart').addEventListener("input", function(){
+  binder.wall.roofHeightStart = this.value
+  document.getElementById("roofHeightStartVal").textContent = this.value;
+  $('#boxinfo').text('Ridge Height Start Changed');
+  binder.wall.graph[0].style.opacity = 0
+  setTimeout(function(){
+    binder.wall.graph[0].style.opacity = 1
+  }, 200)
+})
+document.getElementById('roofHeightEnd').addEventListener("input", function(){
+  binder.wall.roofHeightEnd = this.value
+  document.getElementById("roofHeightEndVal").textContent = this.value;
+  $('#boxinfo').text('Ridge Height End Changed');
+  binder.wall.graph[0].style.opacity = 0
+  setTimeout(function(){
+    binder.wall.graph[0].style.opacity = 1
+  }, 200)
+})
 
 // Trash box, items (not wall) button
 document.getElementById("bboxTrash").addEventListener("click", function () {
