@@ -128,10 +128,14 @@
     <section id="rangeThick">
       <p>Width [<span id="wallWidthScale"></span>] : <span id="wallWidthVal"></span> cm</span></p>
       <input type="range" id="wallWidth" step="0.1" class="range" />
-      <p>Height (in cm): <span id="wallHeightVal"></span> cm</p>
+      <p class="wallHeight">Height (in cm): <span id="wallHeightVal"></span> cm</p>
       <input type="number" id="wallHeight" step="0.1" /> <br/>
-      <br/>
+      <p class="roofHeight">Roof Height Start (in cm): <span id="roofHeightStartVal"></span> cm</p>
+      <input type="number" id="roofHeightStart" step="0.1" value="800" /> <br/>
+      <p class="roofHeight"><br/>Roof Height End (in cm): <span id="roofHeightEndVal"></span> cm</p>
+      <input type="number" id="roofHeightEnd" step="0.1" value="800" /> <br/>
     </section>
+    <br/>
     <ul class="list-unstyled">
     <section id="cutWall">
       <p>Cut the wall :<br/><small>A cut will be made at each wall encountered.</small></p>
@@ -313,6 +317,7 @@
       <li class="divider"></li>
       <li><a href="#">Clearance</a></li>
       <li><a href="#">Slab</a></li>
+      <li><a href="#">Roof</a></li>
       <li class="divider"></li>
       <li><a href="#">Lounge</a></li>
       <li><a href="#">Locker</a></li>
@@ -413,6 +418,7 @@
 
       <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
       <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully" id="slab">SLAB</button></li>
+      <li><button class="btn btn-default fully" id="roof" title="Add Roof at the End">ROOF</button></li>
 
 
       <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">

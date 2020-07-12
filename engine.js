@@ -123,7 +123,9 @@ document.addEventListener("keydown", function(event) {
           binder = new editor.obj2D("free", "column", "simpleColumn", snap, 0, 0, 0, "normal", 0, "#eee" );
         }else if( modeOption == 'slab'){
           binder = new editor.obj2D("free", "slab", "simpleSlab", snap, 0, 0, 0, "normal", 0, "#eee" );
-        } 
+        }else if( modeOption == 'roof'){
+          binder = new editor.obj2D("free", "roof", "simpleRoof", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }
         else {
           var typeObj = modeOption;
           binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0, '#eee');
@@ -1668,10 +1670,30 @@ event.preventDefault();
                 document.getElementById("wallWidth").value = binder.wall.thick;
                 document.getElementById("wallWidthVal").textContent = binder.wall.thick;
                 
-                document.getElementById('wallHeight').value = binder.wall.height ? binder.wall.height : null 
-                document.getElementById("wallHeightVal").textContent = binder.wall.height ? binder.wall.height : null;
+                if(binder.wall.slab != true || binder.wall.roof != true){
+                  document.getElementById('wallHeight').value = binder.wall.height ? binder.wall.height : null 
+                  document.getElementById("wallHeightVal").textContent = binder.wall.height ? binder.wall.height : null;
+                }
 
+                if(binder.wall.roof == true){
+                  $('.roofHeight').show();
+                  $('#roofHeightStart').show();
+                  $('#roofHeightEnd').show();
+                  $('.wallHeight').hide();
+                  $('#wallHeight').hide();
 
+                  $('#roofHeightStartVal').text(binder.wall.roofHeightStart?binder.wall.roofHeightStart:'800')
+                  $('#roofHeightStart').val(binder.wall.roofHeightStart?binder.wall.roofHeightStart:'800')
+
+                  $('#roofHeightEndVal').text(binder.wall.roofHeightEnd?binder.wall.roofHeightEnd:'800')
+                  $('#roofHeightEnd').val(binder.wall.roofHeightEnd?binder.wall.roofHeightEnd:'800')
+                }else{
+                  $('.roofHeight').hide();
+                  $('#roofHeightStart').hide();
+                  $('#roofHeightEnd').hide();
+                  $('.wallHeight').show();
+                  $('#wallHeight').show();
+                }
                 
                 document.getElementById('wallGood').className = document.getElementById('wallGood').className.replace('activebtn', '');
                 document.getElementById('wallMedium').className = document.getElementById('wallMedium').className.replace('activebtn', '');
