@@ -653,7 +653,7 @@ var editor = {
       if (cc[tt].path) {
         blank = qSVG.create('none', 'path', {
             d : cc[tt].path,
-            "stroke-width": 1,
+            "stroke-width": cc[tt].strokeWidth?cc[tt].strokeWidth:1,
             fill: cc[tt].fill,
             stroke: cc[tt].stroke,
             'stroke-dasharray': cc[tt].strokeDashArray,
