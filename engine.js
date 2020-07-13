@@ -1806,10 +1806,13 @@ event.preventDefault();
               document.getElementById('bboxColumnHeight').setAttribute('max', objTarget.params.resizeLimit.columnHeight.max);
               document.getElementById('bboxColumnHeightScale').textContent = objTarget.params.resizeLimit.columnHeight.min+"-"+objTarget.params.resizeLimit.columnHeight.max;
               $('#stepsCounter').hide();
+              $('#objStairType').show();
               if (objTarget.class == 'stair') {
                 document.getElementById("bboxStepsVal").textContent = objTarget.value;
                 $('#stepsCounter').show();
+                $('#objStairType').show();
               }
+
               
               if(objTarget.class && (objTarget.class === 'text' || objTarget.fill) && objTarget.class != 'stair'){
                 document.getElementById('objBoundingBoxColor').style.display = 'block';
@@ -1830,6 +1833,8 @@ event.preventDefault();
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
               document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
               document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
+              document.getElementById('typeStair').value = objTarget.typeStair ? objTarget.typeStair : ""
+
               document.getElementById('demolishColumnYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
               document.getElementById('demolishColumnNo').className = document.getElementById('demolishColumnNo').className.replace('activebtn', '');
           

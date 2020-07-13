@@ -514,6 +514,7 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.columnHeight = OO.columnHeight
       obj.height = OO.height
       obj.typeColumn = OO.typeColumn
+      obj.typeStair = OO.typeStair
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
@@ -1208,6 +1209,15 @@ document.getElementById("typeColumn").addEventListener("change", function(){
   var column = binder.obj
   if(column){
     binder.obj.typeColumn = type
+  }
+})
+
+// Assign Stair Type
+document.getElementById("typeStair").addEventListener("change", function(){
+  var type = this.value
+  var stair = binder.obj
+  if(stair){
+    binder.obj.typeStair = type
   }
 })
 
