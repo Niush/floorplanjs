@@ -1586,7 +1586,8 @@ event.preventDefault();
         if ($('#line_construc').length && sizeWall > 0.3) {
           var sizeWall = wallSize;
           if (mode == 'partition_mode') sizeWall = partitionSize;
-          var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall);
+          var wall_length = (qSVG.measure({x: pox, y: poy}, {x: x, y: y}) / 60).toFixed(2)
+          var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall, wall_length);
           WALLS.push(wall);
           editor.architect(WALLS);
 

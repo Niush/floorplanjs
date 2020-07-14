@@ -1,6 +1,6 @@
 var editor = {
 
-  wall: function(start, end, type, thick) {
+  wall: function(start, end, type, thick, wall_length) {
       this.thick = thick;
       this.start = start;
       this.end = end;
@@ -11,6 +11,7 @@ var editor = {
       this.equations = {};
       this.coords = [];
       this.backUp = false;
+      this.wall_length = wall_length ? wall_length : 0;
   },
 
   // RETURN OBJECTS ARRAY INDEX OF WALLS [WALL1, WALL2, n...] WALLS WITH THIS NODE, EXCEPT PARAM = OBJECT WALL
@@ -18,6 +19,8 @@ var editor = {
       var nodes = [];
       for (var k in WALLS) {
         if (!isObjectsEquals(WALLS[k], except)) {
+          // console.log(WALLS[k].start, WALLS[k].end)
+
           if (isObjectsEquals(WALLS[k].start,coords)) {
               nodes.push({wall: WALLS[k], type: "start"});
           }

@@ -243,6 +243,7 @@ function importPlan(){
       }
       
       HISTORY.push(obj);
+      console.log(obj)
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
@@ -280,10 +281,37 @@ document.getElementById('undo').addEventListener("click", function() {
   if (HISTORY.index == 1) $('#undo').addClass('disabled');
 });
 
+
 document.getElementById('exportJson').addEventListener("click", function() {
   if (localStorage.getItem('history')) {
     var data = JSON.parse(localStorage.getItem('history'));
     data = JSON.parse(data[data.length-1]);
+    // for wall data
+    var total_wall_length = 0
+    var wall_length_floor = 0
+    var total_damage_wall = 0
+    var total_demolish_wall = 0
+    var tempData = data.data
+    for(let i = 0; i < tempData.length; i++){
+      wall_length_floor = 0
+      for(let j = 0; j < tempData[i].wallData.length; j++){
+        total_wall_length += parseFloat(tempData[i].wallData[j].wall_length)
+        wall_length_floor += parseFloat(tempData[i].wallData[j].wall_length)
+        if(tempData[i].wallData[j].damage && (tempData[i].wallData[j].damage == 'medium' || tempData[i].wallData[j].damage == 'high')){
+          total_damage_wall += parseFloat(tempData[i].wallData[j].wall_length)
+        }
+        
+        if(tempData[i].wallData[j].demolish && (tempData[i].wallData[j].demolish == 'yes')){
+          total_demolish_wall += parseFloat(tempData[i].wallData[j].wall_length)
+        }
+      }
+      data.data[i]['wall_length_floor'] = wall_length_floor.toFixed(2)
+    }
+    data['total_wall_length'] = total_wall_length.toFixed(2)
+    data['total_damage_wall'] = total_damage_wall.toFixed(2)
+    data['total_demolish_wall'] = total_demolish_wall.toFixed(2)
+    
+    // console.log(total_wall_length, total_damage_wall, total_demolish_wall)
     const filename = 'plan-data-' + new Date().getTime() + '.json';
     const jsonStr = JSON.stringify(data);
 
@@ -398,8 +426,10 @@ function save(boot = false) {
 
   // console.log(JSON.parse(localStorage.getItem('history')))
   for (var k in WALLS) {
+    // console.log(WALLS[k].start, WALLS[k].end)
     if (WALLS[k].child != null) WALLS[k].child = WALLS.indexOf(WALLS[k].child);
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
+    
   }
   if (HISTORY[HISTORY.length-1] && JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == JSON.stringify(JSON.parse(HISTORY[HISTORY.length-1]).data[current_active_floor])) {
     for (var k in WALLS) {
@@ -440,6 +470,7 @@ function save(boot = false) {
     var historyTemp = JSON.parse(HISTORY[toLoad]);
     // console.log(historyTemp)
     var floor_data = historyTemp.data;
+    
     for(var i = 0 ; i < FLOORS ; i++){
       if(i == parseInt(current_active_floor)){
         data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
