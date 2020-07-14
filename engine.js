@@ -1827,8 +1827,8 @@ event.preventDefault();
 
               document.getElementById("bboxWidth").value = objTarget.width * 100;
               document.getElementById("bboxWidthVal").textContent = objTarget.width * 100;
-              document.getElementById("bboxHeight").value = objTarget.height * 100;
-              document.getElementById("bboxHeightVal").textContent = objTarget.height * 100;
+              document.getElementById("bboxHeight").value = (objTarget.thick / meter) * 100;
+              document.getElementById("bboxHeightVal").textContent = (objTarget.thick / meter) * 100;
               document.getElementById("bboxRotation").value = objTarget.angle;
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
@@ -1844,7 +1844,7 @@ event.preventDefault();
               }else{
                 document.getElementById('demolishColumnNo').className += ' activebtn';
               }
-              
+
               $('#objBoundingBox').fadeIn(500);
                mode = 'edit_boundingBox_mode';
             }
