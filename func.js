@@ -133,19 +133,22 @@ function checkIfBackendToLoad() {
           let parse_attempt = JSON.parse(res.data);
           if (parse_attempt && parse_attempt.data && parse_attempt.floors) {
             data = parse_attempt;
-          }
-          updateFloorSelect();
-          HISTORY.index = 0;
-          $("#myModal").modal("hide");
+            updateFloorSelect();
+            HISTORY.index = 0;
+            $("#myModal").modal("hide");
 
-          if (localStorage.getItem("history")) {
-            localStorage.removeItem("history");
+            if (localStorage.getItem("history")) {
+              localStorage.removeItem("history");
+            }
+            HISTORY.push(data);
+            HISTORY[0] = JSON.stringify(HISTORY[0]);
+            localStorage.setItem("history", JSON.stringify(HISTORY));
+            load(0);
+            save();
+          }else{
+            console.log("FIRST/EMPTY PLANNER EDIT")
           }
-          HISTORY.push(data);
-          HISTORY[0] = JSON.stringify(HISTORY[0]);
-          localStorage.setItem("history", JSON.stringify(HISTORY));
-          load(0);
-          save();
+          
           $("#save_btn").on("click", function () {
             let formdata = new FormData();
             formdata.append("data", HISTORY[HISTORY.length - 1]);
@@ -2418,8 +2421,8 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.height = thickObj?thickObj:500;
     
     if (typeObj == 'simpleSlab'){
-      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "teal", 'strokeDashArray': '-', 'fillOpacity': '0.3', "strokeWidth": "3px"});      
-      construc.push({'text': "Slab Test", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "none", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "darkslategray", 'strokeDashArray': '10 3 3 3', 'fillOpacity': '0.1', "strokeWidth": "5px"});      
+      construc.push({'text': "Slab", 'x': '0', 'y':thickObj/2-10, 'fill': "#333333", 'stroke': "none", 'fontSize': '1.2em',"strokeWidth": "0.5px"});
       construc.family = 'stick';
       
       construc.params.resizeLimit.width = {min:10, max:10000};
