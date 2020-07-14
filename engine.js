@@ -428,6 +428,7 @@ document.addEventListener("keydown", function(event) {
 
       // First start detecting object
       var objTarget = false;
+      var temp_slab = null;
       for (var i = 0; i < OBJDATA.length; i++) {
         var objX1 = OBJDATA[i].bbox.left;
         var objX2 = OBJDATA[i].bbox.right;
@@ -436,7 +437,16 @@ document.addEventListener("keydown", function(event) {
         var realBboxCoords = OBJDATA[i].realBbox;
             if (qSVG.rayCasting(snap, realBboxCoords)) {
               objTarget = OBJDATA[i];
+              if(objTarget.class == "slab"){
+                temp_slab = objTarget;
+              }else{
+                break;
+              }
             }
+      }
+      // If no objtarget found near but slab was found (slab will be the objtarget)
+      if(!objTarget && temp_slab){
+        objTarget = temp_slab;
       }
       // If Object exists in mouseover
       if (objTarget !== false) {
@@ -462,17 +472,19 @@ document.addEventListener("keydown", function(event) {
             $('#boxbind').append(binder.graph);
           }
           else {
-            if (event.target == binder.graph.get(0).firstChild) {
-              cursor('move');
-              binder.graph.get(0).firstChild.setAttribute("class","circle_css_2");
-              binder.type = "obj";
-              binder.obj = objTarget;
-            }
-            else {
-              cursor('default');
-              binder.graph.get(0).firstChild.setAttribute("class","circle_css_1");
-              binder.type = false;
-            }
+            // if(binder.graph && binder.graph.get(0)){
+              if (event.target == binder.graph.get(0).firstChild) {
+                cursor('move');
+                binder.graph.get(0).firstChild.setAttribute("class","circle_css_2");
+                binder.type = "obj";
+                binder.obj = objTarget;
+              }
+              else {
+                cursor('default');
+                binder.graph.get(0).firstChild.setAttribute("class","circle_css_1");
+                binder.type = false;
+              }
+            // }
           }
         }
         else {  // OBJ -> BOUNDINGBOX TOOL
@@ -487,25 +499,30 @@ document.addEventListener("keydown", function(event) {
             rib();
             detectWallStuff();
           }else{
-            if (typeof(binder) == 'undefined') {
-              var bindbox_y_fix_top = Object.assign({},objTarget.bbox.origin);
-              // fix for text -10 px to top
-              if(objTarget.class == 'text'){
-                bindbox_y_fix_top.y -= objTarget.thick/4;
-              }
-              binder = new editor.obj2D("free", "boundingBox", "", bindbox_y_fix_top, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
-              binder.update();
-              binder.obj = objTarget;
-              binder.type = 'boundingBox';
-              binder.oldX = binder.x;
-              binder.oldY = binder.y;
-              $('#boxbind').append(binder.graph);
-              if (!objTarget.params.move) cursor('trash'); // LIKE MEASURE ON PLAN
-              if (objTarget.params.move) cursor('move');
-              if (objTarget.class == "slab"){
-                binder.graph[0].children[0].setAttribute("fill","brown")
-                binder.graph[0].children[0].setAttribute("fill-opacity","0.1")
-              }
+            if (typeof(binder) != 'undefined') {
+              if (typeof(binder.graph) != 'undefined') binder.graph.remove();
+              else binder.remove();
+              delete binder;
+              cursor('default');
+              rib();
+            }
+            var bindbox_y_fix_top = Object.assign({},objTarget.bbox.origin);
+            // fix for text -10 px to top
+            if(objTarget.class == 'text'){
+              bindbox_y_fix_top.y -= objTarget.thick/4;
+            }
+            binder = new editor.obj2D("free", "boundingBox", "", bindbox_y_fix_top, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
+            binder.update();
+            binder.obj = objTarget;
+            binder.type = 'boundingBox';
+            binder.oldX = binder.x;
+            binder.oldY = binder.y;
+            $('#boxbind').append(binder.graph);
+            if (!objTarget.params.move) cursor('trash'); // LIKE MEASURE ON PLAN
+            if (objTarget.params.move) cursor('move');
+            if (objTarget.class == "slab"){
+              binder.graph[0].children[0].setAttribute("fill","brown")
+              binder.graph[0].children[0].setAttribute("fill-opacity","0.1")
             }
           }
         }
@@ -1852,10 +1869,10 @@ event.preventDefault();
                 document.getElementById('objBoundingBox').style.width = '200px';
               }
 
-              document.getElementById("bboxWidth").value = objTarget.width * 100;
-              document.getElementById("bboxWidthVal").textContent = objTarget.width * 100;
-              document.getElementById("bboxHeight").value = (objTarget.thick / meter) * 100;
-              document.getElementById("bboxHeightVal").textContent = (objTarget.thick / meter) * 100;
+              document.getElementById("bboxWidth").value = (objTarget.width * 100).toFixed(2);
+              document.getElementById("bboxWidthVal").textContent = (objTarget.width * 100).toFixed(2);
+              document.getElementById("bboxHeight").value = (objTarget.thick / meter).toFixed(2) * 100;
+              document.getElementById("bboxHeightVal").textContent = (objTarget.thick / meter).toFixed(2) * 100;
               document.getElementById("bboxRotation").value = objTarget.angle;
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
