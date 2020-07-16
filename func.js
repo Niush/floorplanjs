@@ -133,19 +133,22 @@ function checkIfBackendToLoad() {
           let parse_attempt = JSON.parse(res.data);
           if (parse_attempt && parse_attempt.data && parse_attempt.floors) {
             data = parse_attempt;
-          }
-          updateFloorSelect();
-          HISTORY.index = 0;
-          $("#myModal").modal("hide");
+            updateFloorSelect();
+            HISTORY.index = 0;
+            $("#myModal").modal("hide");
 
-          if (localStorage.getItem("history")) {
-            localStorage.removeItem("history");
+            if (localStorage.getItem("history")) {
+              localStorage.removeItem("history");
+            }
+            HISTORY.push(data);
+            HISTORY[0] = JSON.stringify(HISTORY[0]);
+            localStorage.setItem("history", JSON.stringify(HISTORY));
+            load(0);
+            save();
+          }else{
+            console.log("FIRST/EMPTY PLANNER EDIT")
           }
-          HISTORY.push(data);
-          HISTORY[0] = JSON.stringify(HISTORY[0]);
-          localStorage.setItem("history", JSON.stringify(HISTORY));
-          load(0);
-          save();
+          
           $("#save_btn").on("click", function () {
             let formdata = new FormData();
             formdata.append("data", HISTORY[HISTORY.length - 1]);
@@ -2460,30 +2463,46 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   }
   
   if (classObj == 'slab' ){
+    // While Creating Slab, try to get length equal to labelWidth and height for easy ness...
+    var labelWidth = 500;
+    var labelHeight = 500;
+    if (ROOM.length > 0) {
+      var minX, minY, maxX, maxY;
+      for (var i = 0; i < WALLS.length; i++) {
+        var px = WALLS[i].start.x;
+        var py = WALLS[i].start.y;
+        if (!i || px < minX) minX = px;
+        if (!i || py < minY) minY = py;
+        if (!i || px > maxX) maxX = px;
+        if (!i || py > maxY) maxY = py;
+        var px = WALLS[i].end.x;
+        var py = WALLS[i].end.y;
+        if (!i || px < minX) minX = px;
+        if (!i || py < minY) minY = py;
+        if (!i || px > maxX) maxX = px;
+        if (!i || py > maxY) maxY = py;
+      }
+
+      labelWidth = ((maxX - minX) / meter).toFixed(2) * meter;
+      labelHeight = ((maxY - minY) / meter).toFixed(2) * meter;
+    }
+
     construc.params.bindBox = true;
     construc.params.move = true;
     construc.params.resize = true;
     construc.params.rotate = true;
     construc.params.demolish = true;
-    construc.params.width = sizeObj?sizeObj:500; 
-    construc.params.height = thickObj?thickObj:500;
+    construc.params.width = sizeObj?sizeObj:labelWidth; 
+    construc.params.height = thickObj?thickObj:labelHeight;
     
     if (typeObj == 'simpleSlab'){
-      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "teal", 'strokeDashArray': '-', 'fillOpacity': '0.3', "strokeWidth": "3px"});      
-      construc.push({'text': "Slab Test", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "none", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "darkslategray", 'strokeDashArray': '10 3 3 3', 'fillOpacity': '0.1', "strokeWidth": "5px"});      
+      construc.push({'text': "Slab", 'x': '0', 'y':thickObj/2-10, 'fill': "#333333", 'stroke': "none", 'fontSize': '1.2em',"strokeWidth": "0.5px"});
       construc.family = 'stick';
       
       construc.params.resizeLimit.width = {min:10, max:10000};
       construc.params.resizeLimit.height = {min:10, max:10000};
     }
-
-
-    // WALLS.push({"slab":true,"thick":4,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":3,"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":0,"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":1,"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"slab":true,"thick":4,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":2,"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}});
-    
-    // mode = "select_mode";
-    // rib();
-    // save();
-    // load(HISTORY.length - 1);
   }
 
   if(classObj == 'roof'){
