@@ -1585,9 +1585,18 @@ event.preventDefault();
         sizeWall = sizeWall / meter;
         if ($('#line_construc').length && sizeWall > 0.3) {
           var sizeWall = wallSize;
+          let wall_length_x = 0
+          let wall_length_y = 0
           if (mode == 'partition_mode') sizeWall = partitionSize;
           var wall_length = (qSVG.measure({x: pox, y: poy}, {x: x, y: y}) / 60).toFixed(2)
+          if(pox != x){
+            wall_length_x = wall_length
+          }else{
+            wall_length_y = wall_length
+          }
           var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall, wall_length);
+          wall['wall_length_x'] = wall_length_x
+          wall['wall_length_y'] = wall_length_y
           WALLS.push(wall);
           editor.architect(WALLS);
 

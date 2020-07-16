@@ -236,19 +236,20 @@ function importPlan(){
   reader.onload = function(event){
     try{
       var obj = JSON.parse(event.target.result);
-      // console.log(obj)
       if(obj.constructor !== ({}).constructor){
         alert('JSON is not a valid Plan Type')
         return;
       }
       
       HISTORY.push(obj);
-      console.log(obj)
+      console.log(HISTORY)
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
+      console.log(HISTORY)
+
       $('#myModal').modal('toggle')
     }catch(e){
       console.log(e)
@@ -291,12 +292,25 @@ document.getElementById('exportJson').addEventListener("click", function() {
     var wall_length_floor = 0
     var total_damage_wall = 0
     var total_demolish_wall = 0
+    var wall_length_x_floor = 0
+    var wall_length_y_floor = 0
+    var total_wall_length_x_floor = 0
+    var total_wall_length_y_floor = 0
     var tempData = data.data
     for(let i = 0; i < tempData.length; i++){
       wall_length_floor = 0
+      wall_length_x_floor = 0
+      wall_length_y_floor = 0
       for(let j = 0; j < tempData[i].wallData.length; j++){
         total_wall_length += parseFloat(tempData[i].wallData[j].wall_length)
         wall_length_floor += parseFloat(tempData[i].wallData[j].wall_length)
+
+        total_wall_length_x_floor += parseFloat(tempData[i].wallData[j].wall_length_x)
+        total_wall_length_y_floor += parseFloat(tempData[i].wallData[j].wall_length_y)
+
+        wall_length_x_floor += parseFloat(tempData[i].wallData[j].wall_length_x)
+        wall_length_y_floor += parseFloat(tempData[i].wallData[j].wall_length_y)
+
         if(tempData[i].wallData[j].damage && (tempData[i].wallData[j].damage == 'medium' || tempData[i].wallData[j].damage == 'high')){
           total_damage_wall += parseFloat(tempData[i].wallData[j].wall_length)
         }
@@ -306,10 +320,16 @@ document.getElementById('exportJson').addEventListener("click", function() {
         }
       }
       data.data[i]['wall_length_floor'] = wall_length_floor.toFixed(2)
+      data.data[i]['wall_length_x_floor'] = wall_length_x_floor.toFixed(2)
+      data.data[i]['wall_length_y_floor'] = wall_length_y_floor.toFixed(2)
     }
+
     data['total_wall_length'] = total_wall_length.toFixed(2)
     data['total_damage_wall'] = total_damage_wall.toFixed(2)
     data['total_demolish_wall'] = total_demolish_wall.toFixed(2)
+    data['total_wall_length_x_floor'] = total_wall_length_x_floor.toFixed(2)
+    data['total_wall_length_y_floor'] = total_wall_length_y_floor.toFixed(2)
+
     
     // console.log(total_wall_length, total_damage_wall, total_demolish_wall)
     const filename = 'plan-data-' + new Date().getTime() + '.json';
