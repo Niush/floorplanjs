@@ -245,14 +245,15 @@ function importPlan(){
       }
       
       HISTORY.push(obj);
-      console.log(HISTORY)
+      // console.log(obj)
+      // console.log(HISTORY)
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
-      console.log(HISTORY)
-
+      // console.log(HISTORY)
+      // console.log(files[0])
       $('#myModal').modal('toggle')
     }catch(e){
       console.log(e)
@@ -322,19 +323,18 @@ document.getElementById('exportJson').addEventListener("click", function() {
           total_demolish_wall += parseFloat(tempData[i].wallData[j].wall_length)
         }
       }
-      data.data[i]['wall_length_floor'] = wall_length_floor.toFixed(2)
-      data.data[i]['wall_length_x_floor'] = wall_length_x_floor.toFixed(2)
-      data.data[i]['wall_length_y_floor'] = wall_length_y_floor.toFixed(2)
+    
+      data['wall_length_floor_'+(i+1)] = wall_length_floor.toFixed(2)
+      data['wall_length_x_floor_'+(i+1)] = wall_length_x_floor.toFixed(2)
+      data['wall_length_y_floor_'+(i+1)] = wall_length_y_floor.toFixed(2)
     }
-
+    
     data['total_wall_length'] = total_wall_length.toFixed(2)
     data['total_damage_wall'] = total_damage_wall.toFixed(2)
     data['total_demolish_wall'] = total_demolish_wall.toFixed(2)
     data['total_wall_length_x_floor'] = total_wall_length_x_floor.toFixed(2)
     data['total_wall_length_y_floor'] = total_wall_length_y_floor.toFixed(2)
 
-    
-    // console.log(total_wall_length, total_damage_wall, total_demolish_wall)
     const filename = 'plan-data-' + new Date().getTime() + '.json';
     const jsonStr = JSON.stringify(data);
 
@@ -438,15 +438,15 @@ function save(boot = false) {
   // FOR CYCLIC OBJ INTO LOCALSTORAGE !!!
 
   let d = JSON.parse(localStorage.getItem('history'));
-  // console.log(d)
-  if(d && d.length > 0) d=JSON.parse(d[d.length - 1]);
+  
+  if(d && d.length > 0) d = JSON.parse(d[d.length - 1]);
   if(d && d.data && d.data.length > 0){
     BACKUP_HISTORY = JSON.parse(localStorage.getItem('history'));
+    // console.log(BACKUP_HISTORY)
   }else{
     // console.log(BACKUP_HISTORY)
     localStorage.setItem('history', JSON.stringify(BACKUP_HISTORY));
   }
-
   // console.log(JSON.parse(localStorage.getItem('history')))
   for (var k in WALLS) {
     // console.log(WALLS[k].start, WALLS[k].end)
@@ -454,6 +454,9 @@ function save(boot = false) {
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
     
   }
+  
+ 
+
   if (HISTORY[HISTORY.length-1] && JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == JSON.stringify(JSON.parse(HISTORY[HISTORY.length-1]).data[current_active_floor])) {
     for (var k in WALLS) {
       if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
@@ -510,6 +513,7 @@ function save(boot = false) {
   }
   //
   HISTORY.push(JSON.stringify({data: data, floors: FLOORS}));
+  // console.log(HISTORY)
   localStorage.setItem('history', JSON.stringify(HISTORY));
   HISTORY.index++;
   if (HISTORY.index>1) $('#undo').removeClass('disabled');
@@ -525,6 +529,7 @@ function save(boot = false) {
 // ********************************** //
 function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   if (HISTORY.length == 0 && !boot) return false;
+  // console.log(HISTORY)
   for (var k in OBJDATA){
     OBJDATA[k].graph.remove();
   }

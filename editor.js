@@ -38,7 +38,7 @@ var editor = {
     // IF ACTION == MOVE -> equation2 exist !!!!!
     $('#boxwall').empty();
     $('#boxArea').empty();
-
+    
     for (var vertice = 0; vertice < WALLS.length; vertice++) {
       var wall = WALLS[vertice];
       if (wall.parent != null) {

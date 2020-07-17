@@ -1638,6 +1638,7 @@ event.preventDefault();
           }else{
             wall_length_y = wall_length
           }
+      
           var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall, wall_length);
           wall['wall_length_x'] = wall_length_x
           wall['wall_length_y'] = wall_length_y
