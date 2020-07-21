@@ -571,8 +571,10 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.typeDoorWindow = OO.typeDoorWindow
       obj.sillHeight = OO.sillHeight
       obj.columnHeight = OO.columnHeight
+      obj.slabFloorOffsetHeight = OO.slabFloorOffsetHeight
       obj.height = OO.height
       obj.typeColumn = OO.typeColumn
+      obj.typeSlabFloor = OO.typeSlabFloor
       obj.typeStair = OO.typeStair
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
@@ -996,6 +998,14 @@ document.getElementById('bboxColumnHeight').addEventListener("input", function()
 
 })
 
+// floor/slab offset height
+document.getElementById('bboxSlabFloorOffsetHeight').addEventListener("input", function(){
+  var slabFloorOffsetHeight = this.value
+  var objTarget = binder.obj
+  objTarget.slabFloorOffsetHeight = slabFloorOffsetHeight
+  document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = slabFloorOffsetHeight
+})
+
 // Door & Window height changes
 document.getElementById('doorWindowSillHeight').addEventListener("input", function(){
   var sillHeightValue = this.value
@@ -1268,6 +1278,15 @@ document.getElementById("typeColumn").addEventListener("change", function(){
   var column = binder.obj
   if(column){
     binder.obj.typeColumn = type
+  }
+})
+
+// Assign Slab/Floor Type
+document.getElementById("typeSlabFloor").addEventListener("change", function(){
+  var type = this.value
+  var slabFloor = binder.obj
+  if(slabFloor){
+    binder.obj.typeSlabFloor = type
   }
 })
 
@@ -2154,7 +2173,9 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   construc.params.resizeLimit.columnHeight = {min: false, max: false};
   construc.params.rotate = false;
   construc.params.columnHeight = false;
+  construc.params.slabFloorOffsetHeight = false;
   construc.params.typeColumn = false;
+  construc.params.typeSlabFloor = false;
   construc.params.demolish = false;
 
   if (classObj == 'socle') {
@@ -2497,6 +2518,8 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.resize = true;
     construc.params.rotate = true;
     construc.params.demolish = true;
+    construc.params.slabFloorOffsetHeight = true;
+    construc.params.typeSlabFloor = true;
     construc.params.width = sizeObj?sizeObj:labelWidth; 
     construc.params.height = thickObj?thickObj:labelHeight;
     

@@ -191,6 +191,11 @@
       <input type="range" id="bboxHeight" step="1" class="range" />
     </section>
 
+    <section id="objSlabFloorOffsetHeight">
+      <p>Height Offset : <span id="bboxSlabFloorOffsetHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxSlabFloorOffsetHeight" step="1" />
+    </section>
+
     <section id="objColumnHeight">
       <p>Column Height [<span id="bboxColumnHeightScale"></span>] : <span id="bboxColumnHeightVal"></span> cm</span></p>
       <input type="range" id="bboxColumnHeight" step="1" class="range" />
@@ -207,7 +212,22 @@
         <option value="type 5">Type 5</option>
       </select>
     </section>
+    
     <br/>
+
+    <section id="objSlabFloorType">
+      <p>Type of Slab/Floor :</p>
+      <select name="" id="typeSlabFloor" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+    <br/>
+
 
     <section id="objStairType">
       <p>Type of Stair :</p>

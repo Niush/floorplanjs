@@ -1841,10 +1841,15 @@ event.preventDefault();
               else $('#objBoundingBoxRotation').fadeIn(800);
               if (!objTarget.params.columnHeight) $('#objColumnHeight').hide();
               else $('#objColumnHeight').fadeIn(800)
+              if (!objTarget.params.slabFloorOffsetHeight) $('#objSlabFloorOffsetHeight').hide();
+              else $('#objSlabFloorOffsetHeight').fadeIn(800)
               if (!objTarget.params.typeColumn) $('#objColumnType').hide();
               else $('#objColumnType').fadeIn(800)
+              if (!objTarget.params.typeSlabFloor) $('#objSlabFloorType').hide();
+              else $('#objSlabFloorType').fadeIn(800)
               if (!objTarget.params.demolish) $('#demolishColumnStatus').hide();
               else $('#demolishColumnStatus').fadeIn(800)
+              
               $('#panel').hide(100);
               $('#lin').css('cursor', 'default');
 
@@ -1887,7 +1892,11 @@ event.preventDefault();
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
               document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
+              document.getElementById("bboxSlabFloorOffsetHeight").value = objTarget.slabFloorOffsetHeight
+              document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = objTarget.slabFloorOffsetHeight
               document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
+              document.getElementById('typeSlabFloor').value = objTarget.typeSlabFloor ? objTarget.typeSlabFloor : ""
+
               document.getElementById('typeStair').value = objTarget.typeStair ? objTarget.typeStair : ""
 
               document.getElementById('demolishColumnYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
