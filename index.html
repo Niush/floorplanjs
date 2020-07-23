@@ -185,25 +185,42 @@
     <h2>Modify object</h2>
     <hr/>
     <section id="objBoundingBoxScale">
-      <p>Width [<span id="bboxWidthScale"></span>] : <span id="bboxWidthVal"></span> cm</span></p>
-      <input type="range" id="bboxWidth" step="1" class="range" />
-      <p>Height [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
-      <input type="range" id="bboxHeight" step="1" class="range" />
+      <p>Length [<span id="bboxWidthScale"></span>] : <span id="bboxWidthVal"></span> cm</span></p>
+      <input type="number" id="bboxWidth" step="1" style="width: 100%;" /> 
+      <p>Width [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxHeight" step="1" style="width: 100%;" />
     </section>
 
     <section id="objSlabFloorOffsetHeight">
       <p>Height Offset : <span id="bboxSlabFloorOffsetHeightVal"></span> cm</span></p>
       <input type="number" id="bboxSlabFloorOffsetHeight" step="1" />
     </section>
-
+    <br/>
     <section id="objColumnHeight">
       <p>Column Height [<span id="bboxColumnHeightScale"></span>] : <span id="bboxColumnHeightVal"></span> cm</span></p>
-      <input type="range" id="bboxColumnHeight" step="1" class="range" />
+      <input type="number" id="bboxColumnHeight" step="1" style="width: 100%;" /> 
     </section>
-
+    
+    <section id="objBeamHeight">
+      <p>Beam Height [<span id="bboxBeamHeightScale"></span>] : <span id="bboxBeamHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxBeamHeight" step="1" style="width: 100%;" /> 
+    </section>
+    <br/>
     <section id="objColumnType">
       <p>Type of Column :</p>
       <select name="" id="typeColumn" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+
+    <section id="objBeamType">
+      <p>Type of Beam :</p>
+      <select name="" id="typeBeam" class="form-control">
         <option value="">--select--</option>
         <option value="type 1">Type 1</option>
         <option value="type 2">Type 2</option>

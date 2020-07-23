@@ -306,6 +306,10 @@ document.getElementById('exportJson').addEventListener("click", function() {
       wall_length_x_floor = 0
       wall_length_y_floor = 0
       for(let j = 0; j < tempData[i].wallData.length; j++){
+        // var surfaceArea = 0
+        // if(tempData[i].wallData[j].wall_length_x > 0){
+        //   surfaceArea = (tempData[i].wallData[j].wall_length_x * (tempData[i].wallData[j].height / meter)).toFixed(2)
+        // }
         total_wall_length += parseFloat(tempData[i].wallData[j].wall_length)
         wall_length_floor += parseFloat(tempData[i].wallData[j].wall_length)
 
@@ -334,6 +338,30 @@ document.getElementById('exportJson').addEventListener("click", function() {
     data['total_demolish_wall'] = total_demolish_wall.toFixed(2)
     data['total_wall_length_x_floor'] = total_wall_length_x_floor.toFixed(2)
     data['total_wall_length_y_floor'] = total_wall_length_y_floor.toFixed(2)
+
+    for(let i = 0; i < tempData.length; i++){
+      for(let j = 0; j < tempData[i].objData.length; j++){
+        var area = 0;
+        var volume = 0;
+        // console.log(tempData[i].objData[j]['class'])
+        if(tempData[i].objData[j]['class'] == 'doorWindow'){
+          area = ((tempData[i].objData[j].size / meter) * (tempData[i].objData[j].height / meter)).toFixed(2)
+          // console.log(area)
+          data.data[i].objData[j]['area'] = area
+        }else if(tempData[i].objData[j]['class'] == 'column'){
+          volume = ((tempData[i].objData[j].columnHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'slab'){
+          area = ((tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          volume = ((tempData[i].objData[j].slabFloorOffsetHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['area'] = area
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'beam'){
+          volume = ((tempData[i].objData[j].beamHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }
+      }
+    }
 
     const filename = 'plan-data-' + new Date().getTime() + '.json';
     const jsonStr = JSON.stringify(data);
@@ -571,11 +599,15 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.typeDoorWindow = OO.typeDoorWindow
       obj.sillHeight = OO.sillHeight
       obj.columnHeight = OO.columnHeight
+      obj.beamHeight = OO.beamHeight
       obj.slabFloorOffsetHeight = OO.slabFloorOffsetHeight
       obj.height = OO.height
       obj.typeColumn = OO.typeColumn
+      obj.typeBeam = OO.typeBeam
       obj.typeSlabFloor = OO.typeSlabFloor
       obj.typeStair = OO.typeStair
+      obj.area = OO.area
+      obj.volume = OO.volume
       OBJDATA.push(obj);
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
@@ -975,6 +1007,9 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
     binder.size  = sliderValue;
     binder.limit = limits;
     binder.update();
+    // if(objTarget.height){
+    //   objTarget.area = (objTarget.height / meter * objTarget.size / meter).toFixed(2)
+    // }
     document.getElementById("doorWindowWidthVal").textContent = sliderValue;
   }
   inWallRib(wallBind);
@@ -985,6 +1020,9 @@ document.getElementById('doorWindowHeight').addEventListener("input", function()
   var heightValue = this.value
   var objTarget = binder.obj
   objTarget.height = heightValue
+  // if(objTarget.width){
+  //   objTarget.area = (objTarget.height / meter * objTarget.size / meter).toFixed(2)
+  // }
 
   document.getElementById("doorWindowHeightVal").textContent = heightValue
 })
@@ -994,7 +1032,20 @@ document.getElementById('bboxColumnHeight').addEventListener("input", function()
   var colHeight = this.value
   var objTarget = binder.obj
   objTarget.columnHeight = colHeight
+  // if(objTarget.thick && objTarget.size){
+  //   console.log()
+  //   objTarget.volume = (objTarget.size / meter * objTarget / meter * objTarget.columnHeight / 100 * meter).toFixed(2)
+  // }
   document.getElementById("bboxColumnHeightVal").textContent = colHeight
+
+})
+
+// beam height
+document.getElementById('bboxBeamHeight').addEventListener("input", function(){
+  var beamHeight = this.value
+  var objTarget = binder.obj
+  objTarget.beamHeight = beamHeight
+  document.getElementById("bboxBeamHeightVal").textContent = beamHeight
 
 })
 
@@ -1278,6 +1329,15 @@ document.getElementById("typeColumn").addEventListener("change", function(){
   var column = binder.obj
   if(column){
     binder.obj.typeColumn = type
+  }
+})
+
+// Assign Beam Type
+document.getElementById("typeBeam").addEventListener("change", function(){
+  var type = this.value
+  var beam = binder.obj
+  if(beam){
+    binder.obj.typeBeam = type
   }
 })
 
@@ -2173,8 +2233,10 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   construc.params.resizeLimit.columnHeight = {min: false, max: false};
   construc.params.rotate = false;
   construc.params.columnHeight = false;
+  construc.params.beamHeight = false;
   construc.params.slabFloorOffsetHeight = false;
   construc.params.typeColumn = false;
+  construc.params.typeBeam = false;
   construc.params.typeSlabFloor = false;
   construc.params.demolish = false;
 
@@ -2448,7 +2510,8 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.resize = true;
     construc.params.rotate = true;
     construc.params.resize = true;
-
+    construc.params.beamHeight = true;
+    construc.params.typeBeam = true;
     construc.params.width = sizeObj?sizeObj:400; // Resize width/height to obj size/thick
     construc.params.height = thickObj?thickObj:20;
 
@@ -2456,7 +2519,7 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     if (typeObj == 'simpleBeam'){
       construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "red", 'strokeDashArray': '-'});
       construc.push({'text': "Beam", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
-      construc.push({'text': construc.params.width, 'x': '0', 'y': '20', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"})
+      // construc.push({'text': construc.params.width, 'x': '0', 'y': '20', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"})
       construc.family = 'stick';
       
       construc.params.resizeLimit.width = {min:10, max:1000};
@@ -2482,9 +2545,9 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
       
       construc.family = 'stick';
       
-      construc.params.resizeLimit.width = {min:10, max:500};
-      construc.params.resizeLimit.height = {min:10, max:500};
-      construc.params.resizeLimit.columnHeight = {min: 10, max: 500}
+      construc.params.resizeLimit.width = {min:10, max:1000};
+      construc.params.resizeLimit.height = {min:10, max:1000};
+      construc.params.resizeLimit.columnHeight = {min: 10, max: 1000}
     }
   }
   

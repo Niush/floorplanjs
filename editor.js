@@ -858,6 +858,7 @@ var editor = {
 
         if (ROOM[rr].name != '') centroid.y = centroid.y + 20;
         var area = ((ROOM[rr].area)/(meter*meter)).toFixed(2)+' m²';
+
         var styled = {color:'#343938', fontSize:'12.5px', fontWeight:'normal'};
         if (ROOM[rr].surface != '') {
           styled.fontWeight = 'bold';

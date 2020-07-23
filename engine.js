@@ -1841,10 +1841,14 @@ event.preventDefault();
               else $('#objBoundingBoxRotation').fadeIn(800);
               if (!objTarget.params.columnHeight) $('#objColumnHeight').hide();
               else $('#objColumnHeight').fadeIn(800)
+              if (!objTarget.params.beamHeight) $('#objBeamHeight').hide();
+              else $('#objBeamHeight').fadeIn(800)
               if (!objTarget.params.slabFloorOffsetHeight) $('#objSlabFloorOffsetHeight').hide();
               else $('#objSlabFloorOffsetHeight').fadeIn(800)
               if (!objTarget.params.typeColumn) $('#objColumnType').hide();
               else $('#objColumnType').fadeIn(800)
+              if (!objTarget.params.typeBeam) $('#objBeamType').hide();
+              else $('#objBeamType').fadeIn(800)
               if (!objTarget.params.typeSlabFloor) $('#objSlabFloorType').hide();
               else $('#objSlabFloorType').fadeIn(800)
               if (!objTarget.params.demolish) $('#demolishColumnStatus').hide();
@@ -1865,6 +1869,7 @@ event.preventDefault();
               document.getElementById('bboxColumnHeight').setAttribute('min', objTarget.params.resizeLimit.columnHeight.min);
               document.getElementById('bboxColumnHeight').setAttribute('max', objTarget.params.resizeLimit.columnHeight.max);
               document.getElementById('bboxColumnHeightScale').textContent = objTarget.params.resizeLimit.columnHeight.min+"-"+objTarget.params.resizeLimit.columnHeight.max;
+              
               $('#stepsCounter').hide();
               $('#objStairType').hide();
               if (objTarget.class == 'stair') {
@@ -1891,10 +1896,13 @@ event.preventDefault();
               document.getElementById("bboxRotation").value = objTarget.angle;
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
+              document.getElementById("bboxBeamHeight").value = objTarget.beamHeight
               document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
+              document.getElementById("bboxBeamHeightVal").textContent = objTarget.beamHeight
               document.getElementById("bboxSlabFloorOffsetHeight").value = objTarget.slabFloorOffsetHeight
               document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = objTarget.slabFloorOffsetHeight
               document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
+              document.getElementById('typeBeam').value = objTarget.typeBeam ? objTarget.typeBeam : ""
               document.getElementById('typeSlabFloor').value = objTarget.typeSlabFloor ? objTarget.typeSlabFloor : ""
 
               document.getElementById('typeStair').value = objTarget.typeStair ? objTarget.typeStair : ""
