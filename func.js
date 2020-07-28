@@ -245,15 +245,13 @@ function importPlan(){
       }
       
       HISTORY.push(obj);
-      // console.log(obj)
-      // console.log(HISTORY)
+      
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
-      // console.log(HISTORY)
-      // console.log(files[0])
+      
       $('#myModal').modal('toggle')
     }catch(e){
       console.log(e)
@@ -306,10 +304,10 @@ document.getElementById('exportJson').addEventListener("click", function() {
       wall_length_x_floor = 0
       wall_length_y_floor = 0
       for(let j = 0; j < tempData[i].wallData.length; j++){
-        // var surfaceArea = 0
-        // if(tempData[i].wallData[j].wall_length_x > 0){
-        //   surfaceArea = (tempData[i].wallData[j].wall_length_x * (tempData[i].wallData[j].height / meter)).toFixed(2)
-        // }
+        
+        data.data[i].wallData[j]['surface_area'] = (tempData[i].wallData[j].wall_length * tempData[i].wallData[j].thick / 60).toFixed(2)
+        data.data[i].wallData[j]['transverse_area'] = (tempData[i].wallData[j].height * tempData[i].wallData[j].thick / 60).toFixed(2)
+
         total_wall_length += parseFloat(tempData[i].wallData[j].wall_length)
         wall_length_floor += parseFloat(tempData[i].wallData[j].wall_length)
 
@@ -343,10 +341,9 @@ document.getElementById('exportJson').addEventListener("click", function() {
       for(let j = 0; j < tempData[i].objData.length; j++){
         var area = 0;
         var volume = 0;
-        // console.log(tempData[i].objData[j]['class'])
+        
         if(tempData[i].objData[j]['class'] == 'doorWindow'){
           area = ((tempData[i].objData[j].size / meter) * (tempData[i].objData[j].height / meter)).toFixed(2)
-          // console.log(area)
           data.data[i].objData[j]['area'] = area
         }else if(tempData[i].objData[j]['class'] == 'column'){
           volume = ((tempData[i].objData[j].columnHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
@@ -358,6 +355,11 @@ document.getElementById('exportJson').addEventListener("click", function() {
           data.data[i].objData[j]['volume'] = volume
         }else if(tempData[i].objData[j]['class'] == 'beam'){
           volume = ((tempData[i].objData[j].beamHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'stair'){
+          let waistSlab = ((tempData[i].objData[j].thick * 100 / (meter * meter)) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].waistSlabThickness / 60)).toFixed(2)
+          let areaOfSteps = (tempData[i].objData[j].value * 1/2 * (tempData[i].objData[j].stepsBase * tempData[i].objData[j].stepsHeight) / 3600).toFixed(2)
+          volume = (areaOfSteps * waistSlab).toFixed(2)
           data.data[i].objData[j]['volume'] = volume
         }
       }
@@ -470,22 +472,22 @@ function save(boot = false) {
   if(d && d.length > 0) d = JSON.parse(d[d.length - 1]);
   if(d && d.data && d.data.length > 0){
     BACKUP_HISTORY = JSON.parse(localStorage.getItem('history'));
-    // console.log(BACKUP_HISTORY)
+    
   }else{
-    // console.log(BACKUP_HISTORY)
+    
     localStorage.setItem('history', JSON.stringify(BACKUP_HISTORY));
   }
-  // console.log(JSON.parse(localStorage.getItem('history')))
+ 
   for (var k in WALLS) {
-    // console.log(WALLS[k].start, WALLS[k].end)
+   
     if (WALLS[k].child != null) WALLS[k].child = WALLS.indexOf(WALLS[k].child);
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
     
   }
   
- 
 
   if (HISTORY[HISTORY.length-1] && JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == JSON.stringify(JSON.parse(HISTORY[HISTORY.length-1]).data[current_active_floor])) {
+  
     for (var k in WALLS) {
       if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
       if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
@@ -519,10 +521,9 @@ function save(boot = false) {
   }
 
   if(HISTORY.length){
-    // console.log(HISTORY)
-    // console.log(toLoad)
+    
     var historyTemp = JSON.parse(HISTORY[toLoad]);
-    // console.log(historyTemp)
+    
     var floor_data = historyTemp.data;
     
     for(var i = 0 ; i < FLOORS ; i++){
@@ -530,8 +531,7 @@ function save(boot = false) {
         data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
         currentPushed = true;
       }else{
-        // console.log(floor_data);
-        // console.log(floor_data[i]);
+        
         data.push(floor_data[i]);
       }
     }
@@ -539,9 +539,9 @@ function save(boot = false) {
       data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
     }
   }
-  //
+  
   HISTORY.push(JSON.stringify({data: data, floors: FLOORS}));
-  // console.log(HISTORY)
+  
   localStorage.setItem('history', JSON.stringify(HISTORY));
   HISTORY.index++;
   if (HISTORY.index>1) $('#undo').removeClass('disabled');
@@ -557,7 +557,7 @@ function save(boot = false) {
 // ********************************** //
 function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   if (HISTORY.length == 0 && !boot) return false;
-  // console.log(HISTORY)
+  
   for (var k in OBJDATA){
     OBJDATA[k].graph.remove();
   }
@@ -600,6 +600,9 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.sillHeight = OO.sillHeight
       obj.columnHeight = OO.columnHeight
       obj.beamHeight = OO.beamHeight
+      obj.waistSlabThickness = OO.waistSlabThickness
+      obj.stepsBase = OO.stepsBase
+      obj.stepsHeight = OO.stepsHeight
       obj.slabFloorOffsetHeight = OO.slabFloorOffsetHeight
       obj.height = OO.height
       obj.typeColumn = OO.typeColumn
@@ -608,10 +611,12 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.typeStair = OO.typeStair
       obj.area = OO.area
       obj.volume = OO.volume
+      
       OBJDATA.push(obj);
+
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
-      // console.log(OBJDATA)
+      
     }
     WALLS = historyTemp.wallData;
     for (var k in WALLS) {
@@ -1032,10 +1037,6 @@ document.getElementById('bboxColumnHeight').addEventListener("input", function()
   var colHeight = this.value
   var objTarget = binder.obj
   objTarget.columnHeight = colHeight
-  // if(objTarget.thick && objTarget.size){
-  //   console.log()
-  //   objTarget.volume = (objTarget.size / meter * objTarget / meter * objTarget.columnHeight / 100 * meter).toFixed(2)
-  // }
   document.getElementById("bboxColumnHeightVal").textContent = colHeight
 
 })
@@ -1046,7 +1047,30 @@ document.getElementById('bboxBeamHeight').addEventListener("input", function(){
   var objTarget = binder.obj
   objTarget.beamHeight = beamHeight
   document.getElementById("bboxBeamHeightVal").textContent = beamHeight
+})
 
+// Wait slab thickness for stair
+document.getElementById('bboxWaistSlabThickness').addEventListener("input", function(){
+  var waistSlabThickness = this.value
+  var objTarget = binder.obj
+  objTarget.waistSlabThickness = waistSlabThickness
+  document.getElementById("bboxWaistSlabThicknessVal").textContent = waistSlabThickness
+})
+
+// stair steps base
+document.getElementById('bboxStepsBase').addEventListener("input", function(){
+  var stepsBase = this.value
+  var objTarget = binder.obj
+  objTarget.stepsBase = stepsBase
+  document.getElementById("bboxStepsBaseVal").textContent = stepsBase
+})
+
+// stair steps height
+document.getElementById('bboxStepsHeight').addEventListener("input", function(){
+  var stepsHeight = this.value
+  var objTarget = binder.obj
+  objTarget.stepsHeight = stepsHeight
+  document.getElementById("bboxStepsHeightVal").textContent = stepsHeight
 })
 
 // floor/slab offset height
@@ -2234,6 +2258,9 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   construc.params.rotate = false;
   construc.params.columnHeight = false;
   construc.params.beamHeight = false;
+  construc.params.waistSlabThickness = false;
+  construc.params.stepsBase = false;
+  construc.params.stepsHeight = false;
   construc.params.slabFloorOffsetHeight = false;
   construc.params.typeColumn = false;
   construc.params.typeBeam = false;
@@ -2326,6 +2353,9 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.move = true;
     construc.params.resize = true;
     construc.params.rotate = true;
+    construc.params.waistSlabThickness = true;
+    construc.params.stepsBase = true;
+    construc.params.stepsHeight = true;
     construc.params.width = sizeObj?sizeObj:100; // Resize width/height to obj size/thick
     construc.params.height = thickObj?thickObj:300;
     if (typeObj == 'simpleStair') {

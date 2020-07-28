@@ -230,7 +230,6 @@
       </select>
     </section>
     
-    <br/>
 
     <section id="objSlabFloorType">
       <p>Type of Slab/Floor :</p>
@@ -243,8 +242,28 @@
         <option value="type 5">Type 5</option>
       </select>
     </section>
-    <br/>
+    
 
+    <section id="objWaistSlabThickness">
+      <p>Waist Slab Thickness : <span id="bboxWaistSlabThicknessVal"></span> cm</span></p>
+      <input type="number" id="bboxWaistSlabThickness" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
+
+    <section id="objStepsBase">
+      <p>Steps Base : <span id="bboxStepsBaseVal"></span> cm</span></p>
+      <input type="number" id="bboxStepsBase" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
+
+    <section id="objStepsHeight">
+      <p>Steps Height : <span id="bboxStepsHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxStepsHeight" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
 
     <section id="objStairType">
       <p>Type of Stair :</p>
@@ -714,7 +733,7 @@
     function detectSwipeLeft(event){
     setTimeout(() => {
       eX = event.targetTouches[0].pageX
-      // console.log(sX-eX)
+      
       if (sX - eX > 100){
         $('#panel').hide(200)
       }

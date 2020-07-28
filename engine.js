@@ -140,10 +140,13 @@ document.addEventListener("keydown", function(event) {
       else {
 
         if ((binder.family != 'stick' && binder.family != 'collision') || WALLS.length == 0) {
+          
           binder.x = snap.x;
           binder.y = snap.y;
-          binder.oldX = binder.x;
-          binder.oldY = binder.y;
+
+          // commented because of floor load problem. reason is difference in oldX in export and X in made
+          // binder.oldX = binder.x;
+          // binder.oldY = binder.y;
           binder.update();
         }
         if (binder.family == 'collision') {
@@ -1642,6 +1645,8 @@ event.preventDefault();
           var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall, wall_length);
           wall['wall_length_x'] = wall_length_x
           wall['wall_length_y'] = wall_length_y
+          // wall['surface_area'] = (wall_length * sizeWall / 60).toFixed(2)
+          // wall['transverse_area'] = 
           WALLS.push(wall);
           editor.architect(WALLS);
 
@@ -1843,6 +1848,12 @@ event.preventDefault();
               else $('#objColumnHeight').fadeIn(800)
               if (!objTarget.params.beamHeight) $('#objBeamHeight').hide();
               else $('#objBeamHeight').fadeIn(800)
+              if (!objTarget.params.waistSlabThickness) $('#objWaistSlabThickness').hide();
+              else $('#objWaistSlabThickness').fadeIn(800)
+              if (!objTarget.params.stepsBase) $('#objStepsBase').hide();
+              else $('#objStepsBase').fadeIn(800)
+              if (!objTarget.params.stepsHeight) $('#objStepsHeight').hide();
+              else $('#objStepsHeight').fadeIn(800)
               if (!objTarget.params.slabFloorOffsetHeight) $('#objSlabFloorOffsetHeight').hide();
               else $('#objSlabFloorOffsetHeight').fadeIn(800)
               if (!objTarget.params.typeColumn) $('#objColumnType').hide();
@@ -1897,14 +1908,19 @@ event.preventDefault();
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
               document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
               document.getElementById("bboxBeamHeight").value = objTarget.beamHeight
+              document.getElementById("bboxWaistSlabThickness").value = objTarget.waistSlabThickness
+              document.getElementById("bboxStepsBase").value = objTarget.stepsBase
+              document.getElementById("bboxStepsHeight").value = objTarget.stepsHeight
               document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
               document.getElementById("bboxBeamHeightVal").textContent = objTarget.beamHeight
+              document.getElementById("bboxWaistSlabThicknessVal").textContent = objTarget.waistSlabThickness
+              document.getElementById("bboxStepsBaseVal").textContent = objTarget.stepsBase
+              document.getElementById("bboxStepsHeightVal").textContent = objTarget.stepsHeight
               document.getElementById("bboxSlabFloorOffsetHeight").value = objTarget.slabFloorOffsetHeight
               document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = objTarget.slabFloorOffsetHeight
               document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
               document.getElementById('typeBeam').value = objTarget.typeBeam ? objTarget.typeBeam : ""
               document.getElementById('typeSlabFloor').value = objTarget.typeSlabFloor ? objTarget.typeSlabFloor : ""
-
               document.getElementById('typeStair').value = objTarget.typeStair ? objTarget.typeStair : ""
 
               document.getElementById('demolishColumnYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
