@@ -681,7 +681,7 @@ var qSVG = {
     },
 
     polygonize: function(segment) {
-      console.log(segment)
+      
        junction = qSVG.junctionList(segment);
        vertex = qSVG.vertexList(junction, segment);
        var vertexCopy = qSVG.vertexList(junction, segment);

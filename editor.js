@@ -739,7 +739,6 @@ var editor = {
 
   // Make Room From the bounding walls
   roomMaker:  function(Rooms) {
-  
     globalArea = 0;
     var oldVertexNumber = [];
     if (Rooms.polygons.length == 0) ROOM = [];

@@ -6,7 +6,10 @@ document.querySelector('#lin').addEventListener("mousemove", throttle(function(e
 document.querySelector('#lin').addEventListener("mousedown", _MOUSEDOWN, true);
 
 document.querySelector('#lin').addEventListener("touchend", _MOUSEUP);
-document.querySelector('#lin').addEventListener("touchmove", throttle(function(event){ _MOUSEMOVE(event);},30), false);
+document.querySelector('#lin').addEventListener("touchmove", throttle(function(event){ 
+  event.preventDefault()
+  _MOUSEMOVE(event);
+},30), false);
 document.querySelector('#lin').addEventListener("touchmove", _MOUSEDOWN, false);
 
 $(document).on('click', '#lin', function(event) {
@@ -30,6 +33,7 @@ document.querySelector('#panel').addEventListener('mousemove', function(event) {
 
 document.querySelector('#panel').addEventListener('touchmove', function(event) {
   if ((mode == 'line_mode' || mode == 'partition_mode') && action == 1) {
+    event.preventDefault()
     action = 0;
     if (typeof(binder) != 'undefined') {
         binder.remove();
