@@ -1,6 +1,6 @@
 var editor = {
 
-  wall: function(start, end, type, thick) {
+  wall: function(start, end, type, thick, wall_length) {
       this.thick = thick;
       this.start = start;
       this.end = end;
@@ -11,6 +11,7 @@ var editor = {
       this.equations = {};
       this.coords = [];
       this.backUp = false;
+      this.wall_length = wall_length ? wall_length : 0;
   },
 
   // RETURN OBJECTS ARRAY INDEX OF WALLS [WALL1, WALL2, n...] WALLS WITH THIS NODE, EXCEPT PARAM = OBJECT WALL
@@ -18,6 +19,8 @@ var editor = {
       var nodes = [];
       for (var k in WALLS) {
         if (!isObjectsEquals(WALLS[k], except)) {
+          // console.log(WALLS[k].start, WALLS[k].end)
+
           if (isObjectsEquals(WALLS[k].start,coords)) {
               nodes.push({wall: WALLS[k], type: "start"});
           }
@@ -35,7 +38,7 @@ var editor = {
     // IF ACTION == MOVE -> equation2 exist !!!!!
     $('#boxwall').empty();
     $('#boxArea').empty();
-
+    
     for (var vertice = 0; vertice < WALLS.length; vertice++) {
       var wall = WALLS[vertice];
       if (wall.parent != null) {
@@ -221,14 +224,16 @@ var editor = {
         dWay = dWay + "L"+interDw.x+","+interDw.y+" L"+interUp.x+","+interUp.y+" Z";
       }
 
-      wall.graph = editor.makeWall(dWay, wall.damage);
+      wall.graph = editor.makeWall(dWay, wall.damage, wall.slab, wall.roof);
       $('#boxwall').append(wall.graph);
     }
   },
 
   // Make wall SVG elem
-  makeWall: function(way, damage='good') {
+  makeWall: function(way, damage='good', slab=false, roof=false) {
     var temp_color = colorWall
+    var stroke = "none";
+    var fillOpacity = "1";
     if(!damage || damage == 'good'){
       temp_color = colorWall
     }else if(damage == 'medium'){
@@ -236,15 +241,29 @@ var editor = {
     }else if(damage == 'high'){
       temp_color = 'maroon';
     }
+
+    if(slab==true){
+      temp_color = 'teal';
+      stroke = 'white';
+    }
+
+    if(roof==true){
+      temp_color = 'salmon';
+      stroke = 'maroon';
+      fillOpacity = '0.2';
+    }
+    
     var wallScreen = qSVG.create('none', 'path', {
         d: way,
-        stroke: "none",
+        stroke: stroke,
         fill: temp_color,
         "stroke-width": 1,
         "stroke-linecap": "butt",
         "stroke-linejoin": "miter",
         "stroke-miterlimit": 4,
-        "fill-rule": "nonzero"
+        "fill-rule": "nonzero",
+        "fill-opacity": fillOpacity,
+        "stroke-opacity": roof==true?"0.4":"1"
     });
     return wallScreen;
   },
@@ -298,31 +317,19 @@ var editor = {
   },
 
     // Update Demolish Status of wall
-    updateDemolishStatus: function(status = 'no', prop = 'wall'){
+    updateDemolishStatus: function(status = 'no', prop = 'wall', view='Wall'){
       var demolishStatus = binder[prop]
       // console.log(demolishStatus)
       try{
         demolishStatus.demolish = status
 
-        if(prop == 'wall'){
-          document.getElementById('demolishWallYes').className = document.getElementById('demolishWallYes').className.replace('activebtn', '');
-          document.getElementById('demolishWallNo').className = document.getElementById('demolishWallNo').className.replace('activebtn', '');
-    
-          if(status == 'yes'){
-            document.getElementById('demolishWallYes').className += ' activebtn';
-          }else{
-            document.getElementById('demolishWallNo').className += ' activebtn';
-    
-          }
+        document.getElementById(`demolish${view}Yes`).className = document.getElementById(`demolish${view}Yes`).className.replace('activebtn', '');
+        document.getElementById(`demolish${view}No`).className = document.getElementById(`demolish${view}No`).className.replace('activebtn', '');
+        if(status == 'yes'){
+          document.getElementById(`demolish${view}Yes`).className += ' activebtn';
         }else{
-          document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
-          document.getElementById('demolishDoorWindowNo').className = document.getElementById('demolishDoorWindowNo').className.replace('activebtn', '');
-          
-          if(status == 'yes'){
-            document.getElementById('demolishDoorWindowYes').className += ' activebtn';
-          }else{
-            document.getElementById('demolishDoorWindowNo').className += ' activebtn';
-          }
+          document.getElementById(`demolish${view}No`).className += ' activebtn';
+  
         }
         save();
         return true;
@@ -401,6 +408,7 @@ var editor = {
 
   // New Wall Node
   nearWallNode: function(snap, range = Infinity, except = ['']) {
+    
     var best;
     var bestWall;
     var scan;
@@ -638,7 +646,7 @@ var editor = {
     this.size = size;
     this.thick = thick;
     this.width = (this.size / meter).toFixed(2);
-    this.height= (this.thick / meter).toFixed(2);
+    // this.height= thick;
     this.fill = fill;
 
     var cc = carpentryCalc(classe, type, size, thick, value, fill);
@@ -648,10 +656,11 @@ var editor = {
       if (cc[tt].path) {
         blank = qSVG.create('none', 'path', {
             d : cc[tt].path,
-            "stroke-width": 1,
+            "stroke-width": cc[tt].strokeWidth?cc[tt].strokeWidth:1,
             fill: cc[tt].fill,
             stroke: cc[tt].stroke,
-            'stroke-dasharray': cc[tt].strokeDashArray
+            'stroke-dasharray': cc[tt].strokeDashArray,
+            'fill-opacity': cc[tt].fillOpacity
         });
       }
       if (cc[tt].text) {
@@ -685,7 +694,7 @@ var editor = {
       this.update = function() {
         // console.log("update")
         this.width = (this.size / meter).toFixed(2);
-        this.height= (this.thick / meter).toFixed(2);
+        this.height= this.height;
         cc = carpentryCalc(this.class, this.type, this.size, this.thick, this.value, this.fill);
         for (var tt = 0; tt < cc.length; tt++) {
             if (cc[tt].path)  {
@@ -849,6 +858,7 @@ var editor = {
 
         if (ROOM[rr].name != '') centroid.y = centroid.y + 20;
         var area = ((ROOM[rr].area)/(meter*meter)).toFixed(2)+' m²';
+
         var styled = {color:'#343938', fontSize:'12.5px', fontWeight:'normal'};
         if (ROOM[rr].surface != '') {
           styled.fontWeight = 'bold';
@@ -934,6 +944,7 @@ var editor = {
   },
 
   showScaleBox: function() {
+
     if (ROOM.length > 0) {
       var minX, minY, maxX, maxY;
       for (var i = 0; i < WALLS.length; i++) {

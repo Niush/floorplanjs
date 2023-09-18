@@ -1,11 +1,21 @@
 // Register Mouse Events inside svg container (planner area)
+
+
 document.querySelector('#lin').addEventListener("mouseup", _MOUSEUP);
 document.querySelector('#lin').addEventListener("mousemove", throttle(function(event){ _MOUSEMOVE(event);},30));
 document.querySelector('#lin').addEventListener("mousedown", _MOUSEDOWN, true);
 
+document.querySelector('#lin').addEventListener("touchend", _MOUSEUP);
+document.querySelector('#lin').addEventListener("touchmove", throttle(function(event){ 
+  event.preventDefault()
+  _MOUSEMOVE(event);
+},30), false);
+document.querySelector('#lin').addEventListener("touchmove", _MOUSEDOWN, false);
+
 $(document).on('click', '#lin', function(event) {
     event.preventDefault();
 });
+
 
 document.querySelector('#panel').addEventListener('mousemove', function(event) {
   if ((mode == 'line_mode' || mode == 'partition_mode') && action == 1) {
@@ -21,6 +31,23 @@ document.querySelector('#panel').addEventListener('mousemove', function(event) {
   }
 });
 
+document.querySelector('#panel').addEventListener('touchmove', function(event) {
+  if ((mode == 'line_mode' || mode == 'partition_mode') && action == 1) {
+    event.preventDefault()
+    action = 0;
+    if (typeof(binder) != 'undefined') {
+        binder.remove();
+        delete binder;
+    }
+    $('#linetemp').remove();
+    $('#line_construc').remove();
+    lengthTemp.remove();
+    delete lengthTemp;
+  }
+}, false);
+
+
+
 window.addEventListener('resize', function(event){
   width_viewbox = $('#lin').width();
   height_viewbox = $('#lin').height();
@@ -31,6 +58,10 @@ window.addEventListener('resize', function(event){
 // ******************************        KEYPRESS on KEYBOARD          *********************************
 // *****************************************************************************************************
 document.addEventListener("keydown", function(event) {
+    if(event.target.tagName == "INPUT"){
+      // Ignore if input field
+      return;
+    }
     if (mode != "text_mode") {
       if (event.keyCode == '37') {
           //LEFT
@@ -92,6 +123,17 @@ document.addEventListener("keydown", function(event) {
       if (typeof(binder) == 'undefined') {
         $('#object_list').hide(200);
         if (modeOption == 'simpleStair') binder = new editor.obj2D("free", "stair", "simpleStair", snap, 0, 0, 0, "normal", 0, 15);
+        else if (modeOption == 'beam'){
+          // var typeObj = modeOption;
+          binder = new editor.obj2D("inWall", "beam", "simpleBeam", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }else if( modeOption == 'column'){
+          // var typeObj = modeOption
+          binder = new editor.obj2D("free", "column", "simpleColumn", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }else if( modeOption == 'slab'){
+          binder = new editor.obj2D("free", "slab", "simpleSlab", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }else if( modeOption == 'roof'){
+          binder = new editor.obj2D("free", "roof", "simpleRoof", snap, 0, 0, 0, "normal", 0, "#eee" );
+        }
         else {
           var typeObj = modeOption;
           binder = new editor.obj2D("free", "energy", typeObj, snap, 0, 0, 0, "normal", 0, '#eee');
@@ -102,10 +144,13 @@ document.addEventListener("keydown", function(event) {
       else {
 
         if ((binder.family != 'stick' && binder.family != 'collision') || WALLS.length == 0) {
+          
           binder.x = snap.x;
           binder.y = snap.y;
-          binder.oldX = binder.x;
-          binder.oldY = binder.y;
+
+          // commented because of floor load problem. reason is difference in oldX in export and X in made
+          // binder.oldX = binder.x;
+          // binder.oldY = binder.y;
           binder.update();
         }
         if (binder.family == 'collision') {
@@ -388,82 +433,120 @@ document.addEventListener("keydown", function(event) {
 
       snap = calcul_snap(event, 'off');
 
-              var objTarget = false;
-              for (var i = 0; i < OBJDATA.length; i++) {
-                var objX1 = OBJDATA[i].bbox.left;
-                var objX2 = OBJDATA[i].bbox.right;
-                var objY1 = OBJDATA[i].bbox.top;
-                var objY2 = OBJDATA[i].bbox.bottom;
-                var realBboxCoords = OBJDATA[i].realBbox;
-                    if (qSVG.rayCasting(snap, realBboxCoords)) {
-                      objTarget = OBJDATA[i];
-                    }
+      // First start detecting object
+      var objTarget = false;
+      var temp_slab = null;
+      for (var i = 0; i < OBJDATA.length; i++) {
+        var objX1 = OBJDATA[i].bbox.left;
+        var objX2 = OBJDATA[i].bbox.right;
+        var objY1 = OBJDATA[i].bbox.top;
+        var objY2 = OBJDATA[i].bbox.bottom;
+        var realBboxCoords = OBJDATA[i].realBbox;
+            if (qSVG.rayCasting(snap, realBboxCoords)) {
+              objTarget = OBJDATA[i];
+              if(objTarget.class == "slab"){
+                temp_slab = objTarget;
+              }else{
+                break;
               }
-              if (objTarget !== false) {
-                if (typeof(binder) != 'undefined' && (binder.type == 'segment')) {
-                  binder.graph.remove();
-                  delete binder;
-                  cursor('default');
-                }
-                if (objTarget.params.bindBox) { // OBJ -> BOUNDINGBOX TOOL
-                  if (typeof(binder) == 'undefined') {
-                    var bindbox_y_fix_top = Object.assign({},objTarget.bbox.origin);
-                    // fix for text -10 px to top
-                    if(objTarget.class == 'text'){
-                      bindbox_y_fix_top.y -= objTarget.thick/4;
-                    }
-                    binder = new editor.obj2D("free", "boundingBox", "", bindbox_y_fix_top, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
-                    binder.update();
-                    binder.obj = objTarget;
-                    binder.type = 'boundingBox';
-                    binder.oldX = binder.x;
-                    binder.oldY = binder.y;
-                    $('#boxbind').append(binder.graph);
-                    if (!objTarget.params.move) cursor('trash'); // LIKE MEASURE ON PLAN
-                    if (objTarget.params.move) cursor('move');
-                  }
-                }
-                else {  // DOOR, WINDOW, APERTURE.. -- OBJ WITHOUT BINDBOX (params.bindBox = False) -- !!!!
-                  if (typeof(binder) == 'undefined') {
-                    var wallList = editor.rayCastingWall(objTarget);
-                    if (wallList.length > 1) wallList = wallList[0];
-                    inWallRib(wallList);
-                    var thickObj = wallList.thick;
-                    var sizeObj = objTarget.size;
+            }
+      }
+      // If no objtarget found near but slab was found (slab will be the objtarget)
+      if(!objTarget && temp_slab){
+        objTarget = temp_slab;
+      }
+      // If Object exists in mouseover
+      if (objTarget !== false) {
+        // If not empty or is slab remove from binder
+        if (typeof(binder) != 'undefined' && (binder.type == 'segment' || (binder.obj && binder.obj.class == "slab"))) {
+          binder.graph.remove();
+          delete binder;
+          cursor('default');
+        }
+        // First check if door, window etc.
+        if (!objTarget.params.bindBox) { // DOOR, WINDOW, APERTURE.. -- OBJ WITHOUT BINDBOX (params.bindBox = False) -- !!!!
+          if (typeof(binder) == 'undefined') {
+            var wallList = editor.rayCastingWall(objTarget);
+            if (wallList.length > 1) wallList = wallList[0];
+            inWallRib(wallList);
+            var thickObj = wallList.thick;
+            var sizeObj = objTarget.size;
 
-                    binder = new editor.obj2D("inWall", "socle", "", objTarget, objTarget.angle, 0, sizeObj, "normal", thickObj);
-                    binder.update();
+            binder = new editor.obj2D("inWall", "socle", "", objTarget, objTarget.angle, 0, sizeObj, "normal", thickObj);
+            binder.update();
 
-                    binder.oldXY = {x: objTarget.x, y: objTarget.y}; // FOR OBJECT MENU
-                    $('#boxbind').append(binder.graph);
-                  }
-                  else {
-                    if (event.target == binder.graph.get(0).firstChild) {
-                      cursor('move');
-                      binder.graph.get(0).firstChild.setAttribute("class","circle_css_2");
-                      binder.type = "obj";
-                      binder.obj = objTarget;
-                    }
-                    else {
-                      cursor('default');
-                      binder.graph.get(0).firstChild.setAttribute("class","circle_css_1");
-                      binder.type = false;
-                    }
-                  }
-                }
+            binder.oldXY = {x: objTarget.x, y: objTarget.y}; // FOR OBJECT MENU
+            $('#boxbind').append(binder.graph);
+          }
+          else {
+            // if(binder.graph && binder.graph.get(0)){
+              if (event.target == binder.graph.get(0).firstChild) {
+                cursor('move');
+                binder.graph.get(0).firstChild.setAttribute("class","circle_css_2");
+                binder.type = "obj";
+                binder.obj = objTarget;
               }
               else {
-                if (typeof(binder) != 'undefined') {
-                  if (typeof(binder.graph) != 'undefined') binder.graph.remove();
-                  else binder.remove();
-                  delete binder;
-                  cursor('default');
-                  rib();
-
-                }
+                cursor('default');
+                binder.graph.get(0).firstChild.setAttribute("class","circle_css_1");
+                binder.type = false;
               }
+            // }
+          }
+        }
+        else {  // OBJ -> BOUNDINGBOX TOOL
+          $(".circle_css_2").remove()
+          $(".circle_css").remove()
+          wallBind = editor.rayCastingWalls(snap, WALLS);
+          // IF WALLS EXIST nearby ignore object and go to Wall detect method
+          if(wallBind){
+            if (typeof(binder) != 'undefined' && binder.graph) binder.graph.remove();
+            delete binder;
+            cursor('default');
+            rib();
+            detectWallStuff();
+          }else{
+            if (typeof(binder) != 'undefined') {
+              if (typeof(binder.graph) != 'undefined') binder.graph.remove();
+              else binder.remove();
+              delete binder;
+              cursor('default');
+              rib();
+            }
+            var bindbox_y_fix_top = Object.assign({},objTarget.bbox.origin);
+            // fix for text -10 px to top
+            if(objTarget.class == 'text'){
+              bindbox_y_fix_top.y -= objTarget.thick/4;
+            }
+            binder = new editor.obj2D("free", "boundingBox", "", bindbox_y_fix_top, objTarget.angle, 0, objTarget.size, "normal", objTarget.thick, objTarget.realBbox);
+            binder.update();
+            binder.obj = objTarget;
+            binder.type = 'boundingBox';
+            binder.oldX = binder.x;
+            binder.oldY = binder.y;
+            $('#boxbind').append(binder.graph);
+            if (!objTarget.params.move) cursor('trash'); // LIKE MEASURE ON PLAN
+            if (objTarget.params.move) cursor('move');
+            if (objTarget.class == "slab"){
+              binder.graph[0].children[0].setAttribute("fill","brown")
+              binder.graph[0].children[0].setAttribute("fill-opacity","0.1")
+            }
+          }
+        }
+      }
+      else {
+        if (typeof(binder) != 'undefined') {
+          if (typeof(binder.graph) != 'undefined') binder.graph.remove();
+          else binder.remove();
+          delete binder;
+          cursor('default');
+          rib();
 
-      // BIND CIRCLE IF nearNode and GROUP ALL SAME XY SEG POINTS
+        }
+      }
+
+      function detectWallStuff(){
+        // BIND CIRCLE IF nearNode and GROUP ALL SAME XY SEG POINTS
         if (wallNode = editor.nearWallNode(snap, 20)) {
             if (typeof(binder) == 'undefined' || binder.type == 'segment') {
                 binder = qSVG.create('boxbind', 'circle', {
@@ -477,7 +560,7 @@ document.addEventListener("keydown", function(event) {
                 binder.type = "node";
                 if ($('#linebinder').length) $('#linebinder').remove();
             } else {
-               // REMAKE CIRCLE_CSS ON BINDER AND TAKE DATA SEG GROUP
+                // REMAKE CIRCLE_CSS ON BINDER AND TAKE DATA SEG GROUP
                 // if (typeof(binder) != 'undefined') {
                 //     binder.attr({
                 //         class: "circle_css_2"
@@ -571,6 +654,8 @@ document.addEventListener("keydown", function(event) {
             }
           }
         }
+      }
+      detectWallStuff();
     } // END mode == 'select_mode' && drag == 'off'
 
     // ------------------------------  LINE MODE ------------------------------------------------------
@@ -645,7 +730,8 @@ document.addEventListener("keydown", function(event) {
                 if (!$('#line_construc').length) {
                   var ws = 20;
                   if (mode == 'partition_mode') ws = 10;
-                    lineconstruc = qSVG.create("boxbind", "line", {
+  
+                      lineconstruc = qSVG.create("boxbind", "line", {
                         id: "line_construc",
                         x1: pox,
                         y1: poy,
@@ -656,6 +742,7 @@ document.addEventListener("keydown", function(event) {
                         "stroke-opacity": 0.7,
                         stroke: "#9fb2e2"
                     });
+                    
 
                     svgadd = qSVG.create("boxbind", "line", { // ORANGE TEMP LINE FOR ANGLE 0 90 45 -+
                         id: "linetemp",
@@ -794,7 +881,8 @@ document.addEventListener("keydown", function(event) {
     // **************************************************************************************************
 
     if (mode == 'bind_mode') {
-
+        if(readonly){return;}
+        
         snap = calcul_snap(event, grid_snap);
 
         if (binder.type == 'node') {
@@ -1426,6 +1514,7 @@ event.preventDefault();
       $('#'+targetBox).append(OBJDATA[OBJDATA.length-1].graph);
       delete binder;
       $('#boxinfo').html('Object added');
+      
       fonc_button('select_mode');
       save();
     }
@@ -1547,8 +1636,21 @@ event.preventDefault();
         sizeWall = sizeWall / meter;
         if ($('#line_construc').length && sizeWall > 0.3) {
           var sizeWall = wallSize;
+          let wall_length_x = 0
+          let wall_length_y = 0
           if (mode == 'partition_mode') sizeWall = partitionSize;
-          var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall);
+          var wall_length = (qSVG.measure({x: pox, y: poy}, {x: x, y: y}) / 60).toFixed(2)
+          if(pox != x){
+            wall_length_x = wall_length
+          }else{
+            wall_length_y = wall_length
+          }
+      
+          var wall = new editor.wall({x:pox,y:poy}, {x:x,y:y}, "normal", sizeWall, wall_length);
+          wall['wall_length_x'] = wall_length_x
+          wall['wall_length_y'] = wall_length_y
+          // wall['surface_area'] = (wall_length * sizeWall / 60).toFixed(2)
+          // wall['transverse_area'] = 
           WALLS.push(wall);
           editor.architect(WALLS);
 
@@ -1626,16 +1728,36 @@ event.preventDefault();
                   $('#boxinfo').html('Modify the wall');
                 }
                 $('#wallTools').show(200);
-                document.getElementById('wallWidth').setAttribute('min', 7);
+                document.getElementById('wallWidth').setAttribute('min', 2);
                 document.getElementById('wallWidth').setAttribute('max', 50);
                 document.getElementById('wallWidthScale').textContent = "7-50";
                 document.getElementById("wallWidth").value = binder.wall.thick;
                 document.getElementById("wallWidthVal").textContent = binder.wall.thick;
                 
-                document.getElementById('wallHeight').value = binder.wall.height
-                document.getElementById("wallHeightVal").textContent = binder.wall.height;
+                if(binder.wall.slab != true || binder.wall.roof != true){
+                  document.getElementById('wallHeight').value = binder.wall.height ? binder.wall.height : null 
+                  document.getElementById("wallHeightVal").textContent = binder.wall.height ? binder.wall.height : null;
+                }
 
+                if(binder.wall.roof == true){
+                  $('.roofHeight').show();
+                  $('#roofHeightStart').show();
+                  $('#roofHeightEnd').show();
+                  $('.wallHeight').hide();
+                  $('#wallHeight').hide();
 
+                  $('#roofHeightStartVal').text(binder.wall.roofHeightStart?binder.wall.roofHeightStart:'800')
+                  $('#roofHeightStart').val(binder.wall.roofHeightStart?binder.wall.roofHeightStart:'800')
+
+                  $('#roofHeightEndVal').text(binder.wall.roofHeightEnd?binder.wall.roofHeightEnd:'800')
+                  $('#roofHeightEnd').val(binder.wall.roofHeightEnd?binder.wall.roofHeightEnd:'800')
+                }else{
+                  $('.roofHeight').hide();
+                  $('#roofHeightStart').hide();
+                  $('#roofHeightEnd').hide();
+                  $('.wallHeight').show();
+                  $('#wallHeight').show();
+                }
                 
                 document.getElementById('wallGood').className = document.getElementById('wallGood').className.replace('activebtn', '');
                 document.getElementById('wallMedium').className = document.getElementById('wallMedium').className.replace('activebtn', '');
@@ -1680,12 +1802,11 @@ event.preventDefault();
                 document.getElementById("doorWindowWidth").value = binder.obj.size;
                 document.getElementById("doorWindowWidthVal").textContent = binder.obj.size;
 
-                document.getElementById("doorWindowHeight").value = binder.obj.thick;
-                document.getElementById("doorWindowHeightVal").textContent = binder.obj.thick;
+                document.getElementById("doorWindowHeight").value = binder.obj.height ? binder.obj.height : null;
+                document.getElementById("doorWindowHeightVal").textContent = binder.obj.height ? binder.obj.height : null;
 
-                document.getElementById("doorWindowSillHeight").value = binder.obj.sillHeight;
-                document.getElementById("doorWindowSillHeightVal").textContent = binder.obj.sillHeight;
-
+                document.getElementById("doorWindowSillHeight").value = binder.obj.sillHeight ? binder.obj.sillHeight: null;
+                document.getElementById("doorWindowSillHeightVal").textContent = binder.obj.sillHeight ? binder.obj.sillHeight: null;
 
 
                 document.getElementById('demolishDoorWindowYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
@@ -1727,8 +1848,31 @@ event.preventDefault();
               else $('#objBoundingBoxScale').fadeIn(800);
               if (!objTarget.params.rotate) $('#objBoundingBoxRotation').hide();
               else $('#objBoundingBoxRotation').fadeIn(800);
+              if (!objTarget.params.columnHeight) $('#objColumnHeight').hide();
+              else $('#objColumnHeight').fadeIn(800)
+              if (!objTarget.params.beamHeight) $('#objBeamHeight').hide();
+              else $('#objBeamHeight').fadeIn(800)
+              if (!objTarget.params.waistSlabThickness) $('#objWaistSlabThickness').hide();
+              else $('#objWaistSlabThickness').fadeIn(800)
+              if (!objTarget.params.stepsBase) $('#objStepsBase').hide();
+              else $('#objStepsBase').fadeIn(800)
+              if (!objTarget.params.stepsHeight) $('#objStepsHeight').hide();
+              else $('#objStepsHeight').fadeIn(800)
+              if (!objTarget.params.slabFloorOffsetHeight) $('#objSlabFloorOffsetHeight').hide();
+              else $('#objSlabFloorOffsetHeight').fadeIn(800)
+              if (!objTarget.params.typeColumn) $('#objColumnType').hide();
+              else $('#objColumnType').fadeIn(800)
+              if (!objTarget.params.typeBeam) $('#objBeamType').hide();
+              else $('#objBeamType').fadeIn(800)
+              if (!objTarget.params.typeSlabFloor) $('#objSlabFloorType').hide();
+              else $('#objSlabFloorType').fadeIn(800)
+              if (!objTarget.params.demolish) $('#demolishColumnStatus').hide();
+              else $('#demolishColumnStatus').fadeIn(800)
+              
               $('#panel').hide(100);
               $('#lin').css('cursor', 'default');
+
+              
 
               $('#boxinfo').html('Modify the object');
               document.getElementById('bboxWidth').setAttribute('min', objTarget.params.resizeLimit.width.min);
@@ -1737,11 +1881,18 @@ event.preventDefault();
               document.getElementById('bboxHeight').setAttribute('min', objTarget.params.resizeLimit.height.min);
               document.getElementById('bboxHeight').setAttribute('max', objTarget.params.resizeLimit.height.max);
               document.getElementById('bboxHeightScale').textContent = objTarget.params.resizeLimit.height.min+"-"+objTarget.params.resizeLimit.height.max;
+              document.getElementById('bboxColumnHeight').setAttribute('min', objTarget.params.resizeLimit.columnHeight.min);
+              document.getElementById('bboxColumnHeight').setAttribute('max', objTarget.params.resizeLimit.columnHeight.max);
+              document.getElementById('bboxColumnHeightScale').textContent = objTarget.params.resizeLimit.columnHeight.min+"-"+objTarget.params.resizeLimit.columnHeight.max;
+              
               $('#stepsCounter').hide();
+              $('#objStairType').hide();
               if (objTarget.class == 'stair') {
                 document.getElementById("bboxStepsVal").textContent = objTarget.value;
                 $('#stepsCounter').show();
+                $('#objStairType').show();
               }
+
               
               if(objTarget.class && (objTarget.class === 'text' || objTarget.fill) && objTarget.class != 'stair'){
                 document.getElementById('objBoundingBoxColor').style.display = 'block';
@@ -1753,12 +1904,38 @@ event.preventDefault();
                 document.getElementById('objBoundingBox').style.width = '200px';
               }
 
-              document.getElementById("bboxWidth").value = objTarget.width * 100;
-              document.getElementById("bboxWidthVal").textContent = objTarget.width * 100;
-              document.getElementById("bboxHeight").value = objTarget.height * 100;
-              document.getElementById("bboxHeightVal").textContent = objTarget.height * 100;
+              document.getElementById("bboxWidth").value = (objTarget.width * 100).toFixed(2);
+              document.getElementById("bboxWidthVal").textContent = (objTarget.width * 100).toFixed(2);
+              document.getElementById("bboxHeight").value = (objTarget.thick / meter).toFixed(2) * 100;
+              document.getElementById("bboxHeightVal").textContent = (objTarget.thick / meter).toFixed(2) * 100;
               document.getElementById("bboxRotation").value = objTarget.angle;
               document.getElementById("bboxRotationVal").textContent = objTarget.angle;
+              document.getElementById("bboxColumnHeight").value = objTarget.columnHeight
+              document.getElementById("bboxBeamHeight").value = objTarget.beamHeight
+              document.getElementById("bboxWaistSlabThickness").value = objTarget.waistSlabThickness
+              document.getElementById("bboxStepsBase").value = objTarget.stepsBase
+              document.getElementById("bboxStepsHeight").value = objTarget.stepsHeight
+              document.getElementById("bboxColumnHeightVal").textContent = objTarget.columnHeight
+              document.getElementById("bboxBeamHeightVal").textContent = objTarget.beamHeight
+              document.getElementById("bboxWaistSlabThicknessVal").textContent = objTarget.waistSlabThickness
+              document.getElementById("bboxStepsBaseVal").textContent = objTarget.stepsBase
+              document.getElementById("bboxStepsHeightVal").textContent = objTarget.stepsHeight
+              document.getElementById("bboxSlabFloorOffsetHeight").value = objTarget.slabFloorOffsetHeight
+              document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = objTarget.slabFloorOffsetHeight
+              document.getElementById('typeColumn').value = objTarget.typeColumn ? objTarget.typeColumn : ""
+              document.getElementById('typeBeam').value = objTarget.typeBeam ? objTarget.typeBeam : ""
+              document.getElementById('typeSlabFloor').value = objTarget.typeSlabFloor ? objTarget.typeSlabFloor : ""
+              document.getElementById('typeStair').value = objTarget.typeStair ? objTarget.typeStair : ""
+
+              document.getElementById('demolishColumnYes').className = document.getElementById('demolishDoorWindowYes').className.replace('activebtn', '');
+              document.getElementById('demolishColumnNo').className = document.getElementById('demolishColumnNo').className.replace('activebtn', '');
+          
+              if(binder.obj.demolish == 'yes'){
+                document.getElementById('demolishColumnYes').className += ' activebtn';
+              }else{
+                document.getElementById('demolishColumnNo').className += ' activebtn';
+              }
+
               $('#objBoundingBox').fadeIn(500);
                mode = 'edit_boundingBox_mode';
             }

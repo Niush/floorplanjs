@@ -27,6 +27,7 @@ colorbackground = "#ffffff";
 colorline = "#fff";
 colorroom = "#f0daaf";
 colorWall = "#666";
+// colorBeam = "yellow"
 pox = 0;
 poy = 0;
 segment = 0;
@@ -44,7 +45,7 @@ var factor = 1;
 window.addEventListener('load', () => {
   if('serviceWorker' in navigator){
       navigator.serviceWorker.register('./serviceworker.js', {
-          scope: '/',
+          scope: '/plan/',
       })
       .catch(e => {console.log(e)})
   }else{
@@ -55,6 +56,142 @@ window.addEventListener('load', () => {
 // **************************************************************************
 // *****************   LOAD / SAVE LOCALSTORAGE      ************************
 // **************************************************************************
+var readonly = false;
+// ****** IF READ ONLY MODE / Inside Iframe with p-data attribute *******//
+// Show data and hide or disable unwanted buttons //
+function checkIfReadOnly(){
+  if(!window.frameElement){return false;}
+  let data = window.frameElement.getAttribute("p-data");
+  if(data){
+    let parse_attempt = JSON.parse(data);
+    if(parse_attempt && parse_attempt.data && parse_attempt.floors){
+      readonly = true;
+      updateFloorSelect();
+      HISTORY.index = 0;
+      $('#myModal').modal('hide');
+      $(".leftBox *").prop('disabled',true);
+      $(".back").prop('disabled',false); // not the back btn and others
+      $("#floor_mode").prop('disabled',false);
+      $("#floorList").prop('disabled',false);
+      $("#full_mode").prop('disabled',false);
+      $("#nofull_mode").prop('disabled',false);
+      $("#report_mode").prop('disabled',false);
+      $("#exportJson").prop('disabled',false);
+      $("#boxinfo").css('left','10px');
+
+      let to_hide = $('#panel ul li').splice(0,16);
+      for(let i = 0 ; i < to_hide.length ; i++ ){
+        to_hide[i].style.display = 'none';
+      }
+      $('#panel').css('height','30vh');
+      $('#panel').css('min-height','160px');
+
+      if (localStorage.getItem('history')) localStorage.removeItem('history');
+      HISTORY.push(JSON.parse(data));
+      HISTORY[0] = JSON.stringify(HISTORY[0]);
+      localStorage.setItem('history', JSON.stringify(HISTORY));
+      load(0);
+      save();
+    }
+  }
+}
+
+// **** USED TO LOAD planner data if Backend is enabled **** //
+// If params has id, local storage has api_url and user instance //
+function checkIfBackendToLoad() {
+  let params = decodeURI(window.location.search)
+    .replace("?", "")
+    .split("&")
+    .map((param) => param.split("="))
+    .reduce((values, [key, value]) => {
+      values[key] = value;
+      return values;
+    }, {});
+  if (
+    params.id &&
+    localStorage.getItem("api_url") &&
+    localStorage.getItem("user")
+  ) {
+    try {
+      let token = JSON.parse(localStorage.getItem("user")).access_token;
+      let api_url = localStorage.getItem("api_url");
+      let id = params.id;
+      let data = { data: [], floors: 1 };
+
+      fetch(api_url + "/planner/info/" + id, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: "Bearer " + token,
+        },
+      })
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (res) {
+          $("#save_btn").attr("title", "Save: " + res.title);
+          let parse_attempt = JSON.parse(res.data);
+          if (parse_attempt && parse_attempt.data && parse_attempt.floors) {
+            data = parse_attempt;
+            updateFloorSelect();
+            HISTORY.index = 0;
+            $("#myModal").modal("hide");
+
+            if (localStorage.getItem("history")) {
+              localStorage.removeItem("history");
+            }
+            HISTORY.push(data);
+            HISTORY[0] = JSON.stringify(HISTORY[0]);
+            localStorage.setItem("history", JSON.stringify(HISTORY));
+            load(0);
+            save();
+          }else{
+            console.log("FIRST/EMPTY PLANNER EDIT")
+          }
+          
+          $("#save_btn").on("click", function () {
+            let formdata = new FormData();
+            formdata.append("data", HISTORY[HISTORY.length - 1]);
+            
+            fetch(api_url + "/planner/update/data/" + id, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                Authorization: "Bearer " + token,
+              },
+              body: formdata
+            }).then(function (r) {
+              if(window.opener){
+                window.opener.document.getElementById('planner_'+res.id).style.background = "#f5b363";
+                window.opener.document.getElementById('planner_title_'+res.id).innerText = res.title + ' : Edited';
+                window.opener.document.getElementById('planner_drawn_'+res.id).innerText = 'Yes';
+              }
+              $('#boxinfo').text("PLANNER SAVED SUCCESSFULLY");
+              $('body').css('transition','opacity 0.3s ease');
+              $('body').css('opacity','0.5');
+              setTimeout(function(){
+                $('body').css('opacity','1');
+              }, 300);
+            });
+          });
+          $(".loading_screen").fadeOut();
+        });
+    } catch {
+      $(".loading_screen").fadeOut();
+      $("#save_btn").remove();
+    }
+  }
+  // If not backend required
+  else {
+    $(".loading_screen").fadeOut();
+    $("#save_btn").remove();
+  }
+}
+
+setTimeout(function(){
+  checkIfReadOnly() // Delayed
+}, 1000);
+checkIfBackendToLoad()
 
 function initHistory(boot = false) {
   if(localStorage.getItem('history') && boot != "recovery"){
@@ -102,18 +239,19 @@ function importPlan(){
   reader.onload = function(event){
     try{
       var obj = JSON.parse(event.target.result);
-      // console.log(obj)
       if(obj.constructor !== ({}).constructor){
         alert('JSON is not a valid Plan Type')
         return;
       }
       
       HISTORY.push(obj);
+      
       HISTORY[0] = JSON.stringify(HISTORY[0]);
       HISTORY.index = 0;
       localStorage.setItem('history', JSON.stringify(HISTORY));
       load(0);
       save();
+      
       $('#myModal').modal('toggle')
     }catch(e){
       console.log(e)
@@ -146,10 +284,87 @@ document.getElementById('undo').addEventListener("click", function() {
   if (HISTORY.index == 1) $('#undo').addClass('disabled');
 });
 
+
 document.getElementById('exportJson').addEventListener("click", function() {
   if (localStorage.getItem('history')) {
     var data = JSON.parse(localStorage.getItem('history'));
     data = JSON.parse(data[data.length-1]);
+    // for wall data
+    var total_wall_length = 0
+    var wall_length_floor = 0
+    var total_damage_wall = 0
+    var total_demolish_wall = 0
+    var wall_length_x_floor = 0
+    var wall_length_y_floor = 0
+    var total_wall_length_x_floor = 0
+    var total_wall_length_y_floor = 0
+    var tempData = data.data
+    for(let i = 0; i < tempData.length; i++){
+      wall_length_floor = 0
+      wall_length_x_floor = 0
+      wall_length_y_floor = 0
+      for(let j = 0; j < tempData[i].wallData.length; j++){
+        
+        data.data[i].wallData[j]['surface_area'] = (tempData[i].wallData[j].wall_length * tempData[i].wallData[j].thick / 60).toFixed(2)
+        data.data[i].wallData[j]['transverse_area'] = (tempData[i].wallData[j].height * tempData[i].wallData[j].thick / 60).toFixed(2)
+
+        total_wall_length += parseFloat(tempData[i].wallData[j].wall_length)
+        wall_length_floor += parseFloat(tempData[i].wallData[j].wall_length)
+
+        total_wall_length_x_floor += parseFloat(tempData[i].wallData[j].wall_length_x)
+        total_wall_length_y_floor += parseFloat(tempData[i].wallData[j].wall_length_y)
+
+        wall_length_x_floor += parseFloat(tempData[i].wallData[j].wall_length_x)
+        wall_length_y_floor += parseFloat(tempData[i].wallData[j].wall_length_y)
+
+        if(tempData[i].wallData[j].damage && (tempData[i].wallData[j].damage == 'medium' || tempData[i].wallData[j].damage == 'high')){
+          total_damage_wall += parseFloat(tempData[i].wallData[j].wall_length)
+        }
+        
+        if(tempData[i].wallData[j].demolish && (tempData[i].wallData[j].demolish == 'yes')){
+          total_demolish_wall += parseFloat(tempData[i].wallData[j].wall_length)
+        }
+      }
+    
+      data['wall_length_floor_'+(i+1)] = wall_length_floor.toFixed(2)
+      data['wall_length_x_floor_'+(i+1)] = wall_length_x_floor.toFixed(2)
+      data['wall_length_y_floor_'+(i+1)] = wall_length_y_floor.toFixed(2)
+    }
+    
+    data['total_wall_length'] = total_wall_length.toFixed(2)
+    data['total_damage_wall'] = total_damage_wall.toFixed(2)
+    data['total_demolish_wall'] = total_demolish_wall.toFixed(2)
+    data['total_wall_length_x_floor'] = total_wall_length_x_floor.toFixed(2)
+    data['total_wall_length_y_floor'] = total_wall_length_y_floor.toFixed(2)
+
+    for(let i = 0; i < tempData.length; i++){
+      for(let j = 0; j < tempData[i].objData.length; j++){
+        var area = 0;
+        var volume = 0;
+        
+        if(tempData[i].objData[j]['class'] == 'doorWindow'){
+          area = ((tempData[i].objData[j].size / meter) * (tempData[i].objData[j].height / meter)).toFixed(2)
+          data.data[i].objData[j]['area'] = area
+        }else if(tempData[i].objData[j]['class'] == 'column'){
+          volume = ((tempData[i].objData[j].columnHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'slab'){
+          area = ((tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          volume = ((tempData[i].objData[j].slabFloorOffsetHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['area'] = area
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'beam'){
+          volume = ((tempData[i].objData[j].beamHeight / meter) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].thick * 100 / (meter * meter))).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }else if(tempData[i].objData[j]['class'] == 'stair'){
+          let waistSlab = ((tempData[i].objData[j].thick * 100 / (meter * meter)) * (tempData[i].objData[j].size * 100 / (meter * meter)) * (tempData[i].objData[j].waistSlabThickness / 60)).toFixed(2)
+          let areaOfSteps = (tempData[i].objData[j].value * 1/2 * (tempData[i].objData[j].stepsBase * tempData[i].objData[j].stepsHeight) / 3600).toFixed(2)
+          volume = (areaOfSteps * waistSlab).toFixed(2)
+          data.data[i].objData[j]['volume'] = volume
+        }
+      }
+    }
+
     const filename = 'plan-data-' + new Date().getTime() + '.json';
     const jsonStr = JSON.stringify(data);
 
@@ -253,21 +468,26 @@ function save(boot = false) {
   // FOR CYCLIC OBJ INTO LOCALSTORAGE !!!
 
   let d = JSON.parse(localStorage.getItem('history'));
-  // console.log(d)
-  if(d && d.length > 0) d=JSON.parse(d[d.length - 1]);
+  
+  if(d && d.length > 0) d = JSON.parse(d[d.length - 1]);
   if(d && d.data && d.data.length > 0){
     BACKUP_HISTORY = JSON.parse(localStorage.getItem('history'));
+    
   }else{
-    // console.log(BACKUP_HISTORY)
+    
     localStorage.setItem('history', JSON.stringify(BACKUP_HISTORY));
   }
-
-  // console.log(JSON.parse(localStorage.getItem('history')))
+ 
   for (var k in WALLS) {
+   
     if (WALLS[k].child != null) WALLS[k].child = WALLS.indexOf(WALLS[k].child);
     if (WALLS[k].parent != null) WALLS[k].parent = WALLS.indexOf(WALLS[k].parent);
+    
   }
+  
+
   if (HISTORY[HISTORY.length-1] && JSON.stringify({objData: OBJDATA, wallData: WALLS, roomData: ROOM}) == JSON.stringify(JSON.parse(HISTORY[HISTORY.length-1]).data[current_active_floor])) {
+  
     for (var k in WALLS) {
       if (WALLS[k].child != null) WALLS[k].child = WALLS[WALLS[k].child];
       if (WALLS[k].parent != null) WALLS[k].parent = WALLS[WALLS[k].parent];
@@ -301,18 +521,17 @@ function save(boot = false) {
   }
 
   if(HISTORY.length){
-    // console.log(HISTORY)
-    // console.log(toLoad)
+    
     var historyTemp = JSON.parse(HISTORY[toLoad]);
-    // console.log(historyTemp)
+    
     var floor_data = historyTemp.data;
+    
     for(var i = 0 ; i < FLOORS ; i++){
       if(i == parseInt(current_active_floor)){
         data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
         currentPushed = true;
       }else{
-        // console.log(floor_data);
-        // console.log(floor_data[i]);
+        
         data.push(floor_data[i]);
       }
     }
@@ -320,8 +539,9 @@ function save(boot = false) {
       data.push({objData: OBJDATA, wallData: WALLS, roomData: ROOM});
     }
   }
-  //
+  
   HISTORY.push(JSON.stringify({data: data, floors: FLOORS}));
+  
   localStorage.setItem('history', JSON.stringify(HISTORY));
   HISTORY.index++;
   if (HISTORY.index>1) $('#undo').removeClass('disabled');
@@ -337,6 +557,7 @@ function save(boot = false) {
 // ********************************** //
 function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
   if (HISTORY.length == 0 && !boot) return false;
+  
   for (var k in OBJDATA){
     OBJDATA[k].graph.remove();
   }
@@ -377,10 +598,25 @@ function load(index = HISTORY.index, boot = false, runtimeFloors = false) {
       obj.demolish = OO.demolish;
       obj.typeDoorWindow = OO.typeDoorWindow
       obj.sillHeight = OO.sillHeight
+      obj.columnHeight = OO.columnHeight
+      obj.beamHeight = OO.beamHeight
+      obj.waistSlabThickness = OO.waistSlabThickness
+      obj.stepsBase = OO.stepsBase
+      obj.stepsHeight = OO.stepsHeight
+      obj.slabFloorOffsetHeight = OO.slabFloorOffsetHeight
+      obj.height = OO.height
+      obj.typeColumn = OO.typeColumn
+      obj.typeBeam = OO.typeBeam
+      obj.typeSlabFloor = OO.typeSlabFloor
+      obj.typeStair = OO.typeStair
+      obj.area = OO.area
+      obj.volume = OO.volume
+      
       OBJDATA.push(obj);
+
       $('#boxcarpentry').append(OBJDATA[OBJDATA.length-1].graph);
       obj.update();
-      // console.log(OBJDATA)
+      
     }
     WALLS = historyTemp.wallData;
     for (var k in WALLS) {
@@ -676,6 +912,25 @@ document.getElementById('wallHeight').addEventListener("input", function(){
   document.getElementById("wallHeightVal").textContent = heightValue;
 })
 
+// Roof / Ridge Height
+document.getElementById('roofHeightStart').addEventListener("input", function(){
+  binder.wall.roofHeightStart = this.value
+  document.getElementById("roofHeightStartVal").textContent = this.value;
+  $('#boxinfo').text('Ridge Height Start Changed');
+  binder.wall.graph[0].style.opacity = 0
+  setTimeout(function(){
+    binder.wall.graph[0].style.opacity = 1
+  }, 200)
+})
+document.getElementById('roofHeightEnd').addEventListener("input", function(){
+  binder.wall.roofHeightEnd = this.value
+  document.getElementById("roofHeightEndVal").textContent = this.value;
+  $('#boxinfo').text('Ridge Height End Changed');
+  binder.wall.graph[0].style.opacity = 0
+  setTimeout(function(){
+    binder.wall.graph[0].style.opacity = 1
+  }, 200)
+})
 
 // Trash box, items (not wall) button
 document.getElementById("bboxTrash").addEventListener("click", function () {
@@ -757,6 +1012,9 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
     binder.size  = sliderValue;
     binder.limit = limits;
     binder.update();
+    // if(objTarget.height){
+    //   objTarget.area = (objTarget.height / meter * objTarget.size / meter).toFixed(2)
+    // }
     document.getElementById("doorWindowWidthVal").textContent = sliderValue;
   }
   inWallRib(wallBind);
@@ -766,9 +1024,61 @@ document.getElementById('doorWindowWidth').addEventListener("input", function() 
 document.getElementById('doorWindowHeight').addEventListener("input", function(){
   var heightValue = this.value
   var objTarget = binder.obj
-  objTarget.thick = heightValue
-  objTarget.update()
+  objTarget.height = heightValue
+  // if(objTarget.width){
+  //   objTarget.area = (objTarget.height / meter * objTarget.size / meter).toFixed(2)
+  // }
+
   document.getElementById("doorWindowHeightVal").textContent = heightValue
+})
+
+// column Height
+document.getElementById('bboxColumnHeight').addEventListener("input", function(){
+  var colHeight = this.value
+  var objTarget = binder.obj
+  objTarget.columnHeight = colHeight
+  document.getElementById("bboxColumnHeightVal").textContent = colHeight
+
+})
+
+// beam height
+document.getElementById('bboxBeamHeight').addEventListener("input", function(){
+  var beamHeight = this.value
+  var objTarget = binder.obj
+  objTarget.beamHeight = beamHeight
+  document.getElementById("bboxBeamHeightVal").textContent = beamHeight
+})
+
+// Wait slab thickness for stair
+document.getElementById('bboxWaistSlabThickness').addEventListener("input", function(){
+  var waistSlabThickness = this.value
+  var objTarget = binder.obj
+  objTarget.waistSlabThickness = waistSlabThickness
+  document.getElementById("bboxWaistSlabThicknessVal").textContent = waistSlabThickness
+})
+
+// stair steps base
+document.getElementById('bboxStepsBase').addEventListener("input", function(){
+  var stepsBase = this.value
+  var objTarget = binder.obj
+  objTarget.stepsBase = stepsBase
+  document.getElementById("bboxStepsBaseVal").textContent = stepsBase
+})
+
+// stair steps height
+document.getElementById('bboxStepsHeight').addEventListener("input", function(){
+  var stepsHeight = this.value
+  var objTarget = binder.obj
+  objTarget.stepsHeight = stepsHeight
+  document.getElementById("bboxStepsHeightVal").textContent = stepsHeight
+})
+
+// floor/slab offset height
+document.getElementById('bboxSlabFloorOffsetHeight').addEventListener("input", function(){
+  var slabFloorOffsetHeight = this.value
+  var objTarget = binder.obj
+  objTarget.slabFloorOffsetHeight = slabFloorOffsetHeight
+  document.getElementById("bboxSlabFloorOffsetHeightVal").textContent = slabFloorOffsetHeight
 })
 
 // Door & Window height changes
@@ -776,7 +1086,7 @@ document.getElementById('doorWindowSillHeight').addEventListener("input", functi
   var sillHeightValue = this.value
   var objTarget = binder.obj
   objTarget.sillHeight = sillHeightValue
-  objTarget.update()
+
   document.getElementById("doorWindowSillHeightVal").textContent = sillHeightValue
   
 })
@@ -1037,6 +1347,42 @@ document.getElementById("typeDoorWindow").addEventListener("change", function(){
   }
 })
 
+// Assign Column Type
+document.getElementById("typeColumn").addEventListener("change", function(){
+  var type = this.value
+  var column = binder.obj
+  if(column){
+    binder.obj.typeColumn = type
+  }
+})
+
+// Assign Beam Type
+document.getElementById("typeBeam").addEventListener("change", function(){
+  var type = this.value
+  var beam = binder.obj
+  if(beam){
+    binder.obj.typeBeam = type
+  }
+})
+
+// Assign Slab/Floor Type
+document.getElementById("typeSlabFloor").addEventListener("change", function(){
+  var type = this.value
+  var slabFloor = binder.obj
+  if(slabFloor){
+    binder.obj.typeSlabFloor = type
+  }
+})
+
+// Assign Stair Type
+document.getElementById("typeStair").addEventListener("change", function(){
+  var type = this.value
+  var stair = binder.obj
+  if(stair){
+    binder.obj.typeStair = type
+  }
+})
+
 // Text Color Events (change text fill color for new or old text component)
 var textEditorColorBtn = document.querySelectorAll('.textEditorColor');
 for (var k = 0; k < textEditorColorBtn.length; k++) {
@@ -1287,6 +1633,8 @@ function intersection(snap, range = Infinity, except = ['']) {
       fill : "none"
     });
 
+    // console.log(lineIntersectionP)
+
   for (index = 0; index < WALLS.length; index++) {
     if (except.indexOf(WALLS[index]) == -1) {
     var x1 = WALLS[index].start.x;
@@ -1423,6 +1771,7 @@ function debugPoint(point, name, color = "#00ff00") {
 function showVertex() {
   for (var i=0; i < vertex.length; i++) {
     debugPoint(vertex[i], i);
+    
   }
 }
 
@@ -1531,6 +1880,7 @@ function inWallRib(wall, option = false) {
 
 // Simple other elements Rib (not in wall)
 function rib(shift = 5) {
+
   // return false;
   var ribMaster = [];
   ribMaster.push([]);
@@ -1539,6 +1889,9 @@ function rib(shift = 5) {
   var distance;
   var cross;
   for (var i in WALLS) {
+    if(WALLS[i].roof == true || WALLS[i].slab == true){
+      continue;
+    }
     if (WALLS[i].equations.base) {
       ribMaster[0].push([]);
       ribMaster[0][i].push({wallIndex: i, crossEdge: i, side : 'up', coords: WALLS[i].coords[0], distance: 0});
@@ -1729,18 +2082,26 @@ function raz_button() {
     $('#distance_mode').addClass('btn-default');
     $('#object_mode').removeClass('btn-success');
     $('#object_mode').addClass('btn-default');
+    $('#beam').removeClass('btn-success');
+    $('#beam').addClass('btn-default');
+    $('#column').removeClass('btn-success');
+    $('#column').addClass('btn-default');
+    $('#slab').removeClass('btn-success');
+    $('#slab').addClass('btn-default');
+    $('#roof').removeClass('btn-success');
+    $('#roof').addClass('btn-default');
     $('#stair_mode').removeClass('btn-success');
     $('#stair_mode').addClass('btn-default');
 }
 
-function fonc_button(modesetting ,option) {
+function fonc_button(modesetting ,option, id) {
   save();
 
   $('.sub').hide();
     raz_button();
     if (option != 'simpleStair') {
-      $('#' + modesetting).removeClass('btn-default');
-      $('#' + modesetting).addClass('btn-success');
+      $('#' + (id?id:modesetting)).removeClass('btn-default');
+      $('#' + (id?id:modesetting)).addClass('btn-success');
 
     }
     mode = modesetting;
@@ -1789,6 +2150,8 @@ $('#line_mode').click(function() {
     fonc_button('line_mode');
 });
 
+
+
 $('#partition_mode').click(function() {
     $('#lin').css('cursor', 'crosshair');
     $('#boxinfo').html('Creation of partition(s)');
@@ -1822,6 +2185,30 @@ $('.object').click(function() {
     $('#boxinfo').html('Add an object');
     fonc_button('object_mode', this.id);
 });
+
+$('.beam').click(function(){
+    cursor('move');
+    // multi = 0
+    $('#boxinfo').html('Add a beam');
+    fonc_button('object_mode', this.id, this.id);
+})
+
+$('.column').click(function(){
+  $('#lin').css('cursor', 'crosshair');
+  // multi = 0
+  $('#boxinfo').html('Add a column');
+  fonc_button('object_mode', this.id, this.id)
+})
+
+$('#slab').click(function(){
+  $('#boxinfo').html('Slab Added');
+  fonc_button('object_mode', this.id, this.id)
+})
+
+$('#roof').click(function(){
+  $('#boxinfo').html('Roof Added');
+  fonc_button('object_mode', this.id, this.id)
+})
 
 $('#stair_mode').click(function() {
     cursor('move');
@@ -1867,7 +2254,18 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
   construc.params.resizeLimit = {};
   construc.params.resizeLimit.width = {min: false, max: false};
   construc.params.resizeLimit.height = {min: false, max: false};
+  construc.params.resizeLimit.columnHeight = {min: false, max: false};
   construc.params.rotate = false;
+  construc.params.columnHeight = false;
+  construc.params.beamHeight = false;
+  construc.params.waistSlabThickness = false;
+  construc.params.stepsBase = false;
+  construc.params.stepsHeight = false;
+  construc.params.slabFloorOffsetHeight = false;
+  construc.params.typeColumn = false;
+  construc.params.typeBeam = false;
+  construc.params.typeSlabFloor = false;
+  construc.params.demolish = false;
 
   if (classObj == 'socle') {
     construc.push({'path':"M "+(-sizeObj/2)+","+(-thickObj/2)+" L "+(-sizeObj/2)+","+thickObj/2+" L "+sizeObj/2+","+thickObj/2+" L "+sizeObj/2+","+(-thickObj/2)+" Z", 'fill': "#5cba79", 'stroke': "#5cba79", 'strokeDashArray': ''});
@@ -1955,6 +2353,9 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.move = true;
     construc.params.resize = true;
     construc.params.rotate = true;
+    construc.params.waistSlabThickness = true;
+    construc.params.stepsBase = true;
+    construc.params.stepsHeight = true;
     construc.params.width = sizeObj?sizeObj:100; // Resize width/height to obj size/thick
     construc.params.height = thickObj?thickObj:300;
     if (typeObj == 'simpleStair') {
@@ -2122,6 +2523,7 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
       construc.params.resizeLimit.width = {min:80, max:200};
       construc.params.resizeLimit.height = {min:30, max:150};
     }
+
   }
 
   if (classObj == 'furniture') {
@@ -2129,6 +2531,108 @@ function carpentryCalc(classObj, typeObj, sizeObj, thickObj, dividerObj = 10, fi
     construc.params.move = true;
     construc.params.resize = true;
     construc.params.rotate = true;
+  }
+
+  if (classObj == 'beam'){
+
+    construc.params.bindBox = true;
+    construc.params.move = true;
+    construc.params.resize = true;
+    construc.params.rotate = true;
+    construc.params.resize = true;
+    construc.params.beamHeight = true;
+    construc.params.typeBeam = true;
+    construc.params.width = sizeObj?sizeObj:400; // Resize width/height to obj size/thick
+    construc.params.height = thickObj?thickObj:20;
+
+    
+    if (typeObj == 'simpleBeam'){
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "red", 'strokeDashArray': '-'});
+      construc.push({'text': "Beam", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      // construc.push({'text': construc.params.width, 'x': '0', 'y': '20', 'fill': "#333333", 'stroke': "red", 'fontSize': '0.8em',"strokeWidth": "0.4px"})
+      construc.family = 'stick';
+      
+      construc.params.resizeLimit.width = {min:10, max:1000};
+      construc.params.resizeLimit.height = {min:5, max:1000};
+    }
+  }
+
+  if (classObj == 'column' ){
+    construc.params.bindBox = true;
+    construc.params.move = true;
+    construc.params.resize = true;
+    construc.params.columnHeight = true;
+    construc.params.typeColumn = true;
+    construc.params.demolish = true;
+
+    construc.params.width = sizeObj?sizeObj:50; 
+    construc.params.height = thickObj?thickObj:50;
+
+    
+    if (typeObj == 'simpleColumn'){
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "red", 'strokeDashArray': '-'});
+      construc.push({'text': "Column", 'x': '0', 'y':'5', 'fill': "#333333", 'stroke': "black", 'fontSize': '0.8em',"strokeWidth": "0.4px"});
+      
+      construc.family = 'stick';
+      
+      construc.params.resizeLimit.width = {min:10, max:1000};
+      construc.params.resizeLimit.height = {min:10, max:1000};
+      construc.params.resizeLimit.columnHeight = {min: 10, max: 1000}
+    }
+  }
+  
+  if (classObj == 'slab' ){
+    // While Creating Slab, try to get length equal to labelWidth and height for easy ness...
+    var labelWidth = 500;
+    var labelHeight = 500;
+    if (ROOM.length > 0) {
+      var minX, minY, maxX, maxY;
+      for (var i = 0; i < WALLS.length; i++) {
+        var px = WALLS[i].start.x;
+        var py = WALLS[i].start.y;
+        if (!i || px < minX) minX = px;
+        if (!i || py < minY) minY = py;
+        if (!i || px > maxX) maxX = px;
+        if (!i || py > maxY) maxY = py;
+        var px = WALLS[i].end.x;
+        var py = WALLS[i].end.y;
+        if (!i || px < minX) minX = px;
+        if (!i || py < minY) minY = py;
+        if (!i || px > maxX) maxX = px;
+        if (!i || py > maxY) maxY = py;
+      }
+
+      labelWidth = ((maxX - minX) / meter).toFixed(2) * meter;
+      labelHeight = ((maxY - minY) / meter).toFixed(2) * meter;
+    }
+
+    construc.params.bindBox = true;
+    construc.params.move = true;
+    construc.params.resize = true;
+    construc.params.rotate = true;
+    construc.params.demolish = true;
+    construc.params.slabFloorOffsetHeight = true;
+    construc.params.typeSlabFloor = true;
+    construc.params.width = sizeObj?sizeObj:labelWidth; 
+    construc.params.height = thickObj?thickObj:labelHeight;
+    
+    if (typeObj == 'simpleSlab'){
+      construc.push({'path': "m "+(-sizeObj/2)+","+(-thickObj/2)+" l "+(sizeObj)+",0 l0,"+(thickObj)+" l"+(-sizeObj)+",0 Z", 'fill': fill, 'stroke': "darkslategray", 'strokeDashArray': '10 3 3 3', 'fillOpacity': '0.1', "strokeWidth": "5px"});      
+      construc.push({'text': "Slab", 'x': '0', 'y':thickObj/2-10, 'fill': "#333333", 'stroke': "none", 'fontSize': '1.2em',"strokeWidth": "0.5px"});
+      construc.family = 'stick';
+      
+      construc.params.resizeLimit.width = {min:10, max:10000};
+      construc.params.resizeLimit.height = {min:10, max:10000};
+    }
+  }
+
+  if(classObj == 'roof'){
+    WALLS.push({"roof":true,"thick":6,"start":{"x":540,"y":194},"end":{"x":540,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":1,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":550},"down":{"A":"v","B":530},"base":{"A":"v","B":540}},"coords":[{"x":550,"y":204},{"x":530,"y":184},{"x":530,"y":744},{"x":550,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":540,"y":734},"end":{"x":1080,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":2,"angle":0,"equations":{"up":{"A":"h","B":724},"down":{"A":"h","B":744},"base":{"A":"h","B":734}},"coords":[{"x":550,"y":724},{"x":530,"y":744},{"x":1090,"y":744},{"x":1070,"y":724}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":1080,"y":734},"end":{"x":1080,"y":194},"type":"normal","parent":Math.round(Math.random()*500),"child":3,"angle":-1.5707963267948966,"equations":{"up":{"A":"v","B":1070},"down":{"A":"v","B":1090},"base":{"A":"v","B":1080}},"coords":[{"x":1070,"y":724},{"x":1090,"y":744},{"x":1090,"y":184},{"x":1070,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":6,"start":{"x":1080,"y":194},"end":{"x":540,"y":194},"type":"normal","parent":Math.round(Math.random()*500),"child":0,"angle":3.141592653589793,"equations":{"up":{"A":"h","B":204},"down":{"A":"h","B":184},"base":{"A":"h","B":194}},"coords":[{"x":1070,"y":204},{"x":1090,"y":184},{"x":530,"y":184},{"x":550,"y":204}],"graph":{"0":{},"context":{},"length":1}},{"roof":true,"thick":15,"start":{"x":809.5822496304128,"y":194},"end":{"x":809.5822496304128,"y":734},"type":"normal","parent":Math.round(Math.random()*500),"child":null,"angle":1.5707963267948966,"equations":{"up":{"A":"v","B":819.5822496304128},"down":{"A":"v","B":799.5822496304128},"base":{"A":"v","B":809.5822496304128}},"coords":[{"x":819.5822496304128,"y":194},{"x":799.5822496304128,"y":194},{"x":799.5822496304128,"y":734},{"x":819.5822496304128,"y":734}],"backUp":false,"graph":{"0":{},"context":{},"length":1}});
+    
+    mode = "select_mode";
+    rib();
+    save();
+    load(HISTORY.length - 1);
   }
 
   return construc;

@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="background:#f2eee5;margin:0;padding:0; ">
-
+<body style="background:#f2eee5;margin:0;padding:0;" ontouchstart='swipe(event)'>
+  <span class="loading_screen">Loading..</span>
   <header>Floor Plan App Ver.0.1</header>
 
   <svg id="lin" viewBox="0 0 1100 700"  preserveAspectRatio="xMidYMin slice" xmlns="http://www.w3.org/2000/svg" style="z-index:2;margin:0;padding:0;width:100vw;height:100vh;position:absolute;top:0;left:0;right:0;bottom:0">
@@ -128,10 +128,14 @@
     <section id="rangeThick">
       <p>Width [<span id="wallWidthScale"></span>] : <span id="wallWidthVal"></span> cm</span></p>
       <input type="range" id="wallWidth" step="0.1" class="range" />
-      <p>Height (in cm): <span id="wallHeightVal"></span> cm</p>
+      <p class="wallHeight">Height (in cm): <span id="wallHeightVal"></span> cm</p>
       <input type="number" id="wallHeight" step="0.1" /> <br/>
-      <br/>
+      <p class="roofHeight">Roof Height Start (in cm): <span id="roofHeightStartVal"></span> cm</p>
+      <input type="number" id="roofHeightStart" step="0.1" value="800" /> <br/>
+      <p class="roofHeight"><br/>Roof Height End (in cm): <span id="roofHeightEndVal"></span> cm</p>
+      <input type="number" id="roofHeightEnd" step="0.1" value="800" /> <br/>
     </section>
+    <br/>
     <ul class="list-unstyled">
     <section id="cutWall">
       <p>Cut the wall :<br/><small>A cut will be made at each wall encountered.</small></p>
@@ -168,8 +172,8 @@
     <br/>
     <section id="demolishStatus">
       <p>Demolish :</p>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'wall')" id="demolishWallYes">Yes</button>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'wall')" id="demolishWallNo">No</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'wall', 'Wall')" id="demolishWallYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'wall', 'Wall')" id="demolishWallNo">No</button>
     </section>
     <br/>
     <li><button class="btn btn-danger fully" id="wallTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
@@ -177,20 +181,116 @@
     </ul>
   </div>
 
-  <div id="objBoundingBox" class="leftBox">
+  <div id="objBoundingBox" class="leftBox" style="overflow: auto;">
     <h2>Modify object</h2>
     <hr/>
     <section id="objBoundingBoxScale">
-      <p>Width [<span id="bboxWidthScale"></span>] : <span id="bboxWidthVal"></span> cm</span></p>
-      <input type="range" id="bboxWidth" step="1" class="range" />
-      <p>Height [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
-      <input type="range" id="bboxHeight" step="1" class="range" />
+      <p>Length [<span id="bboxWidthScale"></span>] : <span id="bboxWidthVal"></span> cm</span></p>
+      <input type="number" id="bboxWidth" step="1" style="width: 100%;" /> 
+      <p>Width [<span id="bboxHeightScale"></span>] : <span id="bboxHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxHeight" step="1" style="width: 100%;" />
     </section>
+
+    <section id="objSlabFloorOffsetHeight">
+      <p>Height Offset : <span id="bboxSlabFloorOffsetHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxSlabFloorOffsetHeight" step="1" />
+    </section>
+    <br/>
+    <section id="objColumnHeight">
+      <p>Column Height [<span id="bboxColumnHeightScale"></span>] : <span id="bboxColumnHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxColumnHeight" step="1" style="width: 100%;" /> 
+    </section>
+    
+    <section id="objBeamHeight">
+      <p>Beam Height [<span id="bboxBeamHeightScale"></span>] : <span id="bboxBeamHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxBeamHeight" step="1" style="width: 100%;" /> 
+    </section>
+    <br/>
+    <section id="objColumnType">
+      <p>Type of Column :</p>
+      <select name="" id="typeColumn" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+
+    <section id="objBeamType">
+      <p>Type of Beam :</p>
+      <select name="" id="typeBeam" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+    
+
+    <section id="objSlabFloorType">
+      <p>Type of Slab/Floor :</p>
+      <select name="" id="typeSlabFloor" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+    
+
+    <section id="objWaistSlabThickness">
+      <p>Waist Slab Thickness : <span id="bboxWaistSlabThicknessVal"></span> cm</span></p>
+      <input type="number" id="bboxWaistSlabThickness" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
+
+    <section id="objStepsBase">
+      <p>Steps Base : <span id="bboxStepsBaseVal"></span> cm</span></p>
+      <input type="number" id="bboxStepsBase" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
+
+    <section id="objStepsHeight">
+      <p>Steps Height : <span id="bboxStepsHeightVal"></span> cm</span></p>
+      <input type="number" id="bboxStepsHeight" step="1" style="width: 100%;" /> 
+      <br/>
+    </section>
+    
+
+    <section id="objStairType">
+      <p>Type of Stair :</p>
+      <select name="" id="typeStair" class="form-control">
+        <option value="">--select--</option>
+        <option value="type 1">Type 1</option>
+        <option value="type 2">Type 2</option>
+        <option value="type 3">Type 3</option>
+        <option value="type 4">Type 4</option>
+        <option value="type 5">Type 5</option>
+      </select>
+    </section>
+    <br/>
+
+    <section id="demolisColumnStatus">
+      <p>Demolish :</p>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'obj', 'Column')" id="demolishColumnYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'obj', 'Column')" id="demolishColumnNo">No</button>
+    </section>
+    <br/>
 
     <section id="objBoundingBoxRotation">
     <p><i class="fa fa-compass" aria-hidden="true"></i> Rotation : <span id="bboxRotationVal"></span> °</p>
     <input type="range" id="bboxRotation" step="1" class="range" min="-180" max = "180"/>
     </section>
+
+
 
     <div id="stepsCounter" style="display:none;">
       <p><span id="bboxSteps">Steps [2-15] : <span id="bboxStepsVal">0</span></span></p>
@@ -223,7 +323,7 @@
     <h2>Modify door/window</h2>
     <hr/>
     <ul class="list-unstyled">
-      <br/><br/>
+      <br/>
       <li><button class="btn btn-default fully" id="objToolsHinge">REVERSE THE GONDS</button></li>
 
       <p>Width [<span id="doorWindowWidthScale"></span>] : <span id="doorWindowWidthVal"></span> cm</span></p>
@@ -237,7 +337,7 @@
 
     <br/>
     <section id="">
-      <p>Type of Wall :</p>
+      <p>Type of Door/Window :</p>
       <select name="" id="typeDoorWindow" class="form-control">
         <option value="">--select--</option>
         <option value="type 1">Type 1</option>
@@ -248,14 +348,14 @@
       </select>
     </section>
     <br/>
-    <section id="demolishWallWindowStatus">
+    <section id="demolishDoorWindowStatus">
       <p>Demolish :</p>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'obj')" id="demolishDoorWindowYes">Yes</button>
-      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'obj')" id="demolishDoorWindowNo">No</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('yes', 'obj', 'DoorWindow')" id="demolishDoorWindowYes">Yes</button>
+      <button class="btn btn-default btn-sm" onclick="editor.updateDemolishStatus('no', 'obj', 'DoorWindow')" id="demolishDoorWindowNo">No</button>
     </section>
     <br/>
     <li><button class="btn btn-danger fully objTrash"><i class="fa fa-2x fa-trash-o" aria-hidden="true"></i></button></li>
-    <li><button class="btn btn-info" style="margin-top:100px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objTools').hide('100');$('#panel').show('200');binder.graph.remove();delete binder;rib();"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
+    <li><button class="btn btn-info" style="margin-top:10px" onclick="fonc_button('select_mode');$('#boxinfo').html('Select mode');$('#objTools').hide('100');$('#panel').show('200');binder.graph.remove();delete binder;rib();"><i class="fa fa-2x fa-backward" aria-hidden="true" ></i></button></li>
     </ul>
   </div>
 
@@ -274,28 +374,24 @@
         <button class="btn dropdown-toggle btn-default" data-toggle="dropdown" id="roomLabel">Wording of the room   <span class="caret"></span></button>
     <ul class="dropdown-menu">
       <li><a href="#">None</a></li>
-      <li><a href="#">Lounge</a></li>
-      <li><a href="#">Lunchroom</a></li>
-      <li><a href="#">Kitchen</a></li>
       <li><a href="#">Toilet</a></li>
       <li><a href="#">Bathroom</a></li>
-      <li><a href="#">Bedroom 1</a></li>
-      <li><a href="#">Bedroom 2</a></li>
-      <li><a href="#">Bedroom 3</a></li>
-      <li><a href="#">Locker</a></li>
-      <li><a href="#">Office</a></li>
-      <li><a href="#">Hall</a></li>
-      <li><a href="#">Loggia</a></li>
-      <li><a href="#">Bath 2</a></li>
-      <li><a href="#">Toilet 2</a></li>
-      <li><a href="#">Bedroom 4</a></li>
-      <li><a href="#">Bedroom 5</a></li>
+      <li><a href="#">Bedroom</a></li>
+      <li><a href="#">Kitchen</a></li>
       <li class="divider"></li>
       <li><a href="#">Balcony</a></li>
       <li><a href="#">Terrace</a></li>
       <li><a href="#">Corridor</a></li>
       <li><a href="#">Garage</a></li>
-      <li><a href="#">clearance</a></li>
+      <li class="divider"></li>
+      <li><a href="#">Clearance</a></li>
+      <li><a href="#">Slab</a></li>
+      <li><a href="#">Roof</a></li>
+      <li class="divider"></li>
+      <li><a href="#">Lounge</a></li>
+      <li><a href="#">Locker</a></li>
+      <li><a href="#">Office</a></li>
+      <li><a href="#">Hall</a></li>
     </ul>
     </div>
     <br/>
@@ -348,147 +444,157 @@
       <br/>
   </div>
 
-  <div id="panel" class="leftBox">
-      <ul class="list-unstyled">
-        <li><button class="btn disabled halfy " id="undo" title="undo"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>
-        <button class="btn disabled halfy pull-right" id="redo" title="redo"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i></button>
-        </li>
-        <li><button class="btn btn-success fully " id="select_mode" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-2x fa-mouse-pointer" aria-hidden="true"></i></button></li>
-        <li>
-        <button class="btn btn-default fully " style="margin-bottom:0px" id="line_mode" data-toggle="tooltip" data-placement="right" title="Make walls">WALL</button>
-        <button class="btn btn-default fully " style="margin-bottom:0px" id="partition_mode" data-toggle="tooltip" data-placement="right" title="Make partitions wall">PARTITION</button>
-        <div class="funkyradio"  style="font-size:0.8em">
-          <div class="funkyradio-success">
-            <input type="checkbox" id="multi" checked/>
-            <label for="multi">MULTIPLE</label>
-          </div>
+  <div id="panel" class="leftBox" ontouchstart='recordXY(event)' ontouchmove='detectSwipeLeft(event)'>
+    <ul class="list-unstyled">
+      <li><button class="btn disabled halfy " id="undo" title="undo"><i class="fa fa-chevron-circle-left" aria-hidden="true"></i>
+      <button class="btn disabled halfy pull-right" id="redo" title="redo"><i class="fa fa-chevron-circle-right" aria-hidden="true"></i></button>
+      </li>
+      <li><button class="btn btn-success fully " id="select_mode" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-2x fa-mouse-pointer" aria-hidden="true"></i></button></li>
+      <li>
+      <button class="btn btn-default fully " style="margin-bottom:0px" id="line_mode" data-toggle="tooltip" data-placement="right" title="Make walls">WALL</button>
+      <button class="btn btn-default fully " style="margin-bottom:0px" id="partition_mode" data-toggle="tooltip" data-placement="right" title="Make partitions wall">PARTITION</button>
+      <div class="funkyradio"  style="font-size:0.8em">
+        <div class="funkyradio-success">
+          <input type="checkbox" id="multi" checked/>
+          <label for="multi">MULTIPLE</label>
         </div>
-        </li>
-        <br/>
-        <li><button class="btn btn-default fully " id="room_mode">CONFIG. ROOMS</button></li>
-        <li><button class="btn btn-default fully " id="node_mode"><i class="fa fa-2x fa-scissors" aria-hidden="true"></i></button></li>
-        <li><button class="btn btn-default fully " id="distance_mode" data-toggle="tooltip" data-placement="right" title="Add a measurement (Temporary)">MEASURE</button></li>
-        <li><button class="btn btn-default fully " id="text_mode" data-toggle="tooltip" data-placement="right" title="Add text">TEXT</button></li>
-        <br/>
-        <div id="door_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
-          <button class="btn fully door" id="aperture">Aperture</button>
-          <button class="btn fully door" id="simple">Simple</button>
-          <button class="btn fully door" id="double">Double</button>
-          <button class="btn fully door" id="pocket">Pocket</button>
-        </div>
-        <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully " id="door_mode" onclick="$('.sub').hide();$('#door_list').toggle(200);$('#window_list').hide();">DOOR</button></li>
+      </div>
+      </li>
+      <br/>
+      <li><button class="btn btn-default fully " id="room_mode">CONFIG. ROOMS</button></li>
+      <li><button class="btn btn-default fully " id="node_mode"><i class="fa fa-2x fa-scissors" aria-hidden="true"></i></button></li>
+      <li><button class="btn btn-default fully " id="distance_mode" data-toggle="tooltip" data-placement="right" title="Add a measurement (Temporary)">MEASURE</button></li>
+      <li><button class="btn btn-default fully " id="text_mode" data-toggle="tooltip" data-placement="right" title="Add text">TEXT</button></li>
+      <br/>
+      <div id="door_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
+        <button class="btn fully door" id="aperture">Aperture</button>
+        <button class="btn fully door" id="simple">Simple</button>
+        <button class="btn fully door" id="double">Double</button>
+        <button class="btn fully door" id="pocket">Pocket</button>
+      </div>
+      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully " id="door_mode" onclick="$('.sub').hide();$('#door_list').toggle(200);$('#window_list').hide();">DOOR</button></li>
 
-        <div id="window_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
-          <button class="btn fully window" id="fix">Fix</button>
-          <button class="btn fully window" id="flap">Simple</button>
-          <button class="btn fully window" id="twin">Double</button>
-          <button class="btn fully window" id="bay">Slide</button>
-        </div>
-        <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
-        <li><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
-        <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
-          <div style="width:700px;padding:10px">
-            <p>Energy</p>
-            <div class="row" style="display: flex;flex-wrap: wrap;">
-              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;box-sizing: border-box;">
-                <p>Electricity</p>
-                <div class="col-sm-6" style="padding:2px">
-                  <button class="btn fully object" id="gtl">GTL</button>
-                  <button class="btn fully object" id="switch">Light switch</button>
-                  <button class="btn fully object" id="doubleSwitch">Multiple Switch</button>
-                  <button class="btn fully object" id="dimmer">Dimmer</button>
-                  <button class="btn fully object" id="tv">TV</button>
-                </div>
-                <div class="col-sm-6" style="padding:2px">
-                  <button class="btn fully object" id="plug">Plug</button>
-                  <button class="btn fully object" id="plug20">Plug 20A</button>
-                  <button class="btn fully object" id="plug32">Plug 32A</button>
-                  <button class="btn fully object" id="roofLight">Roof Light</button>
-                  <button class="btn fully object" id="wallLight">Wall Light</button>
-                </div>
-              </div>
-              
-              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;box-sizing: border-box;">
-                <p>Internet</p>
-                <button class="btn fully object" id="www">Wi-fi</button>
-                <button class="btn fully object" id="rj45">RJ45 Socket</button>
-                <button class="btn fully object" id="tv">Antenna Socket</button>
-              </div>
+      <div id="window_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;width:150px">
+        <button class="btn fully window" id="fix">Fix</button>
+        <button class="btn fully window" id="flap">Simple</button>
+        <button class="btn fully window" id="twin">Double</button>
+        <button class="btn fully window" id="bay">Slide</button>
+      </div>
+      <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="window_mode" onclick="$('.sub').hide();$('#window_list').toggle(200);$('#door_list').hide()">WINDOW</button></li>
+      
+      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully beam" style="margin-bottom:6px" id="beam" data-toggle="tooltip" data-placement="right" title="Make beams">BEAM</button></li>
+      <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully column" id="column" data-toggle="tooltip" data-placement="right" title="Make columns">COLUMN</button></li>
 
-              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;">
-                <p>Thermal</p>
-                <button class="btn fully object" id="boiler">Boiler</button>
-                <button class="btn fully object" id="heater">Water heater</button>
-                <button class="btn fully object" id="radiator">Radiator</button>
+      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully object" id="stair_mode" onclick="$('.sub').hide();$('#door_list').hide()">STAIR</button></li>
+      <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully" id="slab" title="Better Add Slab at the End">SLAB</button></li>
+      <li><button class="btn btn-default fully" id="roof" title="Add Roof at the End">ROOF</button></li>
+
+
+      <div id="energy_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
+        <div style="width:700px;padding:10px">
+          <p>Energy</p>
+          <div class="row" style="display: flex;flex-wrap: wrap;">
+            <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;box-sizing: border-box;">
+              <p>Electricity</p>
+              <div class="col-sm-6" style="padding:2px">
+                <button class="btn fully object" id="gtl">GTL</button>
+                <button class="btn fully object" id="switch">Light switch</button>
+                <button class="btn fully object" id="doubleSwitch">Multiple Switch</button>
+                <button class="btn fully object" id="dimmer">Dimmer</button>
+                <button class="btn fully object" id="tv">TV</button>
+              </div>
+              <div class="col-sm-6" style="padding:2px">
+                <button class="btn fully object" id="plug">Plug</button>
+                <button class="btn fully object" id="plug20">Plug 20A</button>
+                <button class="btn fully object" id="plug32">Plug 32A</button>
+                <button class="btn fully object" id="roofLight">Roof Light</button>
+                <button class="btn fully object" id="wallLight">Wall Light</button>
               </div>
             </div>
-          </div>
-      </div>
+            
+            <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;box-sizing: border-box;">
+              <p>Internet</p>
+              <button class="btn fully object" id="www">Wi-fi</button>
+              <button class="btn fully object" id="rj45">RJ45 Socket</button>
+              <button class="btn fully object" id="tv">Antenna Socket</button>
+            </div>
 
-      <div id="object_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
-          <div style="width:350px;padding:10px">
-            <p>Other Items</p>
-            <div class="row" style="display: flex;flex-wrap: wrap;">
-              <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;">
-                <p>Furniture</p>
-                <button class="btn fully object" id="bed">Bed</button>
-              </div>
+            <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 350px;">
+              <p>Thermal</p>
+              <button class="btn fully object" id="boiler">Boiler</button>
+              <button class="btn fully object" id="heater">Water heater</button>
+              <button class="btn fully object" id="radiator">Radiator</button>
             </div>
           </div>
-      </div>
-      <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#energy_list').toggle(200);">ENERGY</button></li>
-      <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#object_list').toggle(200);">FURNITURE</button></li>
+        </div>
+    </div>
 
-      <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully " id="layer_mode" onclick="$('.sub').hide();$('#layer_list').toggle(200);">LAYERS</button></li>
+    <div id="object_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:40px;">
+        <div style="width:350px;padding:10px">
+          <p>Other Items</p>
+          <div class="row" style="display: flex;flex-wrap: wrap;">
+            <div style="padding:10px;margin:5px;border:1px solid #ddd;border-radius:5px;display:inline-block;width: 340px;">
+              <p>Furniture</p>
+              <button class="btn fully object" id="bed">Bed</button>
+            </div>
+          </div>
+        </div>
+    </div>
+    <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#energy_list').toggle(200);">ENERGY</button></li>
+    <li><button class="btn btn-default fully " id="object_mode" onclick="$('.sub').hide();$('#object_list').toggle(200);">FURNITURE</button></li>
 
-    <div id="layer_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
-      <div class="funkyradio" style="font-size:0.8em">
+    <li style="width: 47%;margin-right:5px;display: inline-block;float: left;"><button class="btn btn-default fully " id="layer_mode" onclick="$('.sub').hide();$('#layer_list').toggle(200);">LAYERS</button></li>
+
+  <div id="layer_list"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
+    <div class="funkyradio" style="font-size:0.8em">
+    <div class="funkyradio-info">
+      <input type="checkbox" id="showRib" checked/>
+      <label for="showRib">Measurement</label>
+    </div>
+    </div>
+    <div class="funkyradio" style="font-size:0.8em">
       <div class="funkyradio-info">
-        <input type="checkbox" id="showRib" checked/>
-        <label for="showRib">Measurement</label>
-      </div>
-      </div>
-      <div class="funkyradio" style="font-size:0.8em">
-        <div class="funkyradio-info">
-          <input type="checkbox" id="showArea" checked/>
-          <label for="showArea">Surface</label>
-        </div>
-      </div>
-      <div class="funkyradio" style="font-size:0.8em">
-        <div class="funkyradio-info">
-          <input type="checkbox" id="showLayerRoom" checked/>
-          <label for="showLayerRoom">Texture</label>
-        </div>
-      </div>
-      <div class="funkyradio" style="font-size:0.8em">
-        <div class="funkyradio-info">
-          <input type="checkbox" id="showLayerEnergy" checked/>
-          <label for="showLayerEnergy">Energy</label>
-        </div>
+        <input type="checkbox" id="showArea" checked/>
+        <label for="showArea">Surface</label>
       </div>
     </div>
-
-    <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="floor_mode" onclick="$('.sub').hide();$('#floor_info').toggle(200);">FLOORS</button></li>
-    <div id="floor_info"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
-      <p>Floors</p>
-      <select class="form-control" id="floorList">
-      </select>
-      <hr/>
-      <p>Add Floor</p>
-      <button class="btn btn-info" id="floorAdd"><i class="fa fa-plus" aria-hidden="true"></i> Add</button>
-      <hr/>
-      <button class="btn btn-info" id="deleteCurrentFloor">Delete Current Floor</button>
+    <div class="funkyradio" style="font-size:0.8em">
+      <div class="funkyradio-info">
+        <input type="checkbox" id="showLayerRoom" checked/>
+        <label for="showLayerRoom">Texture</label>
+      </div>
     </div>
-
-    <li><button class="btn btn-default halfy " id="report_mode" title="Show report"><i class="fa fa-calculator" aria-hidden="true"></i>
-    <button class="btn btn-default halfy pull-right" onclick="fullscreen();this.style.display='none';$('#nofull_mode').show();" id="full_mode" title="Full screen"><i class="fa fa-expand" aria-hidden="true"></i></button>
-    <button class="btn btn-default halfy pull-right" style="display:none" onclick="outFullscreen();this.style.display='none';$('#full_mode').show();" id="nofull_mode" data-toggle="tooltip" data-placement="right" title="Full screen"><i class="fa fa-compress" aria-hidden="true"></i></button>
-    <li>
-
-      <div style="clear:both"></div>
-    </ul>
+    <div class="funkyradio" style="font-size:0.8em">
+      <div class="funkyradio-info">
+        <input type="checkbox" id="showLayerEnergy" checked/>
+        <label for="showLayerEnergy">Energy</label>
+      </div>
+    </div>
   </div>
 
+  <li style="width: 50%;display: inline-block;"><button class="btn btn-default fully " id="floor_mode" onclick="$('.sub').hide();$('#floor_info').toggle(200);">FLOORS</button></li>
+  <div id="floor_info"  class="list-unstyled sub" style="top: 0px;height: 100vh;box-shadow:2px 2px 3px #ccc;display:none;background:#fff;border-radius: 0 5px 5px 0; padding:10px;position:absolute;left:200px;bottom:100px;width:200px">
+    <p>Floors</p>
+    <select class="form-control" id="floorList">
+    </select>
+    <hr/>
+    <p>Add Floor</p>
+    <button class="btn btn-info" id="floorAdd"><i class="fa fa-plus" aria-hidden="true"></i> Add</button>
+    <hr/>
+    <button class="btn btn-info" id="deleteCurrentFloor">Delete Current Floor</button>
+  </div>
+
+  <li><button class="btn btn-default halfy " id="report_mode" title="Show report"><i class="fa fa-calculator" aria-hidden="true"></i>
+  <button class="btn btn-default halfy pull-right" onclick="fullscreen();this.style.display='none';$('#nofull_mode').show();" id="full_mode" title="Full screen"><i class="fa fa-expand" aria-hidden="true"></i></button>
+  <button class="btn btn-default halfy pull-right" style="display:none" onclick="outFullscreen();this.style.display='none';$('#full_mode').show();" id="nofull_mode" data-toggle="tooltip" data-placement="right" title="Full screen"><i class="fa fa-compress" aria-hidden="true"></i></button>
+  <li>
+
+    <div style="clear:both"></div>
+  </ul>
+  </div>
+   
+    
+  
   <div class="modal fade col-xs-9 col-md-12" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -576,6 +682,7 @@
 
   <div id="zoomBox" style="position:absolute;z-index:100;right:-150px;bottom:20px;text-align:center;background:transparent;padding:0px;color:#fff;transition-duration: 0.2s;transition-timing-function: ease-in;">
     <div class="pull-right" style="margin-right:10px">
+      <span class="btn btn btn-primary" id="save_btn">Save</span>
       <button class="btn btn btn-default zoom" data-zoom="zoomin" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-plus" aria-hidden="true"></i></button>
       <button class="btn btn btn-default zoom" data-zoom="zoomout" style="box-shadow:2px 2px 3px #ccc;"><i class="fa fa-minus" aria-hidden="true"></i></button>
     </div>
@@ -586,6 +693,15 @@
 
       <div style="clear:both"></div>
   </div>
+
+  <!-- <div id="panelMenu" style="position:absolute;left:-250px;top:10px;color:#08d;background:transparent;z-index:101;text-align:center;transition-duration: 0.2s;transition-timing-function: ease-in;">
+    <div class="pull-left" style="margin:10px">
+      <button class="btn btn-xs btn-info zoom" data-zoom="" style="box-shadow:2px 2px 3px #ccc;">&#9776;</button>
+    </div>
+  </div> -->
+
+
+
 </body>
   <script src="jquery.min.js"></script>
   <script src="bootstrap.min.js"></script>
@@ -594,4 +710,35 @@
   <script src="qSVG.js"></script>
   <script src="editor.js"></script>
   <script src="engine.js"></script>
+  
+  <script>
+    if(screen.width <= 768){
+      $('#panel').hide(200)
+    }
+    function swipe(event){
+      var touch = event.targetTouches[0]
+      if(touch.pageX < 20){
+        $('#panel').show(200)
+      }
+    }
+
+    let sX = 0
+    let eX = 0
+    
+    function recordXY(event){
+      sX = event.targetTouches[0].pageX
+     
+    }
+
+    function detectSwipeLeft(event){
+    setTimeout(() => {
+      eX = event.targetTouches[0].pageX
+      
+      if (sX - eX > 100){
+        $('#panel').hide(200)
+      }
+    }, 500)
+    }
+  </script>
+
 </html>
